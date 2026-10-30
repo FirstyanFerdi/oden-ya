@@ -11,12 +11,18 @@ import {GUEST_MOODS, GREETINGS, HEIRLOOMS, assignGuestMood, evaluateGreeting} fr
 import {KNIFE_TECHNIQUES, createKnifePrepSession, updateKnifePrepSession, strikeKnife} from './knifeprep.js'
 import {DELIVERY_CLIENTS, generatePhoneOrder, packItemToBento, updateDelivery, calculateDeliveryPayout} from './delivery.js'
 import {STREET_FACTIONS, evaluateSanitationScore, updateRivalStall} from './intrigue.js'
+import {SEASONS, MARKET_HEADLINES, getSeasonForDay, generateDailyMarketNews} from './seasons.js'
+import {MIDNIGHT_GUESTS, getMidnightGuest, evaluateMidnightRiddle} from './midnight.js'
+import {createCookOffSession, updateCookOff, clickCookOffAction} from './cookoff.js'
+import {MASTERY_SKILLS, canUnlockSkill} from './mastery.js'
+import {POLAROID_ALBUM, calculateKaisekiScore} from './kaiseki.js'
 import * as Audio from './audio.js'
 
 export {
   GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
   DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
-  KNIFE_TECHNIQUES, DELIVERY_CLIENTS, STREET_FACTIONS
+  KNIFE_TECHNIQUES, DELIVERY_CLIENTS, STREET_FACTIONS,
+  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -198,18 +204,37 @@ export function newGame(demo = false) {
     heirlooms: [],
     // Intrik Jalanan & Saingan
     rivalStall: {active: true, crowdPull: 0.3},
-    sanitationCertified: false
+    sanitationCertified: false,
+    // Fase 6: Siklus 4 Musim & Berita Pasar
+    season: getSeasonForDay(1),
+    marketNews: generateDailyMarketNews(1),
+    // Shinya Shokudo (Mode Tengah Malam 02:00 - 05:00)
+    midnightMode: false,
+    shinyaPrompt: false,
+    // Duel Kuliner Terbuka vs Yamada-ya
+    cookOffSession: null,
+    districtMonopoly: 0,
+    // Pohon Keahlian Master & Pusaka
+    masteryPoints: 2,
+    masteryProgress: 0,
+    unlockedSkills: [],
+    // Album Foto Polaroid Showa
+    polaroids: ['polaroid_salaryman']
   }
 }
 
-function generateMarketPrices() {
+function generateMarketPrices(day = 1) {
   const base = {
     daikon: 35, egg: 45, konnyaku: 30, chikuwa: 40,
     gyusuji: 90, kinchaku: 75, atsuage: 70, tako: 120
   }
+  const news = generateDailyMarketNews(day)
   const result = {}
   for (const k in base) {
-    const factor = 0.8 + Math.random() * 0.4
+    let factor = 0.8 + Math.random() * 0.4
+    if (news && news.targetItem === k) {
+      factor *= news.mult
+    }
     result[k] = Math.round(base[k] * factor)
   }
   return result
@@ -276,6 +301,16 @@ function loadSavedGame() {
     data.heirlooms = data.heirlooms || []
     data.rivalStall = data.rivalStall || {active: true, crowdPull: 0.3}
     data.sanitationCertified = !!data.sanitationCertified
+    data.season = getSeasonForDay(data.day || 1)
+    data.marketNews = generateDailyMarketNews(data.day || 1)
+    data.midnightMode = false
+    data.shinyaPrompt = false
+    data.cookOffSession = null
+    data.districtMonopoly = Number.isFinite(data.districtMonopoly) ? data.districtMonopoly : 0
+    data.masteryPoints = Number.isFinite(data.masteryPoints) ? data.masteryPoints : 2
+    data.masteryProgress = Number.isFinite(data.masteryProgress) ? data.masteryProgress : 0
+    data.unlockedSkills = data.unlockedSkills || []
+    data.polaroids = data.polaroids || ['polaroid_salaryman']
     return data
   } catch (e) {
     return null
@@ -326,7 +361,12 @@ export function saveGame() {
       masterVat: G.masterVat,
       masterPrepStock: G.masterPrepStock,
       heirlooms: G.heirlooms,
-      sanitationCertified: G.sanitationCertified
+      sanitationCertified: G.sanitationCertified,
+      masteryPoints: G.masteryPoints,
+      masteryProgress: G.masteryProgress,
+      unlockedSkills: G.unlockedSkills,
+      polaroids: G.polaroids,
+      districtMonopoly: G.districtMonopoly
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -376,7 +416,18 @@ export const startNewDay = () => {
   G.dayClosed = false
   G.dayStats = {served: 0, revenue: 0, tips: 0}
   G.cat.fedToday = false
-  G.marketPrices = generateMarketPrices()
+  G.season = getSeasonForDay(G.day)
+  G.marketNews = generateDailyMarketNews(G.day)
+  G.marketPrices = generateMarketPrices(G.day)
+
+  // Reset Status Fase 6
+  G.midnightMode = false
+  G.shinyaPrompt = false
+  G.cookOffSession = null
+  if (G.districtMonopoly > 0) {
+    G.districtMonopoly--
+    G.floats.push({x: 140, y: 30, t: 0, s: `👑 Monopoli Distrik Aktif (${G.districtMonopoly} hari tersisa)`, c: '#ffd700'})
+  }
 
   // Cek buka lokasi baru
   LOCATIONS.forEach(loc => {
@@ -933,6 +984,95 @@ export function dismissDelivery() {
   saveGame()
 }
 
+// --- FASE 6: SHINYA SHOKUDO, DUEL COOK-OFF, MASTERY TREE, & POLAROID ---
+export function openShinyaShokudo() {
+  G.shinyaPrompt = false
+  G.midnightMode = true
+  G.dayClosed = false
+  Audio.playMidnightBell()
+  G.floats.push({x: 140, y: 50, t: 0, s: '🏮 SHINYA SHOKUDO DIMULAI (02:00 - 05:00)!', c: '#9b59b6'})
+
+  const mg = getMidnightGuest(G.day)
+  G.cust.push({
+    x: -12,
+    y: 140,
+    seat: 1,
+    st: 'walk',
+    charId: null,
+    charName: mg.name,
+    isMidnightRiddle: true,
+    midnightData: mg,
+    h: mg.hair,
+    s: mg.shirt,
+    w: 4,
+    order: [...mg.requiredItems],
+    condimentReq: mg.requiredCondiment,
+    pat: 50,
+    max: 50,
+    eatT: 0,
+    sat: 0,
+    bonusPatience: 25,
+    orderOpenTime: 0
+  })
+  saveGame()
+}
+
+export function closeDayDirectly() {
+  G.shinyaPrompt = false
+  G.midnightMode = false
+  G.dayClosed = true
+  saveGame()
+}
+
+export function startCookOff() {
+  G.cookOffSession = createCookOffSession()
+  Audio.playCookOffTaiko()
+}
+
+export function performCookOffAction() {
+  if (!G.cookOffSession) return
+  clickCookOffAction(G.cookOffSession)
+  Audio.playGrillSizzle()
+  if (G.cookOffSession.finished && G.cookOffSession.winner === 'player') {
+    G.money += 3500
+    G.rep += 25
+    G.districtMonopoly = 3
+    G.rivalStall.active = false
+    Audio.playFeverSound()
+    G.floats.push({x: 160, y: 60, t: 0, s: '👑 MENANG DUEL! +¥3500 & Monopoli Distrik!', c: '#ffd700'})
+    saveGame()
+  }
+}
+
+export function closeCookOff() {
+  G.cookOffSession = null
+  saveGame()
+}
+
+export function unlockMasterySkill(skillId) {
+  if (canUnlockSkill(skillId, G.unlockedSkills, G.masteryPoints)) {
+    const sk = MASTERY_SKILLS.find(s => s.id === skillId)
+    G.masteryPoints -= sk.cost
+    G.unlockedSkills.push(skillId)
+    Audio.playSkillUnlock()
+    G.floats.push({x: 160, y: 60, t: 0, s: `📜 Keahlian Terbuka: ${sk.name}!`, c: '#ffd700'})
+    saveGame()
+    return true
+  }
+  return false
+}
+
+export function unlockPolaroid(polaroidId) {
+  if (!polaroidId) return
+  if (!G.polaroids) G.polaroids = []
+  if (!G.polaroids.includes(polaroidId)) {
+    G.polaroids.push(polaroidId)
+    Audio.playCameraShutter()
+    G.floats.push({x: 160, y: 50, t: 0, s: '📷 Foto Polaroid Kenangan Tersimpan!', c: '#ffd700'})
+    saveGame()
+  }
+}
+
 // --- CUACA EKSTREM & INSIDEN MALAM ---
 export function toggleCandle() {
   G.candleLit = !G.candleLit
@@ -1116,11 +1256,19 @@ export function serve() {
   const vatPriceMult = vt.priceMult
 
   // Katarsis Mood & Sanitasi Bebas Pajak
-  const catharsisSatBonus = c.catharsis ? 0.25 : 0
-  const catharsisMultiplier = c.catharsis ? 1.5 : 1.0
+  const catharsisSatBonus = c.catharsis ? (G.unlockedSkills.includes('kokoro_2') ? 0.4 : 0.25) : 0
+  const catharsisMultiplier = c.catharsis ? (G.unlockedSkills.includes('kokoro_2') ? 1.8 : 1.5) : 1.0
   const sanitationMultiplier = G.sanitationCertified ? 1.15 : 1.0
+  const winterMultiplier = G.season?.id === 'winter' ? 1.35 : 1.0
 
-  const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus
+  // Penilaian Harmoni Estetika Kaiseki
+  const kaisekiScore = calculateKaisekiScore(G.plate, G.plateCondiments, G.plateSate)
+  const kaisekiMultiplier = kaisekiScore >= 80 ? 1.25 : 1.0
+  if (kaisekiScore >= 80) {
+    G.floats.push({x: c.x, y: c.y - 65, t: 0, s: `🍱 Kaiseki ${kaisekiScore} Pts! (+25% Nilai)`, c: '#ffd700'})
+  }
+
+  const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus + (G.season?.bonusSat || 0)
   const sat = Math.max(0, Math.min(1, baseSat * avgSimmerMult))
 
   // Pengali Lokasi
@@ -1149,12 +1297,32 @@ export function serve() {
   // Bintang Michelin Multiplier
   const michelinMultiplier = G.michelinStars === 1 ? 1.2 : G.michelinStars === 2 ? 1.45 : G.michelinStars === 3 ? 1.8 : 1.0
 
-  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier)
+  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier)
   let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier) : 0
 
   // Cuaca Ekstrem
   if (G.weather === 'topan') tip = Math.round(tip * 2.0)
   if (G.isBlackout && G.candleLit) tip = Math.round(tip * 1.35)
+
+  // Hadiah Tamu Teka-Teki Tengah Malam (Shinya Shokudo)
+  if (c.isMidnightRiddle && c.midnightData) {
+    const riddleRes = evaluateMidnightRiddle(c.midnightData, G.plate, G.plateCondiments)
+    if (riddleRes.success) {
+      gain += riddleRes.rewardMoney
+      tip += 1500
+      G.rep += riddleRes.rewardRep
+      unlockPolaroid(riddleRes.polaroidId)
+      Audio.playFeverSound()
+      G.floats.push({x: c.x, y: c.y - 50, t: 0, s: riddleRes.message, c: '#ffd700'})
+    } else {
+      G.floats.push({x: c.x, y: c.y - 50, t: 0, s: riddleRes.message, c: '#e74c3c'})
+    }
+  }
+
+  // Peluang Foto Polaroid Otomatis saat Harmoni Tinggi
+  if (kaisekiScore >= 85 && Math.random() < 0.35) {
+    unlockPolaroid('polaroid_kuro')
+  }
 
   // Hadiah Bos VIP
   if (c.isBoss && sat >= 0.75) {
@@ -1209,6 +1377,17 @@ export function serve() {
   G.dayStats.served++
   G.dayStats.revenue += gain
   G.dayStats.tips += tip
+
+  // Progres Poin Keahlian Master (Setiap 4 tamu terlayani dengan baik)
+  if (sat >= 0.6) {
+    G.masteryProgress = (G.masteryProgress || 0) + 1
+    if (G.masteryProgress >= 4) {
+      G.masteryProgress = 0
+      G.masteryPoints = (G.masteryPoints || 0) + 1
+      Audio.playSkillUnlock()
+      G.floats.push({x: 150, y: 35, t: 0, s: '📜 +1 Poin Keahlian Master!', c: '#ffd700'})
+    }
+  }
 
   const repMult = G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0
   G.rep = Math.max(0, G.rep + (sat > 0.7 ? 2.5 : sat > 0.4 ? 0.5 : -1) * repMult)
@@ -1360,7 +1539,11 @@ export function update(dt) {
       g.minute = 0
       g.hour++
       if (g.hour >= 24) g.hour = 0
-      if (g.hour === 2) {
+      if (g.hour === 2 && !g.midnightMode && !g.shinyaPrompt) {
+        g.shinyaPrompt = true
+        saveGame()
+      } else if (g.hour === 5 && g.midnightMode) {
+        g.midnightMode = false
         g.dayClosed = true
         saveGame()
       }
@@ -1430,6 +1613,11 @@ export function update(dt) {
   // Update Sesi Lelang Subuh Tsukiji jika aktif
   if (g.auctionSession && !g.auctionSession.finished) {
     updateAuction(validDt)
+  }
+
+  // Update Duel Kuliner Cook-Off vs Yamada-ya
+  if (g.cookOffSession && !g.cookOffSession.finished) {
+    updateCookOff(g.cookOffSession, validDt)
   }
 
   // Update Partikel Salju & Suhu Kompor saat Salju

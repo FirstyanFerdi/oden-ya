@@ -191,15 +191,47 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - **Inspektur Sanitasi Hokenjo Tokyo (Inspektur Kato)**: Pemeriksaan kebersihan kuali, kestabilan api kompor, dan ketiadaan sate gosong. Lolos inspeksi memberi **Sertifikat Higienis Bintang 5** (bebas pajak distrik, +15% pendapatan).
 - **Gerobak Saingan "Yamada-ya"**: Gerobak saingan buka di seberang jalan mencoba merebut pengunjung dengan potongan harga. Lawan dengan aroma panggangan sate, lampion terang, dan atraksi tuang sake!
 
-### 27. 💾 Penyimpanan Otomatis (Auto-Save)
-- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, peralatan, staf, resep terbuka, lokasi aktif, cerita karakter, hari, dan persahabatan kucing) otomatis tersimpan di `localStorage` peramban.
+### 27. 🍂 Siklus 4 Musim Dinamis & Warta Pasar Komoditas
+- Musim berganti setiap 7 hari kedai: 🌸 *Musim Semi (Haru)*, 🍧 *Musim Panas (Natsu)*, 🍁 *Musim Gugur (Aki)*, dan ❄️ *Musim Dingin (Fuyu)*.
+- Masing-masing musim menghadirkan bahan eksklusif: *Rebung Bambu Muda (Takenoko)*, *Es Serut Sirup Melon (Kakigori)*, *Jamur Matsutake Liar*, dan *Capit Kepiting Salju (Kani Claw)*.
+- Warta berita pasar komoditas harian yang membuat harga bahan naik-turun drastis (panen raya vs badai laut), membuka kesempatan menimbun stok (*stockpiling*).
+
+### 28. 🌙 Modus Rahasia Tengah Malam: "Shinya Shokudo" (02:00 – 05:00)
+- Tepat pukul 02:00 dini hari, pemain bebas memilih **Tutup Kedai & Tidur** atau **Buka Shinya Shokudo (02:00 - 05:00 Dini Hari)**.
+- Layar berubah bernuansa tematik malam ungu kebiruan dengan lampion ungu spesial "深夜".
+- Tamu nokturnal misterius (Detektif Kenzo, Mangaka Eiji, Aktris Sayuri, Pak Goro) memesan menggunakan **Teka-Teki Puitis (*Poetic Riddles*)**.
+- Tebakan bahan yang tepat dihadiahi uang tunai ribuan Yen, lonjakan reputasi, dan pembukaan foto polaroid nostalgia.
+
+### 29. 🔥 Duel Kuliner Terbuka vs Yamada-ya (Cook-Off Turf War)
+- Pertarungan 3 babak langsung di hadapan juri warga distrik:
+  - *Babak 1*: Adu Harum Kaldu (*Aroma Clash*).
+  - *Babak 2*: Adu Kecepatan Membalik Sate Yakitori (*Speed Grilling*).
+  - *Babak 3*: Harmoni Penjurian Akhir (*Kaiseki Plating*).
+- Menang duel menganugerahkan hadiah tunai +¥3.500, +25 Reputasi, dan **Monopoli Distrik 3 Hari** (pengunjung kedai melonjak 100%).
+
+### 30. 📜 Pohon Keahlian Koki & Buku Silsilah Pusaka (Chef Mastery Skill Tree)
+- Kumpulkan **Poin Keahlian Master** setiap melayani 4 tamu dengan puas.
+- 4 Cabang Keahlian Showa:
+  - 🔪 *Itamae (Pisau Emas)*: Goresan pisau ekstra stok & perebusan kilat pola wajik.
+  - 💖 *Kokoro (Batin & Empati)*: Mata batin melihat mood tamu & resonansi katarsis berlipat.
+  - 🔥 *Homura (Api & Arang)*: Toleransi panggangan sate tidak mudah gosong & kompor kebal dingin salju.
+  - 🪙 *Akiudo (Bisnis & Relasi)*: Diskon belanja pasar 20% & magnet pemikat tamu VIP.
+
+### 31. 🍱 Seni Tata Hidang Estetika Kaiseki & Album Foto Polaroid Nostalgia
+- Penilaian harmoni estetika visual piring saji (Wabi-Sabi). Skor Kaiseki $\ge 80\%$ memberikan bonus nilai hidangan instan **+25%**.
+- **Album Foto Polaroid Kenangan Showa**: Galeri 6 foto instan polaroid berbingkai retro vintage yang mengabadikan kisah emosional para tamu ikonik kedai.
+
+### 32. 💾 Penyimpanan Otomatis (Auto-Save)
+- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, poin keahlian master, album polaroid, musim aktif, dan monopoli distrik) otomatis tersimpan di `localStorage` peramban.
 
 ---
 
 ## 🎮 Cara Bermain
 
 1. **Persiapan Pagi/Sore**:
-   - Buka menu **🛒 Pasar & Panci** untuk mengecek harga pasar, membeli stok bahan, memilih jenis kaldu, dan memastikan sekat panci sudah terisi bahan rebusan.
+   - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
+   - Buka menu **🍂 Musim** untuk memeriksa kalender musim aktif dan bahan eksklusifnya.
+   - Buka menu **📜 Keahlian** untuk membuka ranting skill pohon keahlian master.
    - Buka menu **🐟 Lelang Tsukiji** untuk mengikuti perang lelang bahan langka S-Tier.
    - Buka menu **🗺️ Peta** untuk berpindah distrik kota yang telah terbuka.
    - Buka menu **📻 Radio** untuk memutar kaset pita favoritmu.
@@ -207,21 +239,23 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 2. **Memasuki Kedai**: Klik pada gerobak/tenda kedai untuk masuk.
 3. **Melayani Tamu & Menjaga Kombo**: Saat tamu duduk di kursi, **klik tamu tersebut** untuk membuka panci oden.
 4. **Mengambil Bahan Matang & Sate Bakar**:
-   - Perhatikan pesanan tamu dan permintaan bumbu tambahannya.
-   - Ambil bahan yang sudah **Matang Pas** atau **⭐ Rebusan Emas** dari sekat panci.
-   - Buka panggangan sate untuk memanggang, membalik, dan mengoles saus tare sate yakitori.
-   - Tambahkan bumbu pelengkap jika diminta (Karashi, Daun Bawang, Teh Ocha).
+   - Perhatikan pesanan tamu, bumbu pelengkap, dan perhatikan skor **🍱 Harmoni Kaiseki** di piring saji.
    - Jika tamu meminta sake hangat, klik tombol minigame **🍶 Tuang Sake** dan lepas tepat di zona hijau.
    - Jika tamu ingin diramal, klik **🎴 Ramalkan Nasib (Omikuji)**.
    - Klik **🍲 Sajikan ke Tamu!**.
    - Layani tamu berturut-turut untuk memicu **⚡ FEVER MODE (3x Uang)**!
-5. **Mendengarkan Curhat**: Jika pesanan memuaskan, dengarkan curhat tamu dan pilih nasihat bijakmu.
-6. **Menutup Hari**: Layani tamu hingga pukul 02:00, periksa laporan laba harianmu, lalu klik *☀️ Mulai Hari Berikutnya*.
+5. **Duel Kuliner**: Buka menu **🔥 Duel Yamada** untuk menantang gerobak saingan Yamada-ya demi memenangkan monopoli distrik 3 hari.
+6. **Jam 02:00 Dini Hari**: Pilih **Tutup & Tidur** atau **Buka Shinya Shokudo** untuk melayani tamu teka-teki nokturnal hingga jam 05:00 subuh!
 
 ---
 
 ## 📂 Struktur Berkas
 
+- [src/seasons.js](src/seasons.js) – Siklus 4 musim dinamis (Haru, Natsu, Aki, Fuyu), bahan musiman eksklusif, dan warta berita fluktuasi pasar komoditas.
+- [src/midnight.js](src/midnight.js) – Modus rahasia tengah malam Shinya Shokudo (02:00 - 05:00), tamu nokturnal misterius, dan evaluasi teka-teki puitis.
+- [src/cookoff.js](src/cookoff.js) – Duel kuliner jalanan terbuka melawan rival Yamada-ya (3 babak: Adu Aroma, Kecepatan Sate, dan Harmoni Kaiseki).
+- [src/mastery.js](src/mastery.js) – Pohon keahlian master koki Showa (4 ranting: Itamae, Kokoro, Homura, Akiudo).
+- [src/kaiseki.js](src/kaiseki.js) – Penilaian harmoni estetika visual piring saji Kaiseki dan album foto polaroid nostalgia Showa.
 - [src/dashi.js](src/dashi.js) – Sistem kuali biang kaldu induk master, fermentasi umur kaldu (1, 3, 7 hari), saring busa kotoran, dan buff harga umami.
 - [src/psychology.js](src/psychology.js) – Sistem psikologi & mood adaptif tamu (Patah Hati, Burnout, Nostalgia, Tegang), sapaan empati koki, katarsis emosional, dan 4 barang pusaka bersejarah.
 - [src/knifeprep.js](src/knifeprep.js) – Minigame pisau dapur presisi siang hari: keratan berlian Daikon, ikatan simpul Kinchaku, dan tusukan spiral Yakitori dengan bar timing sweet spot.
@@ -232,12 +266,12 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
 - [src/recipes.js](src/recipes.js) – Daftar 6 resep kombinasi rahasia (*Fusion Dex*), deteksi kecocokan piring, dan bonus harga.
 - [src/locations.js](src/locations.js) – Sistem 3 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, desis yakitori, palu lelang, pisau dapur, bel sepeda, dering telepon, dan harpa katarsis.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, jepretan polaroid, genderang cook-off, dan lonceng midnight.
 - [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Inspektur Michelin Masaru, dan Inspektur Sanitasi Kato.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, salju, topan badai, efek mati lampu lilin, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, botol sake, termometer bento, bar lelang, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 5.
+- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim (sakura, maple, salju), suasana malam Shinya Shokudo, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, bingkai polaroid, arena cook-off, pohon skill, termometer bento, bar lelang, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 6.
 

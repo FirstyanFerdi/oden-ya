@@ -354,6 +354,43 @@ export function playYakuzaGong() {
   setTimeout(() => playTone(70, 'triangle', 2.0, 0.3), 100)
 }
 
+// SFX: Jepretan Kamera Polaroid Instan (Vintage Shutter Click & Flash)
+export function playCameraShutter() {
+  if (!ctx || isMuted) return
+  playTone(1200, 'square', 0.04, 0.2, -600)
+  setTimeout(() => playTone(300, 'triangle', 0.12, 0.18, -120), 40)
+  setTimeout(() => playTone(80, 'sine', 0.35, 0.12), 90)
+}
+
+// SFX: Tabuhan Genderang Perang Taiko (Cook-Off Turf War)
+export function playCookOffTaiko() {
+  if (!ctx || isMuted) return
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      playTone(110 - i * 15, 'triangle', 0.22, 0.28, -40)
+    }, i * 90)
+  }
+}
+
+// SFX: Dentang Lonceng Tengah Malam 02:00 (Shinya Shokudo Bell)
+export function playMidnightBell() {
+  if (!ctx || isMuted) return
+  playTone(174.61, 'sine', 2.8, 0.3)
+  playTone(261.63, 'triangle', 2.2, 0.15)
+  setTimeout(() => playTone(349.23, 'sine', 1.8, 0.1), 150)
+}
+
+// SFX: Melodi Pembukaan Pohon Keahlian Master (Skill Unlock Chime)
+export function playSkillUnlock() {
+  if (!ctx || isMuted) return
+  const notes = [440, 554.37, 659.25, 880]
+  notes.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'triangle', 0.4, 0.16)
+    }, idx * 80)
+  })
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

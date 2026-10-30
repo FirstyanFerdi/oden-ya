@@ -5,7 +5,8 @@ import {
   ITEMS, CONDIMENTS, EQ, LV, LVREP, W, H, eqCost, COMPARTMENTS, getSimmerState,
   STAFF, GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
   DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
-  KNIFE_TECHNIQUES, DELIVERY_CLIENTS
+  KNIFE_TECHNIQUES, DELIVERY_CLIENTS,
+  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -43,6 +44,11 @@ export default function App() {
   const [knifeOpen, setKnifeOpen] = useState(false)
   const [deliveryOpen, setDeliveryOpen] = useState(false)
   const [heirloomOpen, setHeirloomOpen] = useState(false)
+  const [seasonOpen, setSeasonOpen] = useState(false)
+  const [cookOffOpen, setCookOffOpen] = useState(false)
+  const [masteryOpen, setMasteryOpen] = useState(false)
+  const [polaroidOpen, setPolaroidOpen] = useState(false)
+  const [showRiddleHint, setShowRiddleHint] = useState(false)
   const [isMuted, setIsMuted] = useState(Audio.getMuteState())
   const [shopTab, setShopTab] = useState('items') // 'items', 'eq', 'staff'
   const [sakePouring, setSakePouring] = useState(false)
@@ -117,6 +123,10 @@ export default function App() {
     setKnifeOpen(false)
     setDeliveryOpen(false)
     setHeirloomOpen(false)
+    setSeasonOpen(false)
+    setCookOffOpen(false)
+    setMasteryOpen(false)
+    setPolaroidOpen(false)
   }
 
   return (
@@ -148,6 +158,27 @@ export default function App() {
         {g.sanitationCertified && (
           <div className="box sanitation-badge" title="Sertifikat Higienis Hokenjo Bintang 5: Bebas Pajak (+15%)">
             📋 Higienis ★5
+          </div>
+        )}
+
+        {/* Musim 4 Rupa Showa */}
+        {g.season && (
+          <button className="btn season-hud-btn" onClick={() => { closeAllModals(); setSeasonOpen(true) }} title={`Musim: ${g.season.name}`}>
+            {g.season.icon} {g.season.name.split(' ')[0]}
+          </button>
+        )}
+
+        {/* Shinya Shokudo Active Badge */}
+        {g.midnightMode && (
+          <div className="box midnight-badge" title="Shinya Shokudo: Buka Khusus Tengah Malam (02:00 - 05:00)">
+            🏮 Shinya Shokudo ({g.hour}:00)
+          </div>
+        )}
+
+        {/* Monopoli Distrik Turf War */}
+        {g.districtMonopoly > 0 && (
+          <div className="box monopoly-badge" title="Monopoli Distrik: Pelanggan Bertambah 100%">
+            👑 Monopoli ({g.districtMonopoly}h)
           </div>
         )}
 
@@ -261,6 +292,18 @@ export default function App() {
           <button className="btn" onClick={() => { closeAllModals(); setHeirloomOpen(true) }}>
             🏺 Pusaka ({g.heirlooms ? g.heirlooms.length : 0}/4)
           </button>
+          <button className="btn" onClick={() => { closeAllModals(); setSeasonOpen(true) }}>
+            🍂 Musim ({g.season?.icon})
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setCookOffOpen(true); if (!g.cookOffSession) Gm.startCookOff() }}>
+            🔥 Duel Yamada
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setMasteryOpen(true) }}>
+            📜 Keahlian ({g.masteryPoints} Pts)
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setPolaroidOpen(true) }}>
+            📷 Album ({g.polaroids ? g.polaroids.length : 0})
+          </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
           </button>
@@ -272,7 +315,9 @@ export default function App() {
         <div className="panel box">
           <div className="panel-header">
             <span className="guest-badge">
-              {order.isInspector
+              {order.isMidnightRiddle
+                ? `🌙 ${order.midnightData?.avatar} ${order.midnightData?.name} (${order.midnightData?.title})`
+                : order.isInspector
                 ? `🏆 ${order.inspectorData?.avatar} ${order.inspectorData?.name} (${order.inspectorData?.title})`
                 : order.isSanitation
                 ? `📋 ${order.sanitationData?.avatar} ${order.sanitationData?.name} (${order.sanitationData?.title})`
@@ -288,7 +333,7 @@ export default function App() {
           </div>
 
           {/* Mood Psikologi Tamu & Katarsis */}
-          {order.mood && (
+          {order.mood && !order.isMidnightRiddle && (
             <div className="mood-box">
               <div className="mood-info">
                 <span className="mood-title">{order.mood.icon} Mood: <strong>{order.mood.name}</strong></span>
@@ -296,6 +341,21 @@ export default function App() {
               </div>
               {order.catharsis && (
                 <div className="catharsis-badge">✨ KATARSIS EMOSIONAL TERCAPAI! (Harga x1.5 & Air Mata Bahagia)</div>
+              )}
+            </div>
+          )}
+
+          {/* Teka-Teki Puitis Shinya Shokudo */}
+          {order.isMidnightRiddle && order.midnightData && (
+            <div className="midnight-riddle-card box">
+              <div className="riddle-title">📜 Teka-Teki Puitis Tengah Malam:</div>
+              <div className="riddle-quote">{order.midnightData.riddle}</div>
+              {showRiddleHint ? (
+                <div className="riddle-hint">💡 Petunjuk Koki: {order.midnightData.hint}</div>
+              ) : (
+                <button className="btn hint-btn" onClick={() => setShowRiddleHint(true)}>
+                  💡 Buka Petunjuk Koki
+                </button>
               )}
             </div>
           )}
@@ -340,6 +400,14 @@ export default function App() {
 
           <div className="row plate-row">
             <strong>Piring Saji:</strong>
+            {(() => {
+              const kScore = calculateKaisekiScore(g.plate, g.plateCondiments, g.plateSate)
+              return (
+                <span className={`kaiseki-score-badge ${kScore >= 80 ? 'gold' : ''}`} title="Harmoni Estetika Visual Kaiseki">
+                  🍱 Kaiseki: {kScore}%
+                </span>
+              )
+            })()}
             {g.plate.map((id, idx) => {
               const simmer = g.plateItemsSimmer[idx]
               return (
@@ -1439,6 +1507,291 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setHeirloomOpen(false)}>Tutup Lemari Pusaka</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pilihan Jam 02:00 Shinya Shokudo */}
+      {g.shinyaPrompt && !g.dayClosed && (
+        <div className="modal-overlay">
+          <div className="shinya-prompt-modal box">
+            <div className="shinya-prompt-header">
+              <span className="shinya-icon">🌙</span>
+              <h2>Jam 02:00 Dini Hari Telah Tiba...</h2>
+            </div>
+            <p className="shinya-prompt-desc">
+              Lonceng kota berdentang, lampu jalanan mulai redup. Apakah Anda ingin menutup kedai untuk beristirahat, atau menyalakan lampion ungu dan menyambut tamu-tamu malam yang penuh teka-teki?
+            </p>
+            <div className="shinya-prompt-actions">
+              <button className="btn shinya-accept-btn highlight" onClick={Gm.openShinyaShokudo}>
+                🏮 Buka Mode Shinya Shokudo (02:00 - 05:00 Dini Hari)
+              </button>
+              <button className="btn shinya-sleep-btn" onClick={Gm.closeDayDirectly}>
+                ☀️ Tutup Kedai & Tidur (Hitung Laba Hari Ini)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Siklus 4 Musim & Berita Pasar Spekulatif */}
+      {seasonOpen && (
+        <div className="modal-overlay" onClick={() => setSeasonOpen(false)}>
+          <div className="season-modal box" onClick={e => e.stopPropagation()}>
+            <div className="season-header">
+              <h2>🍂 Siklus 4 Musim & Berita Pasar Showa</h2>
+              <p className="season-subtitle">Musim berganti tiap 7 hari membawa cita rasa dan fluktuasi harga komoditas pasar.</p>
+            </div>
+
+            {/* Banner Berita Pasar Hari Ini */}
+            {g.marketNews && (
+              <div className="market-news-banner box">
+                <span className="news-tag">WARTA PASAR HARI INI:</span>
+                <strong className="news-headline">{g.marketNews.headline}</strong>
+                <p className="news-desc">{g.marketNews.desc}</p>
+              </div>
+            )}
+
+            {/* Grid 4 Musim */}
+            <div className="seasons-grid">
+              {SEASONS.map(s => {
+                const isCurrent = g.season?.id === s.id
+                return (
+                  <div key={s.id} className={`box season-card ${isCurrent ? 'active-season' : ''}`} style={{borderColor: s.color}}>
+                    <div className="season-card-head">
+                      <span className="season-icon">{s.icon}</span>
+                      <div>
+                        <h3>{s.name}</h3>
+                        <span className="season-kanji" style={{color: s.color}}>{s.kanji}</span>
+                      </div>
+                      {isCurrent && <span className="active-season-badge">Musim Aktif</span>}
+                    </div>
+                    <p className="season-desc">{s.desc}</p>
+                    <div className="season-special-box box">
+                      <span className="special-lbl">Bahan Musiman Eksklusif:</span>
+                      <div className="special-item-info">
+                        <strong>{s.specialItem.icon} {s.specialItem.name}</strong>
+                        <span>Nilai Jual: +¥{s.specialItem.sellPrice}</span>
+                      </div>
+                      <p className="special-desc">{s.specialItem.desc}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setSeasonOpen(false)}>Tutup Kalender Musim</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Duel Kuliner Terbuka vs Yamada-ya (Cook-Off Turf War) */}
+      {cookOffOpen && (
+        <div className="modal-overlay" onClick={() => setCookOffOpen(false)}>
+          <div className="cookoff-modal box" onClick={e => e.stopPropagation()}>
+            <div className="cookoff-header">
+              <h2>🔥 Duel Kuliner Jalanan: Kedai Oden vs Yamada-ya!</h2>
+              <p className="cookoff-subtitle">Pertarungan 3 babak di hadapan juri warga distrik demi supremasi jalanan.</p>
+            </div>
+
+            {g.cookOffSession ? (
+              <div className="cookoff-arena box">
+                {/* Scoreboard */}
+                <div className="cookoff-scoreboard box">
+                  <div className="team-score player">
+                    <span className="team-name">👨‍🍳 Kedai Anda</span>
+                    <strong className="score-val">{g.cookOffSession.playerScore} Pts</strong>
+                  </div>
+                  <span className="vs-badge">VS</span>
+                  <div className="team-score rival">
+                    <span className="team-name">🏮 Yamada-ya</span>
+                    <strong className="score-val">{g.cookOffSession.rivalScore} Pts</strong>
+                  </div>
+                </div>
+
+                {/* Round Tracker */}
+                <div className="round-tracker">
+                  <span className="round-badge">
+                    {g.cookOffSession.finished
+                      ? '🏁 DUEL SELESAI'
+                      : `BABAK ${g.cookOffSession.round} DARI 3: ${
+                          g.cookOffSession.round === 1
+                            ? 'Adu Harum Kaldu'
+                            : g.cookOffSession.round === 2
+                            ? 'Kecepatan Panggangan Sate'
+                            : 'Harmoni Kaiseki Final'
+                        }`}
+                  </span>
+                  {!g.cookOffSession.finished && (
+                    <span className="round-timer">
+                      Sisa Waktu:{' '}
+                      {Math.ceil(
+                        g.cookOffSession.round === 1
+                          ? g.cookOffSession.roundData.round1Timer
+                          : g.cookOffSession.roundData.round2Timer
+                      )}
+                      s
+                    </span>
+                  )}
+                </div>
+
+                {/* Action Interactive Button */}
+                {!g.cookOffSession.finished ? (
+                  <div className="cookoff-action-area">
+                    {g.cookOffSession.round === 1 && (
+                      <button className="btn cookoff-btn aroma highlight" onClick={Gm.performCookOffAction}>
+                        💨 KLIK SECEPATNYA: Tiup & Kuatkan Aroma Kaldu! ({g.cookOffSession.roundData.round1AromaClicks}x)
+                      </button>
+                    )}
+                    {g.cookOffSession.round === 2 && (
+                      <button className="btn cookoff-btn speed highlight" onClick={Gm.performCookOffAction}>
+                        🍢 KLIK SECEPATNYA: Balik Tusukan Sate Yakitori! ({g.cookOffSession.roundData.round2SateCount}x)
+                      </button>
+                    )}
+                    {g.cookOffSession.round === 3 && (
+                      <button className="btn cookoff-btn finalize highlight" onClick={Gm.performCookOffAction}>
+                        🍱 Tampilkan Harmoni Tata Hidang ke Juri!
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="cookoff-winner-banner box">
+                    <h3>
+                      {g.cookOffSession.winner === 'player'
+                        ? '🎉 ANDA MEMENANGKAN DUEL KULINER DISTRIK!'
+                        : '❌ Yamada-ya Memenangkan Duel Kali Ini!'}
+                    </h3>
+                    <p>
+                      {g.cookOffSession.winner === 'player'
+                        ? 'Warga distrik berbondong-bondong memenuhi kedai Anda! (Monopoli Distrik 3 Hari)'
+                        : 'Jangan menyerah! Latih kembali keahlian koki dan tantang mereka lagi!'}
+                    </p>
+                    <button className="btn highlight" onClick={Gm.startCookOff}>
+                      Mulai Duel Ulang
+                    </button>
+                  </div>
+                )}
+
+                {/* Battle Logs */}
+                <div className="cookoff-log box">
+                  {g.cookOffSession.log.map((entry, idx) => (
+                    <div key={idx} className="log-line">{entry}</div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="no-cookoff box">
+                <p>Yamada-ya sedang bersiap di gerobak seberang jalan.</p>
+                <button className="btn highlight" onClick={Gm.startCookOff}>
+                  Tantang Yamada-ya ke Alun-Alun Duel!
+                </button>
+              </div>
+            )}
+
+            <button className="btn close-btn" onClick={() => setCookOffOpen(false)}>Kembali ke Kedai</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pohon Keahlian Koki (Chef Mastery Skill Tree) */}
+      {masteryOpen && (
+        <div className="modal-overlay" onClick={() => setMasteryOpen(false)}>
+          <div className="mastery-modal box" onClick={e => e.stopPropagation()}>
+            <div className="mastery-header">
+              <h2>📜 Pohon Keahlian Koki & Buku Silsilah Pusaka</h2>
+              <p className="mastery-subtitle">
+                Tersedia <strong>{g.masteryPoints} Poin Keahlian</strong>. Dapatkan +1 poin setiap 4 tamu terlayani dengan puas.
+              </p>
+            </div>
+
+            <div className="mastery-grid">
+              {['itamae', 'kokoro', 'homura', 'akiudo'].map(branchId => {
+                const branchSkills = MASTERY_SKILLS.filter(s => s.branch === branchId)
+                const branchName = {
+                  itamae: '🔪 Cabang Pisau Emas (Itamae)',
+                  kokoro: '💖 Cabang Batin & Empati (Kokoro)',
+                  homura: '🔥 Cabang Api & Arang (Homura)',
+                  akiudo: '🪙 Cabang Bisnis & Relasi (Akiudo)'
+                }[branchId]
+
+                return (
+                  <div key={branchId} className="box branch-card">
+                    <h3 className="branch-title">{branchName}</h3>
+                    <div className="branch-skills-list">
+                      {branchSkills.map(sk => {
+                        const isUnlocked = g.unlockedSkills?.includes(sk.id)
+                        return (
+                          <div key={sk.id} className={`box skill-node ${isUnlocked ? 'unlocked' : ''}`}>
+                            <div className="skill-head">
+                              <span className="skill-icon">{sk.icon}</span>
+                              <div>
+                                <strong>{sk.name}</strong>
+                                <span className="skill-cost">Biaya: {sk.cost} Poin</span>
+                              </div>
+                            </div>
+                            <p className="skill-desc">{sk.desc}</p>
+                            {isUnlocked ? (
+                              <span className="skill-unlocked-tag">✅ Aktif Permanen</span>
+                            ) : (
+                              <button
+                                className="btn unlock-btn"
+                                disabled={g.masteryPoints < sk.cost}
+                                onClick={() => Gm.unlockMasterySkill(sk.id)}
+                              >
+                                Buka ({sk.cost} Pts)
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setMasteryOpen(false)}>Tutup Buku Silsilah</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Album Foto Polaroid Nostalgia Showa */}
+      {polaroidOpen && (
+        <div className="modal-overlay" onClick={() => setPolaroidOpen(false)}>
+          <div className="polaroid-modal box" onClick={e => e.stopPropagation()}>
+            <div className="polaroid-header">
+              <h2>📷 Album Foto Polaroid Kenangan Showa ({g.polaroids ? g.polaroids.length : 0}/{POLAROID_ALBUM.length})</h2>
+              <p className="polaroid-subtitle">
+                Koleksi jepretan kamera instan dari momen-momen paling menyentuh hati di meja kedai oden Anda.
+              </p>
+            </div>
+
+            <div className="polaroid-grid">
+              {POLAROID_ALBUM.map(photo => {
+                const isCollected = g.polaroids?.includes(photo.id)
+                return (
+                  <div key={photo.id} className={`polaroid-frame ${isCollected ? 'collected' : 'uncollected'}`} style={{borderColor: photo.borderColor}}>
+                    <div className="polaroid-photo-area">
+                      {isCollected ? (
+                        <div className="polaroid-inner-art">
+                          <span className="photo-icon">{photo.icon}</span>
+                          <span className="photo-date">{photo.dateText}</span>
+                        </div>
+                      ) : (
+                        <div className="photo-locked">🔒 Foto Belum Terbuka</div>
+                      )}
+                    </div>
+                    <div className="polaroid-caption">
+                      <h4>{isCollected ? photo.title : '???'}</h4>
+                      <span className="polaroid-guest">{isCollected ? photo.guestName : 'Tamu Misteri'}</span>
+                      <p className="polaroid-quote">{isCollected ? photo.desc : 'Raih harmoni Kaiseki atau tuntaskan teka-teki Shinya Shokudo untuk membuka foto ini.'}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setPolaroidOpen(false)}>Tutup Album Kenangan</button>
           </div>
         </div>
       )}

@@ -92,13 +92,22 @@ export function draw(ctx) {
   G.rain.forEach(r => ctx.fillRect(r.x | 0, r.y | 0, 1, G.weather === 'hujan_deras' ? 6 : 4))
   ctx.globalAlpha = 1
 
-  // Partikel Kelopak Sakura di Lokasi Sakura
-  if (G.currentLocation === 'sakura') {
+  // Partikel Kelopak Sakura di Lokasi Sakura atau Musim Semi
+  if (G.currentLocation === 'sakura' || G.season?.id === 'spring') {
     ctx.fillStyle = '#ffb8d2'
     for (let k = 0; k < 15; k++) {
       const sx = ((G.t * 30 + k * 28) % (W + 20)) - 10
       const sy = ((G.t * 18 + k * 22) % (H + 20)) - 10
       R(sx, sy, 2, 2, '#ffb8d2')
+    }
+  }
+
+  // Partikel Daun Maple Merah saat Musim Gugur (Aki)
+  if (G.season?.id === 'autumn') {
+    for (let k = 0; k < 14; k++) {
+      const ax = ((G.t * 22 + k * 35) % (W + 20)) - 10
+      const ay = ((G.t * 20 + k * 26) % (H + 20)) - 10
+      R(ax, ay, 2, 2, k % 2 ? '#e17055' : '#d63031')
     }
   }
 
@@ -169,6 +178,16 @@ export function draw(ctx) {
       R(139, 60, 3, 6, '#f39c12')
       R(140, 58, 1, 2, '#fff')
     }
+  }
+
+  // Atmosfer Kedai Tengah Malam (Shinya Shokudo Mode 02:00 - 05:00)
+  if (G.midnightMode && G.scene === 'in') {
+    ctx.fillStyle = 'rgba(24, 15, 38, 0.38)'
+    ctx.fillRect(0, 0, W, H)
+    // Lampion Ungu Spesial Shinya di Pojok Kanan Atas
+    R(295, 6, 8, 12, '#8e44ad')
+    glow(299, 12, 18, 0.3)
+    T('深夜', 296, 7, '#ffd700', 5)
   }
 
   if (G.scene === 'in' && z > 0.4) {

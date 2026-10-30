@@ -262,5 +262,58 @@ Pengembangan skala besar untuk menghadirkan gameplay yang lebih mendalam, dinami
 - **Inspektur Sanitasi Hokenjo Tokyo (Inspektur Kato)**: Memeriksa kebersihan kuali kaldu, kestabilan api kompor, dan ketiadaan sate gosong. Lolos inspeksi memberi **Sertifikat Higienis Bintang 5** yang membebaskan kedai dari pajak distrik (+15% pendapatan permanen).
 - **Gerobak Saingan "Yamada-ya"**: Gerobak saingan buka di seberang jalan mencoba merebut tamu dengan potongan harga. Pemain melawan dengan menyebarkan aroma asap sate Shichirin, memasang lentera lebih terang, dan atraksi sake!
 
+---
+
+## 9. Fase 6: "The Grandmaster of Showa – Dynasty & Midnight Tales" (Ekspansi Puncak)
+
+### A. Siklus 4 Musim Dinamis & Fluktuasi Pasar Komoditas Spekulatif (`src/seasons.js`)
+- **Pergantian Musim Setiap 7 Hari**:
+  1. 🌸 **Musim Semi (*Haru*)**: Kelopak sakura berguguran di canvas. Bahan eksklusif: *Rebung Bambu Muda (Takenoko)*. Bonus kepuasan tamu +15%.
+  2. 🍧 **Musim Panas (*Natsu*)**: Malam festival gerimis. Bahan eksklusif: *Es Serut Sirup Melon (Kakigori)*. Tamu mudah haus dan minta teh ocha dingin.
+  3. 🍁 **Musim Gugur (*Aki*)**: Dedaunan maple merah melayang di canvas. Bahan eksklusif: *Jamur Matsutake Liar*. Nafsu makan tamu melonjak tinggi (+30% porsi).
+  4. ❄️ **Musim Dingin (*Fuyu*)**: Badai salju ekstrem. Bahan eksklusif: *Capit Kepiting Salju (Kani Claw)*. Harga sajian makanan otomatis melonjak +35%!
+- **Warta Berita Pasar Komoditas Harian**:
+  - Berita fluktuasi harga bahan mentah harian (panen melimpah menurunkan harga hingga 35%, badai laut melonjakkan harga hingga 1.85x lipat).
+  - Pemain dapat menimbun stok (*stockpiling*) saat harga murah untuk meraup untung maksimal.
+
+### B. Modus Rahasia Tengah Malam: "Shinya Shokudo" (`src/midnight.js`)
+- Pada pukul 02:00 dini hari, pemain dapat memilih **Tutup Kedai & Tidur** atau **Buka Shinya Shokudo (02:00 - 05:00 Dini Hari)**.
+- Layar bertransformasi tematik malam ungu kebiruan dengan lampion ungu spesial "深夜".
+- Tamu nokturnal misterius memesan dengan **Teka-Teki Puitis (*Poetic Riddles*)**:
+  - 🕵️ *Detektif Kenzo*: "Kepedihan samudra dalam yang diselimuti kabut ladang musim semi..." (Sate Gurita + Lobak + Karashi).
+  - 🖋️ *Mangaka Eiji*: "Bakar semangat begadangku dengan urat baja..." (Urat Sapi + Chikuwa + Karashi).
+  - 🎬 *Nona Sayuri (Aktris Noir)*: "Kehangatan pelukan rumah yang lembut bersahaja..." (Telur + Mochi Kinchaku + Ocha).
+  - 🌧️ *Pak Goro (Pengembara)*: "Kesederhanaan tanah yang meresap kaldu murni..." (Lobak + Tahu Goreng + Scallion).
+- Berhasil memecahkan teka-teki menghasilkan hadiah ribuan Yen, lonjakan reputasi, dan pembukaan foto polaroid nostalgia.
+
+### C. Duel Kuliner Terbuka vs Yamada-ya (`src/cookoff.js`)
+- Pertarungan 3 babak langsung di hadapan juri warga distrik:
+  - *Babak 1: Adu Harum Kaldu (Aroma Clash)*: Klik secepat mungkin untuk menyebarkan aroma kuah kaldu.
+  - *Babak 2: Kecepatan Panggangan Sate*: Balik tusukan sate secepatnya sebelum timer habis.
+  - *Babak 3: Harmoni Kaiseki Final*: Penjurian estetika hidangan oleh warga.
+- Menang duel menganugerahkan hadiah tunai +¥3.500, +25 Reputasi, dan **Monopoli Distrik 3 Hari** (pengunjung membludak 100%).
+
+### D. Pohon Keahlian Koki & Buku Silsilah Pusaka (`src/mastery.js`)
+- Setiap melayani 4 tamu dengan puas, koki memperoleh **+1 Poin Keahlian Master**.
+- 4 Ranting Keahlian Showa:
+  - 🔪 *Itamae (Pisau Emas)*: Goresan pisau ekstra stok dan perebusan cepat pola berlian.
+  - 💖 *Kokoro (Batin & Empati)*: Mata batin melihat mood tamu dan resonansi katarsis berlipat.
+  - 🔥 *Homura (Api & Arang)*: Toleransi panggangan sate tidak mudah gosong dan kompor kebal dingin salju.
+  - 🪙 *Akiudo (Bisnis & Relasi)*: Diskon belanja pasar 20% dan magnet pemikat tamu VIP.
+
+### E. Seni Tata Hidang Estetika Kaiseki & Album Polaroid (`src/kaiseki.js`)
+- **Penilaian Harmoni Estetika Visual (0 - 100%)**:
+  - Mengukur keseimbangan variasi bahan, kehadiran tusukan sate bakar, dan aksen warna bumbu kondimen.
+  - Skor Kaiseki $\ge 80\%$ memberikan bonus nilai hidangan instan **+25%**.
+- **Album Foto Polaroid Kenangan Showa**:
+  - Galeri 6 foto instan polaroid berbingkai retro vintage yang mengabadikan kisah emosional para tamu ikonik kedai.
+
+### F. Efek Audio Prosedural Baru (`src/audio.js`)
+- `playCameraShutter()`: Suara jepretan rana kamera mekanik kuno dan pendaran lampu kilat.
+- `playCookOffTaiko()`: Tabuhan genderang perang taiko pembuka duel jalanan.
+- `playMidnightBell()`: Dentang lonceng kuil tengah malam penanda 02:00 Shinya Shokudo.
+- `playSkillUnlock()`: Fanfare arpeggio kemenangan saat membuka keahlian master koki.
+
+
 
 
