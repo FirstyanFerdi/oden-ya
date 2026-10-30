@@ -160,8 +160,39 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - Sajikan semangkuk oden dashi murni dengan kematangan rebusan emas untuk membuka identitasnya sebagai Inspektur Michelin!
 - Raih **Plakat Emas Michelin** (Bintang 1 s/d 3) yang terpajang di dinding belakang kedai pada canvas render, mendatangkan tamu mancanegara kaya yang membayar hingga 1.8x lipat.
 
-### 22. 💾 Penyimpanan Otomatis (Auto-Save)
-- Seluruh progres permainan (saldo uang, reputasi, level kedai, stok bahan, sate panggangan, buff lelang S-tier, bintang Michelin, peralatan, staf, resep terbuka, lokasi aktif, cerita karakter, hari, kaldu, dekorasi, kaset, dan persahabatan kucing) otomatis tersimpan di `localStorage` peramban.
+### 22. 🍲 Sistem Kuali Biang Kaldu Induk & Fermentasi Berumur
+- Mengelola kuali besar di samping meja koki dengan 4 racikan master: *Katsuobushi Grade A*, *Niboshi Teri Bakar*, *Mirin & Gula Tebu*, dan *Shoyu Vintage 10 Tahun*.
+- **Mekanik Umur Kaldu Harian (*Aging Vat*)**:
+  - *Hari ke-1*: Kaldu Segar (Standar).
+  - *Hari ke-3*: **⭐ Biang Kaldu Emas 3 Hari** (Harga sajian x1.45 lipat dan kepuasan +20%).
+  - *Hari ke-7*: **👑 Biang Kaldu Pusaka 7 Hari** (Harga sajian oden x2.2 lipat dan kepuasan +35%).
+- Aksi rutin `Saring Busa & Abu Kaldu` untuk menjaga kejernihan kuah dan mencegah kaldu menjadi basi.
+
+### 23. 🧠 Psikologi & Mood Adaptif Tamu (Resonansi Katarsis & Pusaka)
+- Setiap tamu memiliki **Kondisi Jiwa / Mood Dinamis**: 💔 *Patah Hati*, 💼 *Lelah Lembur*, 🌧️ *Nostalgia Masa Kecil*, atau 💢 *Tegang & Emosional*.
+- **Sapaan Empati Koki**: Koki memilih nada sapaan lembut, semangat, nostalgia, atau ketenangan batin.
+- **Efek Katarsis Emosional**: Jika sapaan + alunan kaset radio + kaldu cocok dengan suasana hati tamu, tamu mengalami katarsis emosional mendalam! Meneteskan air mata bahagia, harga sajian x1.5 lipat, dan berpeluang menghadiahi **Barang Pusaka Bersejarah Showa**:
+  - ⏱️ *Jam Saku Showa 1972*: Durasi Fever Mode +5 detik permanen!
+  - 🥢 *Tusuk Konde Perak*: Reputasi kedai naik +25% permanen!
+  - 🪙 *Koin Kuno 100 Yen Perak*: Belanja bahan di pasar diskon 15% permanen!
+  - 🖋️ *Pena Tinta Emas Pujangga*: Setiap dialog cerita tamu memberi bonus uang +¥200!
+
+### 24. 🔪 Minigame Pisau Dapur Presisi Siang Hari
+- Latih ketangkasan koki dengan 3 teknik pisau presisi: *Keratan Berlian Lobak Daikon*, *Ikatan Tali Kanpyo Kinchaku*, dan *Tusukan Spiral Sate Yakitori*.
+- Tebas pisau tepat pada **Zona Emas Tengah** (*Sweet Spot*) untuk meraih kualitas **Masterwork Cut (Bintang Koki)** yang matang 35% lebih cepat dan bernilai harga jual tinggi.
+
+### 25. ☎️ Pesanan Telepon Putar & Bento Antar Sepeda
+- Telepon meja antik berdering *Kringgg!*, menerima pesanan bento dari Pos Polisi Stasiun, Rumah Sakit Showa, atau Studio Radio Malam.
+- Kemas 3 oden pilihan ke dalam kotak bento kayu bertermometer (suhu panas berangsur turun).
+- Kirim staf Kenji mengayuh sepeda onthel melintasi jalanan malam untuk mengantar pesanan sebelum kuahnya mendingin! Tiba dalam kondisi panas ($\ge 65^\circ\text{C}$) melipatgandakan uang tip dan reputasi distrik.
+
+### 26. 🏮 Intrik Jalanan: Klan Yakuza, Inspektur Sanitasi, & Gerobak Saingan
+- **Klan Yakuza Kurogane**: Bos mafia malam Ryuzo mampir; pelayanan hormat memberi perlindungan preman malam.
+- **Inspektur Sanitasi Hokenjo Tokyo (Inspektur Kato)**: Pemeriksaan kebersihan kuali, kestabilan api kompor, dan ketiadaan sate gosong. Lolos inspeksi memberi **Sertifikat Higienis Bintang 5** (bebas pajak distrik, +15% pendapatan).
+- **Gerobak Saingan "Yamada-ya"**: Gerobak saingan buka di seberang jalan mencoba merebut pengunjung dengan potongan harga. Lawan dengan aroma panggangan sate, lampion terang, dan atraksi tuang sake!
+
+### 27. 💾 Penyimpanan Otomatis (Auto-Save)
+- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, peralatan, staf, resep terbuka, lokasi aktif, cerita karakter, hari, dan persahabatan kucing) otomatis tersimpan di `localStorage` peramban.
 
 ---
 
@@ -191,17 +222,22 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 
 ## 📂 Struktur Berkas
 
+- [src/dashi.js](src/dashi.js) – Sistem kuali biang kaldu induk master, fermentasi umur kaldu (1, 3, 7 hari), saring busa kotoran, dan buff harga umami.
+- [src/psychology.js](src/psychology.js) – Sistem psikologi & mood adaptif tamu (Patah Hati, Burnout, Nostalgia, Tegang), sapaan empati koki, katarsis emosional, dan 4 barang pusaka bersejarah.
+- [src/knifeprep.js](src/knifeprep.js) – Minigame pisau dapur presisi siang hari: keratan berlian Daikon, ikatan simpul Kinchaku, dan tusukan spiral Yakitori dengan bar timing sweet spot.
+- [src/delivery.js](src/delivery.js) – Pesanan telepon putar vintage, pengemasan kotak bento kayu bertermometer panas, dan pengantaran sepeda onthel staf Kenji.
+- [src/intrigue.js](src/intrigue.js) – Intrik jalanan Showa: klan Yakuza Kurogane, evaluasi inspeksi sanitasi Hokenjo Tokyo, dan gerobak saingan Yamada-ya.
 - [src/grill.js](src/grill.js) – Sub-stasiun panggangan sate yakitori, status bakar, balik sate, oles saus tare, dan bonus karamel emas.
 - [src/auction.js](src/auction.js) – Minigame lelang subuh Pasar Ikan Tsukiji, bot penawar saingan, dan bahan grade S-Tier.
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
 - [src/recipes.js](src/recipes.js) – Daftar 6 resep kombinasi rahasia (*Fusion Dex*), deteksi kecocokan piring, dan bonus harga.
 - [src/locations.js](src/locations.js) – Sistem 3 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, desis yakitori, palu lelang, dan omikuji.
-- [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), dan Inspektur Michelin Masaru.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, desis yakitori, palu lelang, pisau dapur, bel sepeda, dering telepon, dan harpa katarsis.
+- [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Inspektur Michelin Masaru, dan Inspektur Sanitasi Kato.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, panggangan sate arang, plakat emas Michelin di dinding, salju, topan badai, efek mati lampu lilin, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, botol sake, bar lelang, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 4.
+- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, salju, topan badai, efek mati lampu lilin, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, botol sake, termometer bento, bar lelang, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 5.
 

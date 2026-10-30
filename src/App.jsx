@@ -1,7 +1,12 @@
 import {useEffect, useRef, useState} from 'react'
 import {draw} from './render.js'
 import * as Gm from './game.js'
-import {ITEMS, CONDIMENTS, EQ, LV, LVREP, W, H, eqCost, COMPARTMENTS, getSimmerState, STAFF, GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState} from './game.js'
+import {
+  ITEMS, CONDIMENTS, EQ, LV, LVREP, W, H, eqCost, COMPARTMENTS, getSimmerState,
+  STAFF, GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
+  DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
+  KNIFE_TECHNIQUES, DELIVERY_CLIENTS
+} from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
 import {FUSION_RECIPES} from './recipes.js'
@@ -34,6 +39,10 @@ export default function App() {
   const [mapOpen, setMapOpen] = useState(false)
   const [grillOpen, setGrillOpen] = useState(false)
   const [auctionOpen, setAuctionOpen] = useState(false)
+  const [dashiOpen, setDashiOpen] = useState(false)
+  const [knifeOpen, setKnifeOpen] = useState(false)
+  const [deliveryOpen, setDeliveryOpen] = useState(false)
+  const [heirloomOpen, setHeirloomOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(Audio.getMuteState())
   const [shopTab, setShopTab] = useState('items') // 'items', 'eq', 'staff'
   const [sakePouring, setSakePouring] = useState(false)
@@ -104,6 +113,10 @@ export default function App() {
     setMapOpen(false)
     setGrillOpen(false)
     setAuctionOpen(false)
+    setDashiOpen(false)
+    setKnifeOpen(false)
+    setDeliveryOpen(false)
+    setHeirloomOpen(false)
   }
 
   return (
@@ -129,6 +142,27 @@ export default function App() {
           <div className="box michelin-badge" title="Sertifikasi Bintang Michelin">
             🏆 Michelin {'★'.repeat(g.michelinStars)}
           </div>
+        )}
+
+        {/* Sertifikat Higienis Sanitasi */}
+        {g.sanitationCertified && (
+          <div className="box sanitation-badge" title="Sertifikat Higienis Hokenjo Bintang 5: Bebas Pajak (+15%)">
+            📋 Higienis ★5
+          </div>
+        )}
+
+        {/* Biang Kaldu Master HUD Pill */}
+        {g.masterVat && (
+          <button className="btn vat-hud-btn" onClick={() => { closeAllModals(); setDashiOpen(true) }} title="Biang Kaldu Induk">
+            🍲 {getVatTier(g.masterVat.ageDays, g.masterVat.scumLevel).name.split(' ')[0]} ({g.masterVat.ageDays}h)
+          </button>
+        )}
+
+        {/* Alert Pesanan Telepon Masuk */}
+        {g.activePhoneOrder && (
+          <button className="btn phone-hud-btn" onClick={() => { closeAllModals(); setDeliveryOpen(true) }}>
+            ☎️ Bento Antar!
+          </button>
         )}
 
         {/* Indikator Kombo & FEVER MODE */}
@@ -215,6 +249,18 @@ export default function App() {
           <button className="btn" onClick={() => { closeAllModals(); setAuctionOpen(true); if (!g.auctionSession) Gm.startAuction() }}>
             🐟 Lelang Tsukiji
           </button>
+          <button className="btn" onClick={() => { closeAllModals(); setDashiOpen(true) }}>
+            🍲 Kuali Master
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setKnifeOpen(true) }}>
+            🔪 Pisau Koki
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setDeliveryOpen(true) }}>
+            ☎️ Bento {g.activePhoneOrder ? '(!)' : ''}
+          </button>
+          <button className="btn" onClick={() => { closeAllModals(); setHeirloomOpen(true) }}>
+            🏺 Pusaka ({g.heirlooms ? g.heirlooms.length : 0}/4)
+          </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
           </button>
@@ -228,6 +274,8 @@ export default function App() {
             <span className="guest-badge">
               {order.isInspector
                 ? `🏆 ${order.inspectorData?.avatar} ${order.inspectorData?.name} (${order.inspectorData?.title})`
+                : order.isSanitation
+                ? `📋 ${order.sanitationData?.avatar} ${order.sanitationData?.name} (${order.sanitationData?.title})`
                 : order.isBoss
                 ? `⚠️ ${order.bossData?.avatar} ${order.bossData?.name} (${order.bossData?.title})`
                 : activeChar
@@ -238,6 +286,38 @@ export default function App() {
               Kesabaran: {Math.max(0, Math.ceil(order.pat))} dtk
             </span>
           </div>
+
+          {/* Mood Psikologi Tamu & Katarsis */}
+          {order.mood && (
+            <div className="mood-box">
+              <div className="mood-info">
+                <span className="mood-title">{order.mood.icon} Mood: <strong>{order.mood.name}</strong></span>
+                <span className="mood-desc">― {order.mood.desc}</span>
+              </div>
+              {order.catharsis && (
+                <div className="catharsis-badge">✨ KATARSIS EMOSIONAL TERCAPAI! (Harga x1.5 & Air Mata Bahagia)</div>
+              )}
+            </div>
+          )}
+
+          {/* Pemilihan Sapaan Koki jika belum disapa */}
+          {order.mood && !order.greetingChosen && (
+            <div className="greeting-box box">
+              <span className="greeting-title">🗣️ Sapa Tamu dengan Empati:</span>
+              <div className="greeting-btn-grid">
+                {GREETINGS.map(gr => (
+                  <button
+                    key={gr.id}
+                    className="btn greeting-btn"
+                    onClick={() => Gm.greetCustomer(gr.id)}
+                    title={gr.text}
+                  >
+                    {gr.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="row">
             <strong>Pesanan:</strong> {order.order.map(i => <Chip key={i} id={i} />)}
@@ -1059,6 +1139,306 @@ export default function App() {
             <button className="btn full-width" onClick={Gm.closeOmikuji}>
               Simpan Ramalan & Lanjutkan Melayani
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Biang Kaldu Master & Kuali Fermentasi */}
+      {dashiOpen && (
+        <div className="modal-overlay" onClick={() => setDashiOpen(false)}>
+          <div className="dashi-modal box" onClick={e => e.stopPropagation()}>
+            <div className="dashi-header">
+              <h2>🍲 Kuali Biang Kaldu Induk (Master Dashi Vat)</h2>
+              <p className="dashi-subtitle">Fermentasi kaldu harian Showa untuk menghasilkan umami legendaris.</p>
+            </div>
+
+            {g.masterVat && (() => {
+              const vt = getVatTier(g.masterVat.ageDays, g.masterVat.scumLevel)
+              return (
+                <div className="vat-status-card box" style={{borderColor: vt.color}}>
+                  <div className="vat-tier-badge" style={{color: vt.color}}>
+                    {vt.name}
+                  </div>
+                  <p className="vat-tier-desc">{vt.desc}</p>
+
+                  <div className="vat-metrics-grid">
+                    <div className="vat-metric">
+                      <span>Usia Kaldu:</span>
+                      <strong>{g.masterVat.ageDays} Hari Berjalan</strong>
+                    </div>
+                    <div className="vat-metric">
+                      <span>Kejernihan:</span>
+                      <strong>{g.masterVat.clarity}%</strong>
+                    </div>
+                    <div className="vat-metric">
+                      <span>Tingkat Busa & Kotoran:</span>
+                      <strong style={{color: g.masterVat.scumLevel > 60 ? '#e74c3c' : '#2ecc71'}}>
+                        {g.masterVat.scumLevel}%
+                      </strong>
+                    </div>
+                  </div>
+
+                  <button className="btn filter-scum-btn" onClick={Gm.filterVatScum}>
+                    🥄 Saring Busa & Abu Kaldu (Bersihkan Kuali)
+                  </button>
+                </div>
+              )
+            })()}
+
+            <h3 className="section-title">Tambahkan Bahan Racikan Master Kaldu:</h3>
+            <div className="dashi-ingredients-grid">
+              {DASHI_INGREDIENTS.map(ing => (
+                <div key={ing.id} className="box dashi-ing-card">
+                  <div className="ing-head">
+                    <span className="ing-icon">{ing.icon}</span>
+                    <div>
+                      <strong>{ing.name}</strong>
+                      <div className="ing-cost">Biaya: ¥{ing.cost}</div>
+                    </div>
+                  </div>
+                  <p className="ing-desc">{ing.desc}</p>
+                  <button
+                    className="btn brew-btn"
+                    disabled={g.money < ing.cost}
+                    onClick={() => Gm.brewVatIngredient(ing.id)}
+                  >
+                    + Tuang ke Kuali (¥{ing.cost})
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setDashiOpen(false)}>Tutup Dapur Kaldu</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pisau Dapur Presisi Siang Hari */}
+      {knifeOpen && (
+        <div className="modal-overlay" onClick={() => setKnifeOpen(false)}>
+          <div className="knife-modal box" onClick={e => e.stopPropagation()}>
+            <div className="knife-header">
+              <h2>🔪 Minigame Pisau Dapur Presisi (Master Knife Prep)</h2>
+              <p className="knife-subtitle">Iris pola wajik dan ikat simpul presisi agar bahan bernilai Bintang Koki!</p>
+            </div>
+
+            <div className="knife-stock-bar box">
+              <span>Stok Bahan Masterwork:</span>
+              <span className="prep-chip">✨ Lobak Berlian: {g.masterPrepStock?.daikon || 0}</span>
+              <span className="prep-chip">🎀 Kinchaku Simpul: {g.masterPrepStock?.kinchaku || 0}</span>
+              <span className="prep-chip">🍢 Sate Spiral: {g.masterPrepStock?.yakitori || 0}</span>
+            </div>
+
+            {!g.knifePrepSession ? (
+              <div className="tech-selection-grid">
+                {KNIFE_TECHNIQUES.map(tech => (
+                  <div key={tech.id} className="box tech-card">
+                    <span className="tech-icon">{tech.icon}</span>
+                    <h3>{tech.name}</h3>
+                    <p className="tech-desc">{tech.desc}</p>
+                    <button
+                      className="btn start-prep-btn"
+                      disabled={(g.stock[tech.targetItem] || 0) < tech.baseStockCost}
+                      onClick={() => Gm.startKnifePrep(tech.id)}
+                    >
+                      Mulai Iris (Butuh {tech.baseStockCost} {item(tech.targetItem)?.n || tech.targetItem})
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="knife-session-box box">
+                <h3>{g.knifePrepSession.technique.name}</h3>
+                <p>Klik tombol atau tekan Spasi saat kursor berada di Zona Emas Tengah!</p>
+
+                {/* Timing bar */}
+                <div className="knife-timing-bar">
+                  <div className="zone-target" style={{left: '42%', width: '16%'}} />
+                  <div className="zone-perfect" style={{left: '48%', width: '4%'}} />
+                  <div
+                    className="knife-cursor"
+                    style={{left: `${Math.max(0, Math.min(100, g.knifePrepSession.cursor))}%`}}
+                  />
+                </div>
+
+                <div className="knife-strike-status">
+                  <span>Sisa Tebasan: {'🔪'.repeat(g.knifePrepSession.strikesRemaining)}</span>
+                  <div className="strikes-history">
+                    {g.knifePrepSession.scoreHistory.map((res, idx) => (
+                      <span key={idx} className={`strike-badge ${res}`}>
+                        {res === 'perfect' ? '⭐ Sempurna!' : res === 'good' ? 'Pas' : 'Meleset'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {!g.knifePrepSession.finished ? (
+                  <button className="btn chop-btn highlight" onClick={() => Gm.chopKnife()}>
+                    ⚔️ TEBAS PISAU SEKARANG!
+                  </button>
+                ) : (
+                  <div className="prep-result-box">
+                    <h4>
+                      {g.knifePrepSession.finalGrade === 'masterwork'
+                        ? '🏆 HASIL: MASTERWORK CUT (Bintang Koki)!'
+                        : g.knifePrepSession.finalGrade === 'good'
+                        ? '✨ HASIL: KUALITAS BAGUS!'
+                        : '❌ HASIL: POTONGAN RUSAK'}
+                    </h4>
+                    <button className="btn" onClick={Gm.closeKnifePrep}>
+                      Selesai & Kembali ke Menu
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button className="btn close-btn" onClick={() => setKnifeOpen(false)}>Kembali ke Kedai</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pesanan Telepon Putar & Bento Sepeda */}
+      {deliveryOpen && (
+        <div className="modal-overlay" onClick={() => setDeliveryOpen(false)}>
+          <div className="delivery-modal box" onClick={e => e.stopPropagation()}>
+            <div className="delivery-header">
+              <h2>☎️ Pesanan Telepon Putar & Bento Antar Sepeda</h2>
+              <p className="delivery-subtitle">Kemas paket bento hangat dan kirim melintasi jalanan malam kota Tokyo.</p>
+            </div>
+
+            {!g.activePhoneOrder ? (
+              <div className="no-order-box box">
+                <p>Telepon meja saat ini tenang.</p>
+                <button className="btn answer-btn highlight" onClick={Gm.answerPhone}>
+                  ☎️ Angkat Telepon Meja (Terima Pesanan Masuk)
+                </button>
+              </div>
+            ) : (
+              <div className="delivery-active-box">
+                <div className="box client-card">
+                  <div className="client-head">
+                    <span className="client-icon">{g.activePhoneOrder.client.icon}</span>
+                    <div>
+                      <h3>{g.activePhoneOrder.client.name}</h3>
+                      <p className="client-desc">{g.activePhoneOrder.client.desc}</p>
+                    </div>
+                  </div>
+                  <div className="client-rewards">
+                    <span>Bayaran Dasar: <strong>¥{g.activePhoneOrder.client.basePay}</strong></span>
+                    <span>Reputasi Distrik: <strong>+{g.activePhoneOrder.client.rewardRep}</strong></span>
+                  </div>
+                </div>
+
+                {/* Termometer Bento */}
+                <div className="bento-temp-card box">
+                  <span className="temp-label">
+                    🌡️ Suhu Kehangatan Bento: {Math.round(g.activePhoneOrder.temperature)}°C
+                    {g.activePhoneOrder.temperature >= 65 ? ' (🔥 Panas Beruap / Tip Maksimal!)' : ' (Mulai Mendingin)'}
+                  </span>
+                  <div className="temp-bar">
+                    <div
+                      className="temp-fill"
+                      style={{
+                        width: `${Math.max(0, Math.min(100, g.activePhoneOrder.temperature))}%`,
+                        background: g.activePhoneOrder.temperature >= 65 ? '#ff4757' : g.activePhoneOrder.temperature >= 45 ? '#ffa502' : '#70a1ff'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Slot Bento Box */}
+                <div className="bento-box-container box">
+                  <h4>🍱 Kotak Bento Kayu (Butuh 3 Oden):</h4>
+                  <div className="bento-slots">
+                    {[0, 1, 2].map(slotIdx => {
+                      const packedId = g.activePhoneOrder.packedItems[slotIdx]
+                      return (
+                        <div key={slotIdx} className="bento-slot">
+                          {packedId ? (
+                            <Chip id={packedId} />
+                          ) : (
+                            <span className="empty-slot">Slot {slotIdx + 1} Kosong</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {g.activePhoneOrder.status === 'pending' && (
+                    <div className="pack-options">
+                      <span>Pilih dari Stok Gudang untuk Dikemas:</span>
+                      <div className="pack-buttons">
+                        {g.activePhoneOrder.client.requiredItems.map(reqId => (
+                          <button
+                            key={reqId}
+                            className="btn pack-btn"
+                            disabled={(g.stock[reqId] || 0) <= 0}
+                            onClick={() => Gm.packBento(reqId)}
+                          >
+                            + Masukkan {item(reqId)?.n || reqId} (Sisa: {g.stock[reqId] || 0})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Tombol Aksi Pengantaran */}
+                <div className="delivery-action-row">
+                  {g.activePhoneOrder.status === 'packed' && (
+                    <button className="btn dispatch-btn highlight" onClick={Gm.dispatchBento}>
+                      🚴 Kirim Antar Sepeda Sekarang (Staf Kenji)!
+                    </button>
+                  )}
+                  {g.activePhoneOrder.status === 'delivering' && (
+                    <div className="delivering-status box">
+                      <span>🚴 Kenji sedang mengayuh sepeda menerjang malam... ({Math.ceil(20 - g.activePhoneOrder.deliveryTimer)}s)</span>
+                    </div>
+                  )}
+                  {g.activePhoneOrder.status === 'delivered' && (
+                    <button className="btn claim-btn highlight" onClick={Gm.claimDeliveryReward}>
+                      💰 Klaim Pembayaran Bento + Tip Hangat!
+                    </button>
+                  )}
+                  <button className="btn cancel-btn" onClick={Gm.dismissDelivery}>
+                    Batalkan Pesanan
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button className="btn close-btn" onClick={() => setDeliveryOpen(false)}>Kembali ke Kedai</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Koleksi Barang Pusaka Bersejarah Showa */}
+      {heirloomOpen && (
+        <div className="modal-overlay" onClick={() => setHeirloomOpen(false)}>
+          <div className="heirloom-modal box" onClick={e => e.stopPropagation()}>
+            <div className="heirloom-header">
+              <h2>🏺 Koleksi Barang Pusaka Showa ({g.heirlooms ? g.heirlooms.length : 0}/{HEIRLOOMS.length})</h2>
+              <p className="heirloom-subtitle">Pemberian penuh haru dari para tamu yang menemukan ketenangan jiwa di kedai Anda.</p>
+            </div>
+
+            <div className="heirlooms-grid">
+              {HEIRLOOMS.map(item => {
+                const isOwned = g.heirlooms && g.heirlooms.includes(item.id)
+                return (
+                  <div key={item.id} className={`box heirloom-card ${isOwned ? 'owned' : 'locked'}`}>
+                    <div className="heirloom-icon">{isOwned ? item.icon : '🔒'}</div>
+                    <div className="heirloom-info">
+                      <h3>{isOwned ? item.name : 'Pusaka Terkunci'}</h3>
+                      <p className="heirloom-desc">{isOwned ? item.desc : 'Tercapai saat tamu mengalami katarsis emosional mendalam.'}</p>
+                      {isOwned && <span className="passive-badge">⚡ Efek Pasif Aktif Permanen</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setHeirloomOpen(false)}>Tutup Lemari Pusaka</button>
           </div>
         </div>
       )}

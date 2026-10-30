@@ -1372,8 +1372,534 @@ canvas {
   border: 1px solid #2ed573;
 }
 
+/* ==================================================
+   FASE 5: STYLING SISTEM KOMPLEKS SHOWA
+   ================================================== */
+
+/* HUD Badges */
+.sanitation-badge {
+  background: #1b382b;
+  border-color: #2ed573;
+  color: #2ed573;
+}
+
+.vat-hud-btn {
+  background: #472d16;
+  border-color: #f39c12;
+  color: #ffd700;
+}
+
+.phone-hud-btn {
+  background: #63171b;
+  border-color: #ff4757;
+  color: #fff;
+  animation: pulseFever 1s infinite alternate;
+}
+
+/* Psikologi & Mood Tamu */
+.mood-box {
+  background: #1e1b2e;
+  border: 1px solid #574b90;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mood-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mood-title {
+  color: #f1c40f;
+  font-size: 0.95em;
+}
+
+.mood-desc {
+  font-size: 0.82em;
+  color: #dcdde1;
+  font-style: italic;
+}
+
+.catharsis-badge {
+  color: #ff6f91;
+  font-weight: bold;
+  font-size: 0.88em;
+  background: #3c142c;
+  padding: 4px 8px;
+  border: 1px solid #ff6f91;
+  border-radius: 2px;
+  animation: pulseFever 1.2s infinite;
+}
+
+/* Sapaan Empati Koki */
+.greeting-box {
+  background: #151421;
+  border: 1px solid #778ca3;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.greeting-title {
+  font-size: 0.9em;
+  color: #ffeaa7;
+  font-weight: bold;
+}
+
+.greeting-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.greeting-btn {
+  font-size: 0.82em;
+  text-align: left;
+  background: #232238;
+  border-color: #5758bb;
+  padding: 6px 8px;
+}
+
+.greeting-btn:hover {
+  background: #3b3a58;
+  border-color: #82589f;
+}
+
+/* Modal Biang Kaldu Master */
+.dashi-modal {
+  width: min(88%, 620px);
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #1f140e;
+}
+
+.dashi-header h2 { margin: 0; color: #ffd700; font-size: 1.25em; }
+.dashi-subtitle { margin: 2px 0 8px 0; color: #dcdde1; font-size: 0.85em; }
+
+.vat-status-card {
+  background: #2b1810;
+  border: 2px solid #f39c12;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vat-tier-badge {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.vat-tier-desc {
+  margin: 0;
+  font-size: 0.9em;
+  color: #ffeaa7;
+}
+
+.vat-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.vat-metric {
+  background: #160c07;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.82em;
+}
+
+.vat-metric strong {
+  margin-top: 2px;
+  font-size: 1.1em;
+  color: #fff;
+}
+
+.filter-scum-btn {
+  background: #16a085;
+  border-color: #1abc9c;
+  padding: 8px;
+  color: #fff;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.dashi-ingredients-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dashi-ing-card {
+  background: #2b1c14;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ing-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ing-icon { font-size: 1.8em; }
+.ing-cost { color: #f1c40f; font-size: 0.85em; }
+.ing-desc { margin: 0; font-size: 0.8em; color: #ced6e0; flex: 1; }
+
+.brew-btn {
+  background: #d35400;
+  border-color: #e67e22;
+  padding: 6px;
+  font-size: 0.85em;
+}
+
+/* Modal Pisau Dapur Presisi */
+.knife-modal {
+  width: min(88%, 600px);
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #17202a;
+}
+
+.knife-header h2 { margin: 0; color: #74b9ff; font-size: 1.25em; }
+.knife-subtitle { margin: 2px 0 8px 0; color: #a4b0be; font-size: 0.85em; }
+
+.knife-stock-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #10171e;
+  padding: 8px 10px;
+}
+
+.prep-chip {
+  background: #2c3e50;
+  padding: 3px 8px;
+  border: 1px solid #74b9ff;
+  border-radius: 2px;
+  font-size: 0.85em;
+  color: #f5f6fa;
+}
+
+.tech-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.tech-card {
+  background: #1f2d3d;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tech-icon { font-size: 2em; }
+.tech-card h3 { margin: 0; font-size: 0.95em; color: #ffeaa7; }
+.tech-desc { margin: 0; font-size: 0.8em; color: #ced6e0; flex: 1; }
+.start-prep-btn { background: #27ae60; border-color: #2ecc71; padding: 6px; font-size: 0.82em; }
+
+.knife-session-box {
+  background: #1c2833;
+  border: 2px solid #74b9ff;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.knife-timing-bar {
+  position: relative;
+  width: 100%;
+  height: 32px;
+  background: #0f141d;
+  border: 2px solid #7f8c8d;
+  overflow: hidden;
+}
+
+.zone-target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(46, 204, 113, 0.45);
+}
+
+.zone-perfect {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #ffd700;
+  box-shadow: 0 0 8px #ffd700;
+}
+
+.knife-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #ff4757;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px #ff4757;
+}
+
+.knife-strike-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.strikes-history {
+  display: flex;
+  gap: 6px;
+}
+
+.strike-badge {
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 0.8em;
+}
+.strike-badge.perfect { background: #b8860b; color: #fff; }
+.strike-badge.good { background: #27ae60; color: #fff; }
+.strike-badge.imperfect { background: #7f8c8d; color: #fff; }
+
+.chop-btn {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 12px;
+  background: #e74c3c;
+  border-color: #ff6b6b;
+}
+
+.prep-result-box {
+  padding: 12px;
+  background: #111a24;
+}
+
+/* Modal Pesanan Telepon & Antar Bento */
+.delivery-modal {
+  width: min(88%, 620px);
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #191c24;
+}
+
+.delivery-header h2 { margin: 0; color: #ffd700; font-size: 1.25em; }
+.delivery-subtitle { margin: 2px 0 8px 0; color: #a4b0be; font-size: 0.85em; }
+
+.no-order-box {
+  text-align: center;
+  padding: 20px;
+  background: #232733;
+}
+
+.answer-btn {
+  padding: 10px 20px;
+  font-size: 1em;
+  background: #2980b9;
+}
+
+.delivery-active-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.client-card {
+  background: #232733;
+  padding: 10px;
+}
+
+.client-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.client-icon { font-size: 2.2em; }
+.client-head h3 { margin: 0; color: #ffeaa7; font-size: 1.1em; }
+.client-desc { margin: 2px 0 0 0; font-size: 0.85em; color: #ced6e0; }
+
+.client-rewards {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #2ed573;
+}
+
+.bento-temp-card {
+  background: #1e222d;
+  padding: 10px;
+}
+
+.temp-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.88em;
+  font-weight: bold;
+}
+
+.temp-bar {
+  width: 100%;
+  height: 12px;
+  background: #0f1118;
+  border: 1px solid #57606f;
+  overflow: hidden;
+}
+
+.temp-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.bento-box-container {
+  background: #2f2519;
+  border: 2px solid #cd6133;
+  padding: 10px;
+}
+
+.bento-box-container h4 { margin: 0 0 8px 0; color: #ffeaa7; font-size: 0.95em; }
+
+.bento-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.bento-slot {
+  height: 40px;
+  background: #1b140b;
+  border: 1px dashed #e67e22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.empty-slot { font-size: 0.78em; color: #7f8c8d; }
+
+.pack-options {
+  font-size: 0.85em;
+  color: #dcdde1;
+}
+
+.pack-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.pack-btn {
+  background: #8e44ad;
+  border-color: #9b59b6;
+  font-size: 0.82em;
+  padding: 5px 8px;
+}
+
+.delivery-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dispatch-btn {
+  flex: 2;
+  background: #27ae60;
+  border-color: #2ecc71;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.delivering-status {
+  flex: 2;
+  background: #2c3e50;
+  text-align: center;
+  padding: 8px;
+  color: #74b9ff;
+}
+
+.claim-btn {
+  flex: 2;
+  background: #f39c12;
+  border-color: #ffd700;
+  font-weight: bold;
+  padding: 10px;
+}
+
+/* Modal Koleksi Barang Pusaka */
+.heirloom-modal {
+  width: min(88%, 620px);
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #1a1528;
+}
+
+.heirloom-header h2 { margin: 0; color: #ffd700; font-size: 1.25em; }
+.heirloom-subtitle { margin: 2px 0 8px 0; color: #a4b0be; font-size: 0.85em; }
+
+.heirlooms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.heirloom-card {
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  background: #231c36;
+}
+
+.heirloom-card.owned {
+  border: 2px solid #ffd700;
+  background: #2a1f44;
+}
+
+.heirloom-card.locked {
+  border: 1px dashed #57606f;
+  opacity: 0.6;
+}
+
+.heirloom-icon { font-size: 2.2em; }
+.heirloom-info h3 { margin: 0; font-size: 0.95em; color: #fff; }
+.heirloom-desc { margin: 4px 0 6px 0; font-size: 0.82em; color: #dcdde1; }
+.passive-badge { font-size: 0.78em; color: #2ecc71; font-weight: bold; }
+
 @media (max-width: 720px) {
-  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar {
+  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid {
     grid-template-columns: 1fr;
   }
 }

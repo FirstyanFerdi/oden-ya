@@ -305,6 +305,55 @@ export function playCandleLight() {
   setTimeout(() => playTone(540, 'sine', 0.4, 0.08), 50)
 }
 
+// SFX: Hentakan Pisau Telenan Bambu (Master Knife Prep)
+export function playKnifeChop() {
+  if (!ctx || isMuted) return
+  playTone(320, 'triangle', 0.06, 0.22, -180)
+  setTimeout(() => playTone(140, 'square', 0.08, 0.15, -80), 20)
+}
+
+// SFX: Dering Telepon Putar Antik Showa (Rotary Phone Ring)
+export function playPhoneRing() {
+  if (!ctx || isMuted) return
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      playTone(i % 2 === 0 ? 853 : 960, 'sine', 0.05, 0.14)
+    }, i * 40)
+  }
+}
+
+// SFX: Bel Kring-Kring Sepeda Onthel Antar Bento
+export function playBicycleBell() {
+  if (!ctx || isMuted) return
+  playTone(1760, 'sine', 0.12, 0.16)
+  setTimeout(() => playTone(2093, 'sine', 0.18, 0.18), 110)
+}
+
+// SFX: Gelembung Kuah Kuali Kaldu Induk (Master Dashi Vat)
+export function playBubblingVat() {
+  if (!ctx || isMuted) return
+  playTone(280 + Math.random() * 80, 'sine', 0.2, 0.12, 60)
+  setTimeout(() => playTone(340, 'triangle', 0.15, 0.08, -50), 60)
+}
+
+// SFX: Harpa Air Mata Bahagia & Katarsis Emosional (Tears of Joy)
+export function playTearsOfJoy() {
+  if (!ctx || isMuted) return
+  const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]
+  notes.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'sine', 0.6, 0.15)
+    }, idx * 70)
+  })
+}
+
+// SFX: Gong Berat Klan Yakuza Kurogane
+export function playYakuzaGong() {
+  if (!ctx || isMuted) return
+  playTone(95, 'sawtooth', 1.6, 0.35, -30)
+  setTimeout(() => playTone(70, 'triangle', 2.0, 0.3), 100)
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

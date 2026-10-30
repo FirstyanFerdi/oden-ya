@@ -6,9 +6,18 @@ import {LOCATIONS} from './locations.js'
 import {GRILL_ITEMS, createGrillSlots, getGrillState} from './grill.js'
 import {AUCTION_ITEMS, createAuctionSession, BOT_BIDDERS} from './auction.js'
 import {FORTUNES, drawOmikuji} from './fortune.js'
+import {DASHI_INGREDIENTS, createMasterVat, getVatTier, skimVat, addIngredientToVat, advanceVatDay} from './dashi.js'
+import {GUEST_MOODS, GREETINGS, HEIRLOOMS, assignGuestMood, evaluateGreeting} from './psychology.js'
+import {KNIFE_TECHNIQUES, createKnifePrepSession, updateKnifePrepSession, strikeKnife} from './knifeprep.js'
+import {DELIVERY_CLIENTS, generatePhoneOrder, packItemToBento, updateDelivery, calculateDeliveryPayout} from './delivery.js'
+import {STREET_FACTIONS, evaluateSanitationScore, updateRivalStall} from './intrigue.js'
 import * as Audio from './audio.js'
 
-export {GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState}
+export {
+  GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
+  DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
+  KNIFE_TECHNIQUES, DELIVERY_CLIENTS, STREET_FACTIONS
+}
 
 export const W = 320, H = 180, PX = 60, PY = 62
 
@@ -176,7 +185,20 @@ export function newGame(demo = false) {
     candleLit: false,
     tarpLoose: false,
     stoveHeat: 0.7,
-    snowParticles: Array.from({length: 60}, () => ({x: Math.random() * W, y: Math.random() * H, s: 20 + Math.random() * 30}))
+    snowParticles: Array.from({length: 60}, () => ({x: Math.random() * W, y: Math.random() * H, s: 20 + Math.random() * 30})),
+    // Fase 5: Biang Kaldu Master & Fermentasi
+    masterVat: createMasterVat(),
+    // Pisau Dapur Presisi Siang Hari
+    knifePrepSession: null,
+    masterPrepStock: {daikon: 0, kinchaku: 0, yakitori: 0},
+    // Pesanan Telepon & Antar Sepeda
+    activePhoneOrder: null,
+    phoneRingTimer: 35,
+    // Barang Pusaka Leluhur & Resonansi Mood
+    heirlooms: [],
+    // Intrik Jalanan & Saingan
+    rivalStall: {active: true, crowdPull: 0.3},
+    sanitationCertified: false
   }
 }
 
@@ -246,6 +268,14 @@ function loadSavedGame() {
     data.tarpLoose = false
     data.stoveHeat = 0.7
     data.snowParticles = Array.from({length: 60}, () => ({x: Math.random() * W, y: Math.random() * H, s: 20 + Math.random() * 30}))
+    data.masterVat = data.masterVat || createMasterVat()
+    data.knifePrepSession = null
+    data.masterPrepStock = data.masterPrepStock || {daikon: 0, kinchaku: 0, yakitori: 0}
+    data.activePhoneOrder = null
+    data.phoneRingTimer = 35
+    data.heirlooms = data.heirlooms || []
+    data.rivalStall = data.rivalStall || {active: true, crowdPull: 0.3}
+    data.sanitationCertified = !!data.sanitationCertified
     return data
   } catch (e) {
     return null
@@ -292,7 +322,11 @@ export function saveGame() {
       grillSlots: G.grillSlots,
       sateStock: G.sateStock,
       sTierBoosts: G.sTierBoosts,
-      michelinStars: G.michelinStars
+      michelinStars: G.michelinStars,
+      masterVat: G.masterVat,
+      masterPrepStock: G.masterPrepStock,
+      heirlooms: G.heirlooms,
+      sanitationCertified: G.sanitationCertified
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -366,6 +400,22 @@ export const startNewDay = () => {
   G.plateSate = []
   G.auctionSession = null
   G.activeFortune = null
+
+  // Majukan Umur Biang Kaldu Master
+  if (G.masterVat) {
+    advanceVatDay(G.masterVat)
+    const vt = getVatTier(G.masterVat.ageDays, G.masterVat.scumLevel)
+    if (vt.tier === 'legendary') {
+      G.floats.push({x: 140, y: 40, t: 0, s: '👑 Biang Kaldu Pusaka 7 Hari Aktif!', c: '#ffd700'})
+    } else if (vt.tier === 'matured') {
+      G.floats.push({x: 140, y: 40, t: 0, s: '⭐ Biang Kaldu Emas 3 Hari Siap!', c: '#f39c12'})
+    }
+  }
+
+  // Reset Gerobak Saingan & Telepon Pesanan
+  G.rivalStall = { active: Math.random() < 0.65, crowdPull: 0.3 }
+  G.phoneRingTimer = 25 + Math.random() * 25
+  G.activePhoneOrder = null
 
   if (G.weather === 'topan') {
     Audio.playThunderClap()
@@ -448,7 +498,8 @@ export const buyDecoration = (type, itemObj) => {
 // Beli Stok Bahan di Pasar
 export function buyStock(itemId, quantity = 5) {
   const pricePerUnit = G.marketPrices[itemId] || 40
-  const totalCost = pricePerUnit * quantity
+  const discountMult = G.heirlooms?.includes('vintage_coin') ? 0.85 : 1.0
+  const totalCost = Math.round(pricePerUnit * quantity * discountMult)
   if (G.money >= totalCost) {
     G.money -= totalCost
     G.stock[itemId] = (G.stock[itemId] || 0) + quantity
@@ -745,6 +796,143 @@ export function closeOmikuji() {
   saveGame()
 }
 
+// --- FASE 5: PSIKOLOGI & SAPAAN EMPATI TAMU ---
+export function greetCustomer(greetingId) {
+  if (!G.target || !G.target.mood || G.target.greetingChosen) return
+  const c = G.target
+  c.greetingChosen = greetingId
+  const result = evaluateGreeting(c, greetingId, G.cassette, G.activeBroth)
+
+  if (result.isCatharsis) {
+    c.catharsis = true
+    Audio.playTearsOfJoy()
+    G.floats.push({x: c.x, y: c.y - 45, t: 0, s: '✨ KATARSIS EMOSIONAL! ✨', c: '#ff6f91'})
+    G.floats.push({x: c.x, y: c.y - 60, t: -0.3, s: result.reactionText, c: '#ffd700'})
+    c.pat = Math.min(c.max, c.pat + 20)
+
+    // Peluang mendapatkan barang pusaka berharga
+    const unownedHeirlooms = HEIRLOOMS.filter(h => !G.heirlooms.includes(h.id))
+    if (unownedHeirlooms.length && Math.random() < 0.45) {
+      const awarded = unownedHeirlooms[Math.random() * unownedHeirlooms.length | 0]
+      G.heirlooms.push(awarded.id)
+      Audio.playFeverSound()
+      G.floats.push({x: 160, y: 70, t: 0, s: `🎁 PUSAKA DIDAPAT: ${awarded.name}!`, c: '#ffd700'})
+    }
+  } else {
+    Audio.playCoinSound()
+    G.floats.push({x: c.x, y: c.y - 45, t: 0, s: result.reactionText, c: '#bdc3c7'})
+  }
+  saveGame()
+}
+
+// --- FASE 5: BIANG KALDU MASTER & KUALI FERMENTASI ---
+export function brewVatIngredient(ingredientId) {
+  const ing = DASHI_INGREDIENTS.find(i => i.id === ingredientId)
+  if (!ing || G.money < ing.cost) return false
+  G.money -= ing.cost
+  addIngredientToVat(G.masterVat, ingredientId)
+  Audio.playBubblingVat()
+  Audio.playCoinSound()
+  G.floats.push({x: 150, y: 60, t: 0, s: `+${ing.name} ke Kuali!`, c: '#ffd700'})
+  saveGame()
+  return true
+}
+
+export function filterVatScum() {
+  skimVat(G.masterVat)
+  Audio.playPlopSound()
+  G.floats.push({x: 150, y: 60, t: 0, s: 'Busa Kaldu Disaring Bersih!', c: '#2ecc71'})
+  saveGame()
+}
+
+// --- FASE 5: PISAU DAPUR PRESISI SIANG HARI ---
+export function startKnifePrep(techId) {
+  G.knifePrepSession = createKnifePrepSession(techId)
+  Audio.playKnifeChop()
+}
+
+export function chopKnife() {
+  if (!G.knifePrepSession || G.knifePrepSession.finished) return null
+  const strikeRes = strikeKnife(G.knifePrepSession)
+  Audio.playKnifeChop()
+  if (strikeRes === 'perfect') {
+    G.floats.push({x: 160, y: 80, t: 0, s: '⭐ POTONGAN BERLIAN!', c: '#ffd700'})
+  } else if (strikeRes === 'good') {
+    G.floats.push({x: 160, y: 80, t: 0, s: 'Matang Pas!', c: '#2ecc71'})
+  } else {
+    G.floats.push({x: 160, y: 80, t: 0, s: 'Meleset', c: '#7f8c8d'})
+  }
+
+  if (G.knifePrepSession.finished) {
+    const s = G.knifePrepSession
+    if (s.finalGrade === 'masterwork') {
+      const target = s.technique.targetItem
+      G.masterPrepStock[target] = (G.masterPrepStock[target] || 0) + s.technique.yieldAmount
+      Audio.playFeverSound()
+      G.floats.push({x: 160, y: 60, t: 0, s: `🏆 PREP SEMPURNA! +${s.technique.yieldAmount} Bahan Masterwork`, c: '#ffd700'})
+    } else if (s.finalGrade === 'good') {
+      const target = s.technique.targetItem
+      G.masterPrepStock[target] = (G.masterPrepStock[target] || 0) + 1
+      Audio.playCoinSound()
+      G.floats.push({x: 160, y: 60, t: 0, s: `✨ PREP BAGUS! +1 Bahan Masterwork`, c: '#2ecc71'})
+    } else {
+      Audio.playUpsetSound()
+      G.floats.push({x: 160, y: 60, t: 0, s: 'Potongan Kurang Rapi', c: '#e74c3c'})
+    }
+    saveGame()
+  }
+  return strikeRes
+}
+
+export function closeKnifePrep() {
+  G.knifePrepSession = null
+}
+
+// --- FASE 5: PESANAN TELEPON PUTAR & ANTAR BENTO ---
+export function answerPhone() {
+  if (!G.activePhoneOrder) {
+    G.activePhoneOrder = generatePhoneOrder(G.day)
+    Audio.playPhoneRing()
+    G.floats.push({x: 160, y: 60, t: 0, s: `☎️ Pesanan dari ${G.activePhoneOrder.client.name}!`, c: '#ffd700'})
+    saveGame()
+  }
+}
+
+export function packBento(itemId) {
+  if (!G.activePhoneOrder) return false
+  const ok = packItemToBento(G.activePhoneOrder, itemId, G.stock)
+  if (ok) {
+    Audio.playPlopSound()
+    saveGame()
+  }
+  return ok
+}
+
+export function dispatchBento() {
+  if (!G.activePhoneOrder || G.activePhoneOrder.status !== 'packed') return
+  G.activePhoneOrder.status = 'delivering'
+  Audio.playBicycleBell()
+  G.floats.push({x: 160, y: 60, t: 0, s: '🚴 Berangkat Antar Bento Hangat!', c: '#3498db'})
+  saveGame()
+}
+
+export function claimDeliveryReward() {
+  if (!G.activePhoneOrder || G.activePhoneOrder.status !== 'delivered') return
+  const payout = calculateDeliveryPayout(G.activePhoneOrder)
+  G.money += payout.total
+  G.rep += payout.rep
+  Audio.playCoinSound()
+  if (payout.isHot) Audio.playFeverSound()
+  G.floats.push({x: 160, y: 60, t: 0, s: `💰 Diterima +¥${payout.total} & Rep +${payout.rep}!`, c: '#ffd700'})
+  G.activePhoneOrder = null
+  saveGame()
+}
+
+export function dismissDelivery() {
+  G.activePhoneOrder = null
+  saveGame()
+}
+
 // --- CUACA EKSTREM & INSIDEN MALAM ---
 export function toggleCandle() {
   G.candleLit = !G.candleLit
@@ -783,6 +971,9 @@ function spawn() {
     // Inspektur Michelin Menyamar
     specialData = SPECIAL_ENCOUNTERS.inspector
     G.floats.push({x: 140, y: 50, t: 0, s: '🕵️‍♂️ Tamu Misterius Mengamati Kedai...', c: '#a29bfe'})
+  } else if (!G.sanitationCertified && Math.random() < 0.15 && G.rep >= 20) {
+    specialData = SPECIAL_ENCOUNTERS.sanitation
+    G.floats.push({x: 140, y: 50, t: 0, s: '📋 Inspeksi Higienis Hokenjo Datang!', c: '#3498db'})
   } else if (isMidnight && Math.random() < 0.25) {
     specialData = Math.random() < 0.5 ? SPECIAL_ENCOUNTERS.ryu : SPECIAL_ENCOUNTERS.vivienne
     Audio.playBossAlert()
@@ -813,6 +1004,11 @@ function spawn() {
     bossData: specialData?.isBoss ? specialData : null,
     isInspector: specialData?.isInspector || false,
     inspectorData: specialData?.isInspector ? specialData : null,
+    isSanitation: specialData?.isSanitation || false,
+    sanitationData: specialData?.isSanitation ? specialData : null,
+    mood: assignGuestMood(),
+    greetingChosen: null,
+    catharsis: false,
     wantsFortune: Math.random() < 0.35,
     h: specialData ? specialData.hair : rnd(HAIR),
     s: specialData ? specialData.shirt : rnd(SHIRT),
@@ -914,7 +1110,17 @@ export function serve() {
   const takoMult = G.sTierBoosts?.hokkaido_tako ? 2.5 : 1.0
   const wagyuMult = G.sTierBoosts?.wagyu_tendon ? 3.0 : 1.0
 
-  const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus
+  // Master Dashi Vat Buffs
+  const vt = getVatTier(G.masterVat?.ageDays || 1, G.masterVat?.scumLevel || 0)
+  const vatSatBonus = vt.satBonus
+  const vatPriceMult = vt.priceMult
+
+  // Katarsis Mood & Sanitasi Bebas Pajak
+  const catharsisSatBonus = c.catharsis ? 0.25 : 0
+  const catharsisMultiplier = c.catharsis ? 1.5 : 1.0
+  const sanitationMultiplier = G.sanitationCertified ? 1.15 : 1.0
+
+  const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus
   const sat = Math.max(0, Math.min(1, baseSat * avgSimmerMult))
 
   // Pengali Lokasi
@@ -943,7 +1149,7 @@ export function serve() {
   // Bintang Michelin Multiplier
   const michelinMultiplier = G.michelinStars === 1 ? 1.2 : G.michelinStars === 2 ? 1.45 : G.michelinStars === 3 ? 1.8 : 1.0
 
-  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier)
+  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier)
   let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier) : 0
 
   // Cuaca Ekstrem
@@ -969,6 +1175,16 @@ export function serve() {
     G.floats.push({x: c.x, y: c.y - 50, t: 0, s: `🏆 INSPEKSI LULUS! Bintang Michelin ${'★'.repeat(G.michelinStars)}!`, c: '#ffd700'})
   }
 
+  // Hadiah Inspektur Sanitasi Hokenjo
+  if (c.isSanitation && sat >= 0.75) {
+    G.sanitationCertified = true
+    gain += c.sanitationData.rewardMoney
+    tip += 1500
+    G.rep += c.sanitationData.rewardRep
+    Audio.playFeverSound()
+    G.floats.push({x: c.x, y: c.y - 50, t: 0, s: '📋 SERTIFIKAT HIGIENIS BINTANG 5 LULUS! (Bebas Pajak)', c: '#2ecc71'})
+  }
+
   // Hitung Kombo Pelayanan Cepat (< 8 dtk dan sat > 0.7)
   const serveSpeed = G.t - c.orderOpenTime
   if (serveSpeed < 9 && sat >= 0.7) {
@@ -979,7 +1195,7 @@ export function serve() {
     // FEVER MODE TRIGGER! (Combo >= 4)
     if (G.combo >= 4 && !G.feverActive) {
       G.feverActive = true
-      G.feverTimer = 16
+      G.feverTimer = G.heirlooms.includes('pocket_watch') ? 22 : 16
       Audio.playFeverSound()
       G.floats.push({x: 140, y: 50, t: 0, s: '⚡ FEVER MODE AKTIF! (Uang x3)', c: '#ffd700'})
     }
@@ -994,7 +1210,8 @@ export function serve() {
   G.dayStats.revenue += gain
   G.dayStats.tips += tip
 
-  G.rep = Math.max(0, G.rep + (sat > 0.7 ? 2.5 : sat > 0.4 ? 0.5 : -1))
+  const repMult = G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0
+  G.rep = Math.max(0, G.rep + (sat > 0.7 ? 2.5 : sat > 0.4 ? 0.5 : -1) * repMult)
   G.plate.forEach(i => G.pop[i] = (G.pop[i] || 0) + 1)
 
   const stars = sat > 0.85 ? 3 : sat > 0.55 ? 2 : 1
@@ -1016,7 +1233,12 @@ export function serve() {
         chosen: null
       }
       G.storiesUnlocked[c.charId] = (G.storiesUnlocked[c.charId] || 0) + 1
+      const storyMoney = G.heirlooms.includes('poet_pen') ? 200 : 0
+      G.money += storyMoney
       G.rep += 3
+      if (storyMoney > 0) {
+        G.floats.push({x: c.x, y: c.y - 70, t: 0, s: '🖋️ Pena Pujangga: +¥200!', c: '#ffd700'})
+      }
     }
   }
 
@@ -1222,6 +1444,29 @@ export function update(dt) {
     })
     g.stoveHeat = Math.max(0.2, (g.stoveHeat || 0.7) - validDt * 0.015)
   }
+
+  // Update Fase 5: Minigame Pisau Dapur Presisi jika aktif
+  if (g.knifePrepSession && !g.knifePrepSession.finished) {
+    updateKnifePrepSession(g.knifePrepSession, validDt)
+  }
+
+  // Update Fase 5: Pesanan Telepon & Pengantaran Sepeda Bento
+  if (g.activePhoneOrder) {
+    updateDelivery(g.activePhoneOrder, validDt, g.staff)
+  }
+
+  // Timer Dering Telepon Otomatis
+  if (!g.activePhoneOrder && !g.dayClosed && g.scene === 'in') {
+    g.phoneRingTimer = (g.phoneRingTimer || 35) - validDt
+    if (g.phoneRingTimer <= 0) {
+      g.phoneRingTimer = 40 + Math.random() * 35
+      Audio.playPhoneRing()
+      g.floats.push({x: 140, y: 35, t: 0, s: '☎️ Kringgg! Telepon Meja Berdering!', c: '#ffd700'})
+    }
+  }
+
+  // Update Gerobak Saingan Yamada-ya
+  updateRivalStall(validDt, g)
 
   g.floats = g.floats.filter(f => (f.t += validDt) < 1.4)
   g.zoom += (g.zt - g.zoom) * Math.min(1, validDt * 7)

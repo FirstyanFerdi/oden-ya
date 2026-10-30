@@ -208,4 +208,59 @@ Pengembangan skala besar untuk menghadirkan gameplay yang lebih mendalam, dinami
 - Jika disajikan dengan kematangan oden *⭐ Rebusan Emas* dan kuah dashi sempurna, ia mengungkap identitasnya sebagai inspektur Michelin!
 - Memberikan **Sertifikat Plakat Emas Michelin** yang otomatis terpajang di dinding belakang kedai pada canvas render, mendatangkan tamu mancanegara kaya yang membayar pesanan dengan pengali harga hingga 1.8x lipat!
 
+---
+
+## 8. Fase 5: "The Grand Showa Culinary Odyssey" (Sistem Kompleks, Adiktif & Adaptif)
+
+### A. Sistem Kuali Biang Kaldu Induk & Fermentasi Berumur (`src/dashi.js`)
+- **Kuali Besar Biang Kaldu Tua**:
+  - *Katsuobushi Grade A*: Serpihan cakalang asap memperkuat aroma kuah (+30% laju tamu masuk).
+  - *Niboshi Teri Bakar*: Ikan teri kering panggang memperdalam rasa gurih umami (+25% batas kesabaran antrean tamu).
+  - *Mirin & Gula Tebu Okinawa*: Kilau kuah emas (+20% durasi & multiplier Fever Mode).
+  - *Kecap Shoyu Vintage 10 Tahun*: Melipatgandakan nilai jual kaldu (+25% harga kuah).
+- **Mekanik Umur Kaldu Harian (*Aging Vat*)**:
+  - *Hari ke-1*: Kaldu Segar (Standar).
+  - *Hari ke-3*: **⭐ Biang Kaldu Emas 3 Hari** (Harga sajian x1.45 lipat dan kepuasan +20%).
+  - *Hari ke-7*: **👑 Biang Kaldu Pusaka 7 Hari** (Harga sajian oden x2.2 lipat dan kepuasan +35%).
+- **Saring Busa & Abu Kotoran Kaldu**: Aksi menyaring buih kotoran arang (`filterVatScum`) untuk menjaga kejernihan kaldu dan mencegah basi.
+
+### B. Mood Psikologi Adaptif & Resonansi Katarsis Emosional (`src/psychology.js`)
+- **4 Kondisi Batin / Mood Tamu Dinamis**:
+  1. 💔 *Patah Hati*: Butuh sapaan empati lembut, lagu Jazz Hujan, dan kaldu kombu manis.
+  2. 💼 *Kelelahan Lembur (Burnout)*: Butuh sapaan kobaran semangat, lagu City Pop, dan kaldu pedas.
+  3. 🌧️ *Nostalgia Masa Kecil*: Butuh sapaan nostalgia, lagu Enka, dan kaldu miso hangat.
+  4. 💢 *Tegang & Emosional*: Butuh sapaan ketenangan pikiran, alunan folk, dan kaldu kombu.
+- **Respon Sapaan Empati Koki (*Chef's Greeting Choice*)**:
+  - Saat tamu duduk, koki memilih 1 dari 4 gaya sapaan.
+  - **Efek Katarsis Emosional (*Deep Catharsis*)**: Jika mood + sapaan koki + kaset radio + kaldu cocok, tamu mengalami katarsis emosional mendalam! Meneteskan air mata bahagia, harga pesanan x1.5 lipat, dan berpeluang menghadiahi **Barang Pusaka Bersejarah Showa**:
+    - ⏱️ *Jam Saku Showa 1972*: Waktu Fever Mode +5 detik!
+    - 🥢 *Tusuk Konde Perak*: Reputasi kedai naik +25% permanen!
+    - 🪙 *Koin Kuno 100 Yen Perak*: Belanja bahan di pasar diskon 15%!
+    - 🖋️ *Pena Tinta Emas Pujangga*: Setiap dialog cerita tamu memberi bonus uang +¥200!
+
+### C. Minigame Pisau Dapur Presisi Siang Hari (`src/knifeprep.js`)
+- **Teknik Mengiris Bahan Bintang Koki**:
+  - *Keratan Berlian Lobak (Diamond Scoring)*: Mengiris pola silang wajik di atas Daikon.
+  - *Ikatan Tali Kanpyo (Kinchaku Tie)*: Mengikat kantong tahu isi mochi dengan tali kanpyo.
+  - *Tusukan Spiral Koki (Spiral Skewer)*: Menusuk daging sate ayam secara spiral.
+- **Bar Timing Presisi (*Sweet Spot*)**:
+  - Kursor bergerak bolak-balik dengan kecepatan dinamis.
+  - Menekan tombol tebas pada *Zona Emas Tengah* menghasilkan potongan presisi sempurna (*Masterwork Cut*).
+  - Bahan olahan pisau koki matang 35% lebih cepat di panci dan bernilai harga jual ekstra mahal!
+
+### D. Pesanan Telepon Putar & Kotak Bento Antar Sepeda (`src/delivery.js`)
+- **Telepon Meja Vintage Showa Berdering**:
+  - Menerima pesanan telepon masuk dari pos polisi patroli malam, rumah sakit perawat jaga, atau studio siaran radio malam.
+- **Termometer Kehangatan Bento (*Thermal Gauge*)**:
+  - Susun 3 oden pilihan ke dalam kotak bento kayu.
+  - Suhu bento terus mendingin seiring waktu (100°C $\rightarrow$ 20°C).
+  - Staf Kenji mengayuh sepeda onthel melintasi jalanan malam untuk mengantar pesanan.
+  - Berhasil tiba dalam kondisi panas beruap ($\ge 65^\circ\text{C}$) melipatgandakan uang tip dan reputasi distrik kota Tokyo!
+
+### E. Intrik Jalanan: Klan Yakuza, Inspektur Sanitasi, & Gerobak Saingan (`src/intrigue.js`)
+- **Klan Yakuza Kurogane**: Bos mafia malam Ryuzo mampir. Dilayani dengan potongan daging terbaik memberi perlindungan dari gangguan preman malam.
+- **Inspektur Sanitasi Hokenjo Tokyo (Inspektur Kato)**: Memeriksa kebersihan kuali kaldu, kestabilan api kompor, dan ketiadaan sate gosong. Lolos inspeksi memberi **Sertifikat Higienis Bintang 5** yang membebaskan kedai dari pajak distrik (+15% pendapatan permanen).
+- **Gerobak Saingan "Yamada-ya"**: Gerobak saingan buka di seberang jalan mencoba merebut tamu dengan potongan harga. Pemain melawan dengan menyebarkan aroma asap sate Shichirin, memasang lentera lebih terang, dan atraksi sake!
+
+
 

@@ -256,6 +256,40 @@ export function draw(ctx) {
     R(0, 66, W, 3, P.woodL)
     R(0, 80, W, 3, '#2a170f')
 
+    // Rak Barang Pusaka (Heirloom Showcase)
+    if (G.heirlooms && G.heirlooms.length) {
+      R(8, 14, 48, 2, P.wood)
+      G.heirlooms.forEach((hid, hidx) => {
+        const hx = 10 + hidx * 11
+        if (hid === 'pocket_watch') R(hx, 8, 5, 5, '#f1c40f')
+        else if (hid === 'silver_hairpin') R(hx, 7, 2, 7, '#bdc3c7')
+        else if (hid === 'vintage_coin') R(hx, 8, 4, 4, '#e0e0e0')
+        else if (hid === 'poet_pen') R(hx, 7, 2, 7, '#9b59b6')
+      })
+    }
+
+    // Kuali Besar Biang Kaldu Induk (Master Dashi Vat)
+    const vx = 8, vy = 50
+    R(vx, vy, 20, 18, '#5d4037')
+    R(vx + 1, vy + 2, 18, 14, '#3e2723')
+    const vatColor = G.masterVat ? (G.masterVat.ageDays >= 7 ? '#ffd700' : G.masterVat.ageDays >= 3 ? '#f39c12' : '#e67e22') : '#e67e22'
+    R(vx + 2, vy + 3, 16, 12, vatColor)
+    if (Math.sin(G.t * 5) > 0) {
+      R(vx + 4, vy + 5, 3, 3, '#fff')
+      R(vx + 10, vy + 7, 2, 2, '#fff')
+    }
+
+    // Telepon Putar Antik Showa (Rotary Telephone)
+    const phoneJitter = (G.phoneRingTimer <= 2) ? (Math.sin(G.t * 30) * 1.5 | 0) : 0
+    const tx = 148 + phoneJitter, ty = 57
+    R(tx, ty, 8, 8, '#1e272e')
+    R(tx + 1, ty + 1, 6, 6, '#2f3640')
+    R(tx + 2, ty + 2, 4, 4, '#dcdde1')
+    R(tx - 1, ty - 2, 10, 2, '#1e272e')
+    if (G.activePhoneOrder) {
+      T('☎️', tx - 2, ty - 8, '#ffd700', 7)
+    }
+
     // Pajangan Meja
     if (G.ornament === 'manekineko') {
       R(135, 58, 6, 8, '#ffffff')
@@ -404,6 +438,13 @@ export function draw(ctx) {
           R(bx + 2 + n * 8 + extraIcon, by + 2, 5, 4, '#e74c3c')
         }
 
+        if (c.mood) {
+          T(c.mood.icon, bx - 6, by - 4, '#fff', 7)
+        }
+        if (c.catharsis) {
+          T('✨', c.x - 3, c.y - 40, '#ffd700', 8)
+        }
+
         R(c.x - 8, c.y - 26, 16, 2, '#000')
         const patRatio = Math.max(0, c.pat / c.max)
         R(c.x - 8, c.y - 26, 16 * patRatio, 2, c.isBoss ? '#e74c3c' : patRatio > 0.35 ? '#6fd16f' : '#ff5050')
@@ -530,6 +571,27 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     R(35, 123, 6, 6, '#f0c8a0')
     R(33, 121, 9, 3, '#34495e')
     R(42, 133, 5, 8, '#d35400') // Gitar kayu
+  }
+
+  // Gerobak Saingan Yamada-ya di Seberang Jalan
+  if (G.rivalStall && G.rivalStall.active) {
+    const rx = 265, ry = 98
+    R(rx, ry, 45, 24, '#2c3e50')
+    R(rx - 2, ry - 6, 49, 6, '#2980b9')
+    T('YAMADA', rx + 6, ry - 5, '#ffffff', 5)
+    R(rx + 4, ry + 6, 36, 12, '#e67e22')
+    const rivalLight = Math.sin(G.t * 8) > 0.1 ? '#e74c3c' : '#c0392b'
+    R(rx - 2, ry + 2, 4, 6, rivalLight)
+  }
+
+  // Sepeda Onthel Pengantar Bento Kenji Melintas di Jalan
+  if (G.activePhoneOrder?.status === 'delivering') {
+    const bx = ((G.t * 55) % (W + 60)) - 30
+    R(bx, 142, 12, 3, '#2c3e50')
+    R(bx + 4, 134, 6, 8, '#3498db')
+    R(bx - 4, 136, 5, 5, '#e67e22') // Bento box kayu
+    R(bx - 3, 144, 4, 4, '#7f8c8d') // Roda belakang
+    R(bx + 10, 144, 4, 4, '#7f8c8d') // Roda depan
   }
 
   // Kucing Kuro di luar

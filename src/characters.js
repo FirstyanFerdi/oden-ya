@@ -290,12 +290,28 @@ export const SPECIAL_ENCOUNTERS = {
     shirt: '#7f8c8d',
     isInspector: true,
     dialogue: 'Saya ingin semangkuk oden dashi murni dengan kematangan rebusan emas tanpa cela. Bisakah kedai kecil ini memuaskan lidah saya?',
-    favItems: ['daikon', 'tamago', 'kinchaku'],
+    favItems: ['daikon', 'egg', 'kinchaku'],
     favCondiment: 'scallion',
     patience: 20,
     rewardMoney: 5000,
     rewardRep: 25,
     failRep: -8
+  },
+  sanitation: {
+    id: 'sanitation',
+    name: 'Inspektur Kato',
+    title: 'Inspektur Sanitasi Hokenjo Tokyo',
+    avatar: '📋',
+    hair: '#2c3e50',
+    shirt: '#ecf0f1',
+    isSanitation: true,
+    dialogue: 'Pemeriksaan kebersihan dan higienitas rutin! Tunjukkan padaku kuali oden yang bersih, kaldu jernih, dan suhu kompor stabil!',
+    favItems: ['daikon', 'egg', 'konnyaku'],
+    favCondiment: 'scallion',
+    patience: 22,
+    rewardMoney: 2500,
+    rewardRep: 18,
+    failRep: -5
   }
 }
 
