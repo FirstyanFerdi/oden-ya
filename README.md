@@ -247,7 +247,39 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - Ambil keputusan moral dan ekonomi dalam **Dilema Distrik** harian.
 
 ### 37. 💾 Penyimpanan Otomatis (Auto-Save)
-- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, poin keahlian master, album polaroid, musim aktif, monopoli distrik, level dinasti Ginza, piala Grand Prix, gentong fermentasi bawah tanah, dan reputasi 3 faksi distrik) otomatis tersimpan di `localStorage` peramban.
+- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, poin keahlian master, album polaroid, musim aktif, monopoli distrik, level dinasti Ginza, piala Grand Prix, gentong fermentasi bawah tanah, reputasi 3 faksi distrik, arketipe jiwa koki, rute ekspedisi kereta SL Ginga, formula kaldu kustom berpaten, pusaka sindikat & heat Koban, serta garis hidup pelanggan) otomatis tersimpan di `localStorage` peramban.
+
+### 38. ⚡ Mesin Deteksi Jiwa Koki (Player Culinary Soul & Archetype Engine)
+- Menganalisis gaya bermain koki secara adaptif (*fast serves*, kepatuhan estetika *Kaiseki*, akumulasi kekayaan & perdagangan pasar).
+- Tiga arketipe jiwa koki:
+  - ⚡ **Itamae Kilat (Speed Artisan)**: Tamu datang +30% lebih cepat, kombo tip +25%. Aura pendaran cyan elektrik mengelilingi koki.
+  - 🌸 **Wabi-Sabi Purist (Zen Perfectionist)**: Tamu bangsawan & kritikus seni muncul +50%, bonus reputasi +40%. Aura hijau giok/emas.
+  - 🪙 **Saudagar Showa (Market Tycoon)**: Diskon belanja pasar 25%, pendinginan kecurigaan polisi Koban 30% lebih cepat. Aura amber hangat.
+
+### 39. 🚂 Ekspedisi Kereta Api Uap Restorasi (The SL Ginga Gastronomic Journey)
+- Bawa kedai Anda melintasi 4 provinsi legendaris Jepang era Showa dengan kereta uap restorasi antik:
+  - 🗼 **Tokyo Central**: Rute awal ibu kota metropolitan.
+  - ❄️ **Otaru Salju Abadi (Hokkaido)**: Suhu beku $-15^\circ\text{C}$ mendinginkan kompor 2x lebih cepat. Membuka *Capit Kepiting Raja* & *Mentega Susu Otaru* (harga $\times1.4$, tip $\times1.3$).
+  - ⛩️ **Arashiyama Kuil Suci (Kyoto)**: Peziarah mengutamakan etika vegetarian Kaiseki murni. Membuka *Kembang Tahu Sutra* & *Rebung Rebus Bambu* (harga $\times1.5$, tip $\times1.4$).
+  - 🐙 **Dotonbori Gemerlap (Osaka)**: Budaya tempo cepat dengan aturan sakral pantang mencelup saus 2 kali. Membuka *Doteyaki Urat Miso Manis* & *Acar Jahe Merah* (harga $\times1.6$, tip $\times1.6$).
+  - 🍜 **Pesisir Teluk Yatai (Hakata)**: Tenda yatai buka hingga subuh dengan riuh pesta sake pesisir. Membuka *Telur Ikan Mentaiko Pedas* & *Ekstrak Rebusan Gurih* (harga $\times1.75$, tip $\times1.8$).
+
+### 40. ⚗️ Laboratorium Kaldu Kustom (Master Broth Alchemy Lab)
+- Eksperimen perpaduan 5 saripati rasa alami: *Umami* (Kombu & Katsuobushi), *Amami* (Mirin & Lobak), *Shio* (Garam Samudra), *Kaori* (Yuzu & Cedar), dan *Koku* (Kolagen Tulang Daging).
+- Mesin kalkulasi harmoni rasa tradisional Jepang yang menghitung sinergi Shio-Amami, Umami-Koku, dan kesegaran Kaori.
+- Pendaftaran sertifikat paten kuliner resmi ke Asosiasi Kuliner Jepang (skor harmoni $\ge 80\%$) dengan nama kaldu orisinal buatan pemain.
+- Tuangkan kaldu paten ke panci oden utama untuk mendapatkan bonus nilai hidangan permanen **+35%**.
+
+### 41. 🐉 Pasar Gelap Sindikat Jam 03:30 & Pusaka Terkutuk (The Midnight Syndicate & Cursed Relics)
+- Transaksi bawah tanah berisiko tinggi untuk mendapatkan artefak terlarang berdaya mistis:
+  - 🔥 *Arang Hitam Kuno 100 Tahun*: Suhu kompor panas abadi (kebal hawa beku) dan sate yakitori tidak akan pernah gosong.
+  - 🗡️ *Pisau Pusaka Masamune*: Setiap potongan bahan oden otomatis berkualitas rebusan Emas (+50% harga).
+  - 🧂 *Kendi Garam Samudra Purba*: Memulihkan kesabaran tamu yang marah menjadi 100% penuh.
+- **Tingkat Kecurigaan Koban (Heat Level)**: Kepemilikan artefak meningkatkan panas kecurigaan polisi. Jika Heat $\ge 75\%$, sirine razia berbunyi! Sembunyikan pusaka di kompartemen rahasia bawah tatami (biaya suap ¥500) agar aman dari razia.
+
+### 42. 📖 Garis Hidup Dinamis Pelanggan & Malam Reuni (Life Scrapbook & Grand Reunion)
+- Pelanggan reguler bertumbuh dan menua seiring perjalanan waktu dalam 3 babak kehidupan (Pak Gimin, Nona Hana, Detektif Kenzo, Nenek Sumi).
+- **Malam Reuni Akbar Showa (The Grand Reunion)**: Terbuka saat minimal 3 karakter mencapai Tahap 2+. Seluruh pelanggan berkumpul bersulang merayakan reuni di kedai Anda (+¥5.000 tunai, +30 reputasi, partikel konfeti perayaan, dan foto kenangan polaroid abadi).
 
 ---
 
@@ -255,6 +287,10 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 
 1. **Persiapan Pagi/Sore**:
    - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
+   - Buka menu **🚂 SL Ginga** untuk membeli tiket kereta uap dan berlabuh di provinsi baru (Hokkaido, Kyoto, Osaka, Hakata).
+   - Buka menu **⚗️ Kaldu Kustom** untuk meracik 5 parameter rasa dan mendaftarkan formula dashi paten Anda.
+   - Buka menu **🐉 Sindikat 03:30** untuk berburu pusaka mistis terlarang atau menyembunyikannya di bawah tatami dari razia Koban.
+   - Buka menu **📖 Jejak Reuni** untuk melihat perkembangan babak hidup pelanggan setia dan memicu Malam Reuni Akbar.
    - Buka menu **🏺 Fermentasi** untuk memeriksa gentong bawah tanah dan memanen Telur Selai Emas atau Sake Vintage.
    - Buka menu **⚖️ Faksi Distrik** untuk memantau neraca pengaruh kekuasaan jalanan dan menyelesaikan dilema distrik.
    - Buka menu **🍂 Musim** untuk memeriksa kalender musim aktif dan bahan eksklusifnya.
@@ -281,6 +317,11 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 
 ## 📂 Struktur Berkas
 
+- [src/soul.js](src/soul.js) – Mesin deteksi gaya bermain dan arketipe jiwa koki (Speed Artisan, Zen Perfectionist, Market Tycoon) beserta aura visual canvas.
+- [src/expedition.js](src/expedition.js) – Sistem ekspedisi kereta uap SL Ginga melintasi 4 provinsi (Hokkaido, Kyoto, Osaka, Hakata) dengan cuaca ekstrem, aturan lokal, dan bahan eksklusif.
+- [src/alchemy.js](src/alchemy.js) – Laboratorium peracikan kaldu kustom 5 parameter rasa alami, kalkulator harmoni, pendaftaran hak paten, dan integrasi panci oden (+35% harga).
+- [src/syndicate.js](src/syndicate.js) – Pasar gelap sindikat jam 03:30, artefak pusaka berkekuatan mistis, akumulasi heat polisi Koban, dan mekanik sembunyi tatami.
+- [src/lifearc.js](src/lifearc.js) – Sistem garis hidup dinamis pelanggan (3 babak kematangan) dan perayaan Malam Reuni Akbar Showa dengan konfeti & polaroid.
 - [src/arashi.js](src/arashi.js) – Sistem tingkat kesulitan adaptif Arashi Rush Hour (x3.5 tip) dan mode bullet-time Zen Focus.
 - [src/dynasty.js](src/dynasty.js) – Sistem prestige Dinasti Showa, pembukaan lokasi ke-4 Ginza Flagship, dividen murid harian, dan tamu bangsawan Zashiki VIP.
 - [src/grandprix.js](src/grandprix.js) – Turnamen 3 babak kejuaraan nasional (Blind Dashi Tasting, Speed Kaiseki Plating, Duel Kuali Api), Piala Bergilir Kaisar, dan bahan S-tier Echizen Matsuba Crab & Imperial Daikon.
@@ -301,12 +342,12 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
 - [src/recipes.js](src/recipes.js) – Daftar resep kombinasi rahasia (*Fusion Dex*), resep mahkota kekaisaran (*Imperial Golden Oden*), deteksi kecocokan piring, dan bonus harga.
 - [src/locations.js](src/locations.js) – Sistem 4 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon, Ginza Flagship) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, jepretan polaroid, genderang cook-off, lonceng midnight, detak zen focus, chime euphoria, gong grand prix, dan fanfare dinasti.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, peluit kereta SL Ginga, suara lumpang alu kaldu, bisikan mistis sindikat, dan denting lonceng reuni.
 - [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Tamu Bangsawan Zashiki (Menteri Kato, Sutradara Otomo, Taipan Tanaka), Inspektur Michelin, dan Inspektur Sanitasi.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim (sakura, maple, salju), suasana malam Shinya Shokudo, aura Zen Focus, gelombang Arashi Rush, Piala Bergilir Kaisar, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, bingkai polaroid, arena cook-off, pohon skill, termometer bento, bar lelang, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 7.
+- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim, pendaran aura jiwa koki, partikel atmosfer provinsi SL Ginga (kabut es Hokkaido, daun bambu Kyoto, neon Osaka, pesisir Hakata), sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 8.
 

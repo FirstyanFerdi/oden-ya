@@ -221,6 +221,48 @@ export function draw(ctx) {
     }
   }
 
+  // Efek Atmosfer Ekspedisi Kereta SL Ginga
+  const curExpRoute = G.expedition?.currentRoute
+  if (curExpRoute === 'hokkaido') {
+    for (let k = 0; k < 8; k++) {
+      const sx = ((G.t * 30 + k * 45) % (W + 20)) - 10
+      const sy = ((G.t * 22 + k * 18) % (H + 20)) - 10
+      R(sx, sy, 2, 2, '#dff9fb')
+    }
+  } else if (curExpRoute === 'kyoto') {
+    for (let k = 0; k < 6; k++) {
+      const bx = ((G.t * 14 + k * 55) % (W + 20)) - 10
+      const by = ((G.t * 18 + k * 32) % (H + 20)) - 10
+      R(bx, by, 3, 2, '#badc58')
+    }
+  } else if (curExpRoute === 'osaka') {
+    const neonFlash = (Math.sin(G.t * 5) > 0.5) ? '#ff7979' : '#f9ca24'
+    R(2, 2, 4, 4, neonFlash)
+    R(W - 6, 2, 4, 4, neonFlash)
+  } else if (curExpRoute === 'hakata') {
+    for (let k = 0; k < 6; k++) {
+      const hx = ((G.t * 20 + k * 40) % (W + 10)) - 5
+      const hy = ((G.t * 8 + k * 25) % (H + 10)) - 5
+      R(hx, hy, 2, 1, '#7ed6df')
+    }
+  }
+
+  // Waspada Razia Polisi Koban (Pasar Gelap Sindikat)
+  if (G.syndicate?.raidAlert) {
+    const sirenRed = Math.sin(G.t * 12) > 0
+    R(0, 0, W, 2, sirenRed ? '#ff4757' : '#2f3542')
+    T('🚨 RAZIA KOBAN! SEMBUNYIKAN PUSAKA!', W / 2 - 75, 4, sirenRed ? '#ff4757' : '#ffffff', 8)
+  }
+
+  // Partikel Malam Reuni Akbar Showa
+  if (G.lifeArc?.reunionActive) {
+    for (let k = 0; k < 12; k++) {
+      const rx = ((G.t * 18 + k * 28) % (W + 20)) - 10
+      const ry = ((G.t * 24 + k * 35) % (H + 20)) - 10
+      R(rx, ry, 2, 2, ['#ff7675', '#74b9ff', '#ffeaa7', '#fd79a8', '#55efc4'][k % 5])
+    }
+  }
+
   if (G.scene === 'in' && z > 0.4) {
     ctx.fillStyle = `rgba(0,0,0,${z * 0.35})`
     ctx.fillRect(0, 0, W, H)
@@ -446,7 +488,21 @@ export function draw(ctx) {
       T('★'.repeat(G.michelinStars), 272, 18, '#ffd700', 8)
     }
 
-    // Koki Pemilik Kedai
+    // Koki Pemilik Kedai & Aura Jiwa Koki (Soul Archetype Glow)
+    const activeArch = G.soul?.archetype || G.soul?.currentArchetype
+    if (activeArch) {
+      const aColors = {
+        speed: 'rgba(52, 152, 219, 0.4)',
+        zen: 'rgba(46, 204, 113, 0.4)',
+        tycoon: 'rgba(241, 196, 15, 0.4)'
+      }
+      const aColor = aColors[activeArch] || 'rgba(255, 215, 0, 0.3)'
+      const aR = 14 + Math.sin(G.t * 5) * 2
+      ctx.fillStyle = aColor
+      ctx.beginPath()
+      ctx.arc(106, 40, aR, 0, Math.PI * 2)
+      ctx.fill()
+    }
     R(100, 36, 12, 20, '#e9e1d0')
     R(100, 36, 12, 6, '#c9453a')
     R(100, 42, 12, 2, '#000')

@@ -372,6 +372,66 @@ Ekspansi sistem strategi mendalam, tingkat kesulitan adaptif, serta konten *mid-
 - `playGrandPrixGong()`: Resonansi gong kuil pembuka dan penutup pertandingan kejuaraan nasional.
 - `playPrestigeFanfare()`: Melodi Gagaku klasik kaisar saat pembukaan dinasti dan perjamuan bangsawan.
 
+---
+
+## 11. Fase Pengembangan Fitur Lanjutan: Tahap 8 (The Wandering Gourmet & Soul of Itamae)
+
+Ekspansi sistem adaptif, petualangan rute provinsi, kustomisasi kimia dashi murni, pasar gelap sindikat berisiko tinggi, serta perkembangan naratif jangka panjang para tamu kedai.
+
+### A. Mesin Deteksi Jiwa Koki (Player Culinary Soul & Archetype Engine) (`src/soul.js`)
+- **Analisis Gaya Bermain Pemain**:
+  - Menganalisis kecepatan saji (*fastServe*), kepatuhan estetika kaiseki (*highKaisekiCount*), serta akumulasi kekayaan dan perdagangan pasar (*marketTrades* & *coins*).
+  - Tiga arketipe jiwa koki:
+    1. **Itamae Kilat (Speed Artisan - ⚡)**: Aura cyan elektrik. Peningkatan kedatangan tamu komuter +30% dan kombo tip +25%.
+    2. **Wabi-Sabi Purist (Zen Perfectionist - 🌸)**: Aura hijau giok/emas. Peluang kedatangan bangsawan/kritikus +50% dan bonus reputasi +40%.
+    3. **Saudagar Showa (Market Tycoon - 🪙)**: Aura amber hangat. Diskon belanja pasar 25% dan tingkat kecurigaan polisi Koban mendingin 30% lebih cepat.
+- **Pendaran Aura Visual Koki**:
+  - Canvas secara dinamis merender pendaran aura di sekeliling koki sesuai arketipe jiwa aktifnya.
+
+### B. Ekspedisi Kereta Api Uap Restorasi (The SL Ginga Gastronomic Journey) (`src/expedition.js`)
+- **4 Rute Provinsi Legendaris Showa**:
+  - **Tokyo Central (🗼)**: Rute awal ibu kota.
+  - **Otaru Salju Abadi (Hokkaido - ❄️)**: Suhu beku $-15^\circ\text{C}$ mendinginkan kompor 2x lebih cepat. Membuka bahan *Capit Kepiting Raja* dan *Mentega Susu Otaru* (pengganda harga $\times1.4$, tip $\times1.3$).
+  - **Arashiyama Kuil Suci (Kyoto - ⛩️)**: Peziarah mengutamakan sajian vegetarian bernilai Kaiseki tinggi. Membuka *Kembang Tahu Sutra* dan *Rebung Rebus Bambu* (pengganda harga $\times1.5$, tip $\times1.4$).
+  - **Dotonbori Gemerlap (Osaka - 🐙)**: Budaya tempo cepat dengan aturan sakral tanpa celup saus dua kali. Membuka *Doteyaki Urat Miso Manis* dan *Acar Jahe Merah Pedas* (pengganda harga $\times1.6$, tip $\times1.6$).
+  - **Pesisir Teluk Yatai (Hakata - 🍜)**: Tenda pesisir buka hingga subuh dengan riuh alkohol. Membuka *Telur Ikan Mentaiko Pedas* dan *Ekstrak Rebusan Gurih* (pengganda harga $\times1.75$, tip $\times1.8$).
+- **Atmosfer Visual Partikel Provinsi**:
+  - Partikel kabut es lembut di Hokkaido, dedaunan bambu melayang di Kyoto, kedipan neon di Osaka, serta semilir kabut pesisir di Hakata.
+
+### C. Laboratorium Kaldu Kustom (Master Broth Alchemy Lab) (`src/alchemy.js`)
+- **5 Parameter Rasa Alami**:
+  - *Umami* (Kombu & Katsuobushi), *Amami* (Mirin & Lobak), *Shio* (Garam Samudra), *Kaori* (Yuzu & Cedar), dan *Koku* (Kolagen Daging).
+- **Kalkulator Harmoni Sinergi Rasa Tradisional**:
+  - Harmoni dihitung dari keseimbangan Shio-Amami, sinergi Umami-Koku, serta aroma Kaori.
+- **Hak Paten Asosiasi Kuliner & Integrasi Panci**:
+  - Kaldu dengan skor harmoni $\ge 80\%$ dapat didaftarkan dengan nama kustom buatan pemain (biaya registrasi $\yen 3.000$, reputasi +20).
+  - Formula paten dapat dituangkan ke panci oden utama untuk memberikan pengganda harga permanen **+35%** pada seluruh bahan rebusan.
+
+### D. Pasar Gelap Sindikat Jam 03:30 & Pusaka Terkutuk (`src/syndicate.js`)
+- **Pusaka Berdaya Mistis**:
+  - *Arang Hitam Kuno 100 Tahun*: Suhu kompor tidak pernah turun di bawah $85\%$ dan sate yakitori tidak akan gosong (Heat +25).
+  - *Pisau Pusaka Masamune*: Setiap irisan bahan langsung berstatus rebusan Emas bernilai $+50\%$ harga (Heat +35).
+  - *Kendi Garam Samudra Purba*: Mengembalikan kesabaran tamu yang marah menjadi $100\%$ penuh (Heat +20).
+- **Mekanik Risiko Polisi Koban (Heat Level & Razia)**:
+  - Heat level bertambah setiap membeli artefak. Jika Heat $\ge 75\%$, memicu peringatan sirine razia Koban.
+  - Pemain dapat menyuap dan menyembunyikan pusaka di kompartemen rahasia bawah tatami ($\yen 500$, Heat -35) untuk menghindari penyitaan.
+
+### E. Garis Hidup Dinamis Pelanggan & Malam Reuni (`src/lifearc.js`)
+- **Evolusi Karakter Bertahap (3 Tahap Kehidupan)**:
+  - *Pak Gimin*: Pegawai Lembur Lelah $\to$ Promosi Kepala Divisi $\to$ Perayaan Makan Malam Keluarga.
+  - *Nona Hana*: Siswi Desa Perantau $\to$ Mahasiswi Kedokteran Unggulan $\to$ Dokter Muda Penuh Syukur.
+  - *Detektif Kenzo*: Penyelidik Malam Tanpa Nama $\to$ Titik Terang Kasus Kota Tua $\to$ Piagam Bintang Emas Kepolisian.
+  - *Nenek Sumi*: Penghuni Kenangan Kota Tua $\to$ Surat Manis dari Cucu $\to$ Warisan Resep Dashi Leluhur.
+- **Malam Reuni Akbar Showa (The Grand Reunion)**:
+  - Terbuka ketika minimal 3 karakter mencapai Tahap 2+.
+  - Menghasilkan bonus hadiah $\yen 5.000$, reputasi +30, perayaan bersulang seluruh tamu dengan partikel konfeti warna-warni, serta foto kenangan di album polaroid.
+
+### F. Efek Audio Prosedural Baru (`src/audio.js`)
+- `playSteamTrainWhistle()`: Peluit uap antik kereta SL Ginga bergaung saat tiba di stasiun provinsi baru.
+- `playMortarGrind()`: Gesekan lumpang batu dan alu kayu saat meracik rempah kaldu kustom.
+- `playSyndicateWhisper()`: Bisikan lorong gelap mistis saat transaksi pasar gelap bawah tanah.
+- `playReunionChime()`: Dentingan lonceng perak bahagia saat Malam Reuni Akbar dimulai.
+
 
 
 

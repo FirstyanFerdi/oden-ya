@@ -21,6 +21,11 @@ import {ZASHIKI_VIP_GUESTS, createInitialDynastyState, canPrestige, executePrest
 import {createGrandPrixSession, updateGrandPrix, adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir} from './grandprix.js'
 import {FERMENTATION_RECIPES, createInitialFermentationCellar, advanceCellarDays, startFermenting, harvestVat, evaluateSakePairing} from './fermentation.js'
 import {FACTION_INFO, FACTION_DILEMMAS, createInitialFactionState, adjustFactionRep, triggerRandomDilemma, resolveDilemma} from './factions.js'
+import {SOUL_ARCHETYPES, createInitialSoulState, updateSoulMetrics, evaluateSoulArchetype, getSoulPerks} from './soul.js'
+import {TRAIN_ROUTES, createInitialExpeditionState, travelToRoute, getCurrentRouteInfo} from './expedition.js'
+import {createInitialAlchemyState, adjustTasteParam, calculateHarmony, patentCustomBroth, toggleActiveInPot} from './alchemy.js'
+import {SYNDICATE_ITEMS, createInitialSyndicateState, buySyndicateRelic, hideContraband, updateSyndicateHeat} from './syndicate.js'
+import {LIFE_MILESTONES, createInitialLifeArcState, advanceCharacterArc, canTriggerReunion, triggerGrandReunion} from './lifearc.js'
 import * as Audio from './audio.js'
 
 export {
@@ -29,7 +34,9 @@ export {
   KNIFE_TECHNIQUES, DELIVERY_CLIENTS, STREET_FACTIONS,
   SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
   ZASHIKI_VIP_GUESTS, FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige,
-  adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir
+  adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir,
+  SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -46,15 +53,20 @@ export const ITEMS = [
   {id: 'tako', n: 'Sate Gurita', p: 300, c: '#c4567a', cost: 800, rep: 38, comp: 1},
   {id: 'imperial_daikon', n: 'Lobak Istana Kyoto', p: 450, c: '#f5ecd5', cost: 1200, rep: 70, comp: 0},
   {id: 'matsuba_crab', n: 'Kepiting Matsuba', p: 600, c: '#e74c3c', cost: 1500, rep: 80, comp: 1},
-  {id: 'tamago_selai', n: 'Telur Selai Emas', p: 450, c: '#f39c12', cost: 1000, rep: 75, comp: 3}
+  {id: 'tamago_selai', n: 'Telur Selai Emas', p: 450, c: '#f39c12', cost: 1000, rep: 75, comp: 3},
+  {id: 'king_crab', n: 'Capit Kepiting Raja', p: 700, c: '#e74c3c', cost: 1600, rep: 80, comp: 1},
+  {id: 'yuba_silk', n: 'Kembang Tahu Sutra', p: 260, c: '#fffde7', cost: 600, rep: 30, comp: 3},
+  {id: 'takenoko_bamboo', n: 'Rebung Rebus Bambu', p: 200, c: '#c8d6e5', cost: 450, rep: 25, comp: 0},
+  {id: 'doteyaki_beef', n: 'Doteyaki Urat Miso Manis', p: 340, c: '#d35400', cost: 900, rep: 40, comp: 2},
+  {id: 'mentaiko', n: 'Telur Ikan Mentaiko Pedas', p: 320, c: '#ff6b6b', cost: 850, rep: 35, comp: 1}
 ]
 
 // 4 Sekat Kompartemen Panci
 export const COMPARTMENTS = [
-  {id: 0, name: 'Sekat Sayur (Lobak, Konnyaku, Lobak Istana)', allowed: ['daikon', 'konnyaku', 'imperial_daikon']},
-  {id: 1, name: 'Sekat Olahan Laut (Chikuwa, Gurita, Kepiting)', allowed: ['chikuwa', 'tako', 'matsuba_crab']},
-  {id: 2, name: 'Sekat Daging (Urat Sapi)', allowed: ['gyusuji']},
-  {id: 3, name: 'Sekat Telur, Mochi & Tahu (Termasuk Telur Selai)', allowed: ['egg', 'kinchaku', 'atsuage', 'tamago_selai']}
+  {id: 0, name: 'Sekat Sayur (Lobak, Rebung & Konnyaku)', allowed: ['daikon', 'konnyaku', 'imperial_daikon', 'takenoko_bamboo']},
+  {id: 1, name: 'Sekat Olahan Laut (Chikuwa, Gurita, Kepiting Raja, Mentaiko)', allowed: ['chikuwa', 'tako', 'matsuba_crab', 'king_crab', 'mentaiko']},
+  {id: 2, name: 'Sekat Daging (Urat Sapi & Doteyaki)', allowed: ['gyusuji', 'doteyaki_beef']},
+  {id: 3, name: 'Sekat Telur, Mochi & Tahu (Termasuk Yuba & Telur Selai)', allowed: ['egg', 'kinchaku', 'atsuage', 'tamago_selai', 'yuba_silk']}
 ]
 
 // Kondimen & Minuman
@@ -240,7 +252,13 @@ export function newGame(demo = false) {
     // Gudang Fermentasi Bawah Tanah
     fermentation: createInitialFermentationCellar(),
     // Segitiga Pengaruh Faksi Distrik
-    factions: createInitialFactionState()
+    factions: createInitialFactionState(),
+    // Fase 8: Jiwa Koki, Ekspedisi Kereta, Kaldu Kustom, Sindikat & Reuni
+    soul: createInitialSoulState(),
+    expedition: createInitialExpeditionState(),
+    alchemy: createInitialAlchemyState(),
+    syndicate: createInitialSyndicateState(),
+    lifeArc: createInitialLifeArcState()
   }
 }
 
@@ -248,7 +266,8 @@ function generateMarketPrices(day = 1) {
   const base = {
     daikon: 35, egg: 45, konnyaku: 30, chikuwa: 40,
     gyusuji: 90, kinchaku: 75, atsuage: 70, tako: 120,
-    imperial_daikon: 200, matsuba_crab: 260, tamago_selai: 180
+    imperial_daikon: 200, matsuba_crab: 260, tamago_selai: 180,
+    king_crab: 320, yuba_silk: 120, takenoko_bamboo: 90, doteyaki_beef: 150, mentaiko: 140
   }
   const news = generateDailyMarketNews(day)
   const result = {}
@@ -340,6 +359,11 @@ function loadSavedGame() {
     data.grandPrixTrophy = !!data.grandPrixTrophy
     data.fermentation = data.fermentation || createInitialFermentationCellar()
     data.factions = data.factions || createInitialFactionState()
+    data.soul = data.soul || createInitialSoulState()
+    data.expedition = data.expedition || createInitialExpeditionState()
+    data.alchemy = data.alchemy || createInitialAlchemyState()
+    data.syndicate = data.syndicate || createInitialSyndicateState()
+    data.lifeArc = data.lifeArc || createInitialLifeArcState()
     return data
   } catch (e) {
     return null
@@ -400,7 +424,12 @@ export function saveGame() {
       dynasty: G.dynasty,
       grandPrixTrophy: G.grandPrixTrophy,
       fermentation: G.fermentation,
-      factions: G.factions
+      factions: G.factions,
+      soul: G.soul,
+      expedition: G.expedition,
+      alchemy: G.alchemy,
+      syndicate: G.syndicate,
+      lifeArc: G.lifeArc
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -610,7 +639,8 @@ export const buyDecoration = (type, itemObj) => {
 // Beli Stok Bahan di Pasar
 export function buyStock(itemId, quantity = 5) {
   const pricePerUnit = G.marketPrices[itemId] || 40
-  const discountMult = G.heirlooms?.includes('vintage_coin') ? 0.85 : 1.0
+  let discountMult = G.heirlooms?.includes('vintage_coin') ? 0.85 : 1.0
+  if (G.soul?.archetype === 'tycoon') discountMult *= 0.75
   const totalCost = Math.round(pricePerUnit * quantity * discountMult)
   if (G.money >= totalCost) {
     G.money -= totalCost
@@ -788,7 +818,8 @@ export function discardSate(slotIdx) {
 export function buySateStock(itemId, qty = 5) {
   const item = GRILL_ITEMS.find(x => x.id === itemId)
   if (!item) return false
-  const totalCost = item.marketPrice * qty
+  const discountMult = (G.soul?.archetype === 'tycoon') ? 0.75 : 1.0
+  const totalCost = Math.round(item.marketPrice * qty * discountMult)
   if (G.money >= totalCost) {
     G.money -= totalCost
     G.sateStock[itemId] = (G.sateStock[itemId] || 0) + qty
@@ -1182,8 +1213,8 @@ function spawn() {
     }
     Audio.playPrestigeFanfare()
     G.floats.push({x: 140, y: 50, t: 0, s: `🏛️ TAMU BANGSAWAN GINZA: ${zashikiGuest.name}!`, c: '#f1c40f'})
-  } else if (Math.random() < 0.12 && G.rep >= 35) {
-    // Inspektur Michelin Menyamar
+  } else if (Math.random() < (G.soul?.archetype === 'zen' ? 0.20 : 0.12) && G.rep >= 35) {
+    // Inspektur Michelin Menyamar (Peluang +50% untuk Wabi-Sabi Zen)
     specialData = SPECIAL_ENCOUNTERS.inspector
     G.floats.push({x: 140, y: 50, t: 0, s: '🕵️‍♂️ Tamu Misterius Mengamati Kedai...', c: '#a29bfe'})
   } else if (!G.sanitationCertified && Math.random() < 0.15 && G.rep >= 20) {
@@ -1377,12 +1408,28 @@ export function serve() {
   // Multiplier Dinasti Emas (Golden Dashi Heritage)
   const dynastyMultiplier = G.dynasty?.goldenDashiActive ? 1.25 : 1.0
 
-  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier * dynastyMultiplier)
-  let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier) : 0
+  // Multiplier Ekspedisi Kereta SL Ginga
+  const routeInfo = getCurrentRouteInfo(G.expedition)
+  const routePriceMult = routeInfo?.priceMult || 1.0
+  const routeTipMult = routeInfo?.tipMult || 1.0
+
+  // Multiplier Kaldu Kustom Broth Alchemy
+  const alchemyMultiplier = (G.alchemy?.patented && G.alchemy?.activeInPot) ? (1 + (G.alchemy.harmonyScore / 100) * 0.35) : 1.0
+
+  // Pusaka Terkutuk Sindikat: Pisau Masamune
+  const masamuneMultiplier = G.syndicate?.ownedRelics?.includes('masamune_blade') ? 1.5 : 1.0
+
+  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier * dynastyMultiplier * routePriceMult * alchemyMultiplier * masamuneMultiplier)
+  let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier * routeTipMult) : 0
 
   // Efek Arashi Rush Hour (Tip Multiplier x3.5)
   if (G.arashi?.active) {
     tip = Math.round(tip * 3.5)
+  }
+
+  // Arketipe Jiwa Koki: Speed Artisan (Kombo Tip +25%)
+  if (G.soul?.archetype === 'speed') {
+    tip = Math.round(tip * 1.25)
   }
 
   // Evaluasi Harmoni Makanan & Sake (Food-Sake Pairing Matrix)
@@ -1482,6 +1529,16 @@ export function serve() {
   G.dayStats.revenue += gain
   G.dayStats.tips += tip
 
+  // Metrik Jiwa Koki (Culinary Soul)
+  if (serveSpeed < 6) updateSoulMetrics(G, 'fastServe')
+  if (kaisekiScore >= 80) updateSoulMetrics(G, 'highKaiseki')
+  updateSoulMetrics(G, 'coins', gain + tip)
+
+  // Kemajuan Jejak Hidup Pelanggan
+  if (c.charId && c.catharsis && G.lifeArc) {
+    advanceCharacterArc(G.lifeArc, c.charId, G)
+  }
+
   // Progres Poin Keahlian Master (Setiap 4 tamu terlayani dengan baik)
   if (sat >= 0.6) {
     G.masteryProgress = (G.masteryProgress || 0) + 1
@@ -1494,7 +1551,8 @@ export function serve() {
   }
 
   const grandPrixRepBonus = G.grandPrixTrophy ? 1.5 : 1.0
-  const repMult = (G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0) * grandPrixRepBonus
+  const zenRepBonus = (G.soul?.archetype === 'zen') ? 1.4 : 1.0
+  const repMult = (G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0) * grandPrixRepBonus * zenRepBonus
   G.rep = Math.max(0, G.rep + (sat > 0.7 ? 2.5 : sat > 0.4 ? 0.5 : -1) * repMult)
   onArashiServe(G, sat >= 0.65)
   G.plate.forEach(i => G.pop[i] = (G.pop[i] || 0) + 1)
@@ -1690,7 +1748,12 @@ export function update(dt) {
   if (g.grillSlots) {
     g.grillSlots.forEach((slot, sIdx) => {
       if (slot.id !== null) {
-        slot.timer += validDt
+        const hasBinchotan = g.syndicate?.ownedRelics?.includes('binchotan_100') && !g.syndicate?.hiddenUnderTatami
+        if (hasBinchotan && slot.flipped && slot.glazed && slot.timer >= 20) {
+          slot.timer = 20
+        } else {
+          slot.timer += validDt
+        }
         if (Math.random() < validDt * 8) {
           g.grillSmoke.push({
             x: 180 + sIdx * 18 + (Math.random() * 4 - 2),
@@ -1759,7 +1822,33 @@ export function update(dt) {
         p.x = Math.random() * W
       }
     })
-    g.stoveHeat = Math.max(0.2, (g.stoveHeat || 0.7) - validDt * 0.015)
+    const coolRate = (g.expedition?.currentRoute === 'hokkaido') ? 0.03 : 0.015
+    g.stoveHeat = Math.max(0.2, (g.stoveHeat || 0.7) - validDt * coolRate)
+  }
+
+  // Update Fase 8: Sindikat Pasar Gelap Heat & Pusaka Terkutuk
+  if (g.syndicate) {
+    updateSyndicateHeat(g.syndicate, validDt, g)
+    if (g.syndicate.ownedRelics?.includes('binchotan_100') && !g.syndicate.hiddenUnderTatami) {
+      if ((g.stoveHeat || 0) < 0.85) g.stoveHeat = 0.85
+    }
+    if (g.syndicate.ownedRelics?.includes('ocean_salt_pot') && !g.syndicate.hiddenUnderTatami) {
+      g.cust.forEach(c => {
+        if (c.st === 'wait') {
+          if (c.pat < c.max * 0.25 && !c.saltRestored) {
+            c.saltRestored = true
+            c.pat = c.max
+            g.floats.push({x: c.x, y: c.y - 30, t: 0, s: '🧂 Garam Samudra Memulihkan Kesabaran!', c: '#74b9ff'})
+          }
+          c.pat = Math.min(c.max, c.pat + validDt * 0.15)
+        }
+      })
+    }
+  }
+
+  // Update Fase 8: Jiwa Koki (Evaluasi Pola Main)
+  if (g.soul && Math.random() < validDt * 0.2) {
+    evaluateSoulArchetype(g.soul)
   }
 
   // Update Fase 5: Minigame Pisau Dapur Presisi jika aktif
@@ -1820,6 +1909,7 @@ export function update(dt) {
     spawn()
     let rate = g.demo ? 3 : Math.max(3, 9 - g.lantern * 1.5 - level())
     if (g.isFestival || g.feverActive) rate *= 0.5
+    if (g.soul?.archetype === 'speed') rate *= 0.7 // Gelombang Komuter: Tamu datang +30% lebih cepat
     g.spawnT = rate * (0.7 + Math.random() * 0.6)
   }
 
@@ -1978,4 +2068,69 @@ export function serveSakeBottle(sakeType = 'atsukan') {
   G.floats.push({x: G.target.x, y: G.target.y - 45, t: 0, s: `🍶 Sajian Sake: ${sakeType === 'koshu' ? 'Koshu Vintage 1975' : sakeType === 'ginjo' ? 'Junmai Ginjo' : 'Atsukan Hangat'}!`, c: '#ffd700'})
   saveGame()
   return true
+}
+
+// --- FASE 8: HELPER FUNCTIONS & AKSI PEMAIN ---
+export function travelToStation(routeId) {
+  if (!G.expedition) G.expedition = createInitialExpeditionState()
+  const ok = travelToRoute(G.expedition, routeId, G)
+  if (ok) {
+    Audio.playSteamTrainWhistle()
+    saveGame()
+  }
+  return ok
+}
+
+export function adjustAlchemyParam(param, delta) {
+  if (!G.alchemy) G.alchemy = createInitialAlchemyState()
+  adjustTasteParam(G.alchemy, param, delta)
+  Audio.playMortarGrind()
+}
+
+export function patentBrothAction(name) {
+  if (!G.alchemy) G.alchemy = createInitialAlchemyState()
+  const res = patentCustomBroth(G.alchemy, name, G)
+  if (res.success) {
+    Audio.playReunionChime()
+    saveGame()
+  }
+  return res
+}
+
+export function toggleCustomBrothInPot() {
+  if (!G.alchemy) return false
+  const active = toggleActiveInPot(G.alchemy)
+  Audio.playSakePour()
+  saveGame()
+  return active
+}
+
+export function buyRelicAction(relicId) {
+  if (!G.syndicate) G.syndicate = createInitialSyndicateState()
+  const res = buySyndicateRelic(G.syndicate, relicId, G)
+  if (res.success) {
+    Audio.playSyndicateWhisper()
+    saveGame()
+  }
+  return res
+}
+
+export function hideContrabandAction() {
+  if (!G.syndicate) return false
+  const ok = hideContraband(G.syndicate, G)
+  if (ok) {
+    Audio.playSyndicateWhisper()
+    saveGame()
+  }
+  return ok
+}
+
+export function triggerReunionAction() {
+  if (!G.lifeArc) G.lifeArc = createInitialLifeArcState()
+  const ok = triggerGrandReunion(G.lifeArc, G)
+  if (ok) {
+    Audio.playReunionChime()
+    saveGame()
+  }
+  return ok
 }

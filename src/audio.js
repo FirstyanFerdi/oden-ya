@@ -436,6 +436,42 @@ export function playPrestigeFanfare() {
   })
 }
 
+// SFX: Peluit Uap Kereta Api Restorasi SL Ginga
+export function playSteamTrainWhistle() {
+  if (!ctx || isMuted) return
+  playTone(523.25, 'triangle', 1.2, 0.22, 10)
+  playTone(659.25, 'sine', 1.4, 0.18, 15)
+  setTimeout(() => {
+    playTone(523.25, 'triangle', 0.8, 0.2, -20)
+    playTone(659.25, 'sine', 0.9, 0.15, -20)
+  }, 350)
+}
+
+// SFX: Gerusan Cobek Rempah Kaldu Kustom (Mortar Grind)
+export function playMortarGrind() {
+  if (!ctx || isMuted) return
+  playTone(180, 'sawtooth', 0.12, 0.14, -60)
+  setTimeout(() => playTone(120, 'triangle', 0.18, 0.16, 40), 60)
+}
+
+// SFX: Bisikan Misterius Pasar Gelap Sindikat
+export function playSyndicateWhisper() {
+  if (!ctx || isMuted) return
+  playTone(90, 'sine', 1.8, 0.25, -30)
+  setTimeout(() => playTone(65, 'sawtooth', 1.5, 0.18), 100)
+}
+
+// SFX: Lonceng Kehangatan Malam Reuni Akbar
+export function playReunionChime() {
+  if (!ctx || isMuted) return
+  const notes = [523.25, 659.25, 783.99, 1046.50]
+  notes.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'sine', 1.5, 0.18)
+    }, idx * 120)
+  })
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

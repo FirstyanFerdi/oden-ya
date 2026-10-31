@@ -7,7 +7,9 @@ import {
   DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
   KNIFE_TECHNIQUES, DELIVERY_CLIENTS,
   SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
-  FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS
+  FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS,
+  SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -53,6 +55,11 @@ export default function App() {
   const [grandPrixOpen, setGrandPrixOpen] = useState(false)
   const [cellarOpen, setCellarOpen] = useState(false)
   const [factionsOpen, setFactionsOpen] = useState(false)
+  const [expeditionOpen, setExpeditionOpen] = useState(false)
+  const [alchemyOpen, setAlchemyOpen] = useState(false)
+  const [syndicateOpen, setSyndicateOpen] = useState(false)
+  const [lifeArcOpen, setLifeArcOpen] = useState(false)
+  const [customBrothNameInput, setCustomBrothNameInput] = useState('')
   const [chosenApprentice, setChosenApprentice] = useState('kenji')
   const [showRiddleHint, setShowRiddleHint] = useState(false)
   const [isMuted, setIsMuted] = useState(Audio.getMuteState())
@@ -137,6 +144,10 @@ export default function App() {
     setGrandPrixOpen(false)
     setCellarOpen(false)
     setFactionsOpen(false)
+    setExpeditionOpen(false)
+    setAlchemyOpen(false)
+    setSyndicateOpen(false)
+    setLifeArcOpen(false)
   }
 
   return (
@@ -238,6 +249,27 @@ export default function App() {
           <div className="box trophy-badge" title="Piala Bergilir Kaisar Showa: Reputasi +50%">
             🏆 Juara Grand Prix
           </div>
+        )}
+
+        {/* Indikator Jiwa Koki (Soul Archetype) */}
+        {(g.soul?.archetype || g.soul?.currentArchetype) && (
+          <div className="box soul-badge" title={`Jiwa Koki: ${SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.name} - ${SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.perkDesc}`}>
+            {SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.icon} {SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.name}
+          </div>
+        )}
+
+        {/* Stasiun Kereta SL Ginga HUD */}
+        {g.expedition && (
+          <button className="btn expedition-hud-btn" onClick={() => { closeAllModals(); setExpeditionOpen(true) }} title="Ekspedisi Kereta SL Ginga">
+            🚂 {getCurrentRouteInfo(g.expedition)?.name.split(' ')[0]}
+          </button>
+        )}
+
+        {/* Indikator Heat Sindikat / Razia Koban */}
+        {g.syndicate && (g.syndicate.heatLevel > 0 || g.syndicate.ownedRelics?.length > 0) && (
+          <button className={`btn syndicate-hud-btn ${g.syndicate.raidAlert ? 'raid-pulsing' : ''}`} onClick={() => { closeAllModals(); setSyndicateOpen(true) }} title={`Sindikat Jam 03:30 - Heat: ${Math.floor(g.syndicate.heatLevel)}%`}>
+            {g.syndicate.raidAlert ? '🚨 RAZIA KOBAN!' : `🐉 Heat: ${Math.floor(g.syndicate.heatLevel)}%`}
+          </button>
         )}
 
         {/* Tombol Aksi Tanggap Bencana & Darurat */}
@@ -347,6 +379,18 @@ export default function App() {
           </button>
           <button className="btn factions-btn" onClick={() => { closeAllModals(); setFactionsOpen(true) }}>
             ⚖️ Faksi Distrik {g.factions?.activeDilemma ? '(!)' : ''}
+          </button>
+          <button className="btn expedition-btn" onClick={() => { closeAllModals(); setExpeditionOpen(true) }}>
+            🚂 SL Ginga
+          </button>
+          <button className="btn alchemy-btn" onClick={() => { closeAllModals(); setAlchemyOpen(true) }}>
+            ⚗️ Kaldu Kustom {g.alchemy?.patented ? '★' : ''}
+          </button>
+          <button className="btn syndicate-btn" onClick={() => { closeAllModals(); setSyndicateOpen(true) }}>
+            🐉 Sindikat 03:30 {g.syndicate?.raidAlert ? '(!)' : ''}
+          </button>
+          <button className="btn reunion-btn" onClick={() => { closeAllModals(); setLifeArcOpen(true) }}>
+            📖 Jejak Reuni {canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld ? '(!)' : ''}
           </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
@@ -2265,6 +2309,366 @@ export default function App() {
             )}
 
             <button className="btn close-btn" onClick={() => setFactionsOpen(false)}>Tutup Hubungan Faksi</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EKSPEDISI KERETA API UAP SL GINGA */}
+      {expeditionOpen && (
+        <div className="modal-overlay" onClick={() => setExpeditionOpen(false)}>
+          <div className="expedition-modal box" onClick={e => e.stopPropagation()}>
+            <div className="expedition-header">
+              <h2>🚂 Ekspedisi Kereta Api Restorasi SL Ginga</h2>
+              <p className="expedition-subtitle">
+                Jelajahi 4 provinsi legendaris Jepang era Showa. Hadapi tantangan iklim lokal, aturan budaya makan daerah, dan racik bahan-bahan langka eksklusif!
+              </p>
+              <div className="expedition-stats">
+                <span>📍 Rute Saat Ini: <strong>{getCurrentRouteInfo(g.expedition)?.name}</strong></span>
+                <span>🛤️ Total Perjalanan: <strong>{g.expedition?.totalMilesTraveled || 0} Mil</strong></span>
+              </div>
+            </div>
+
+            <div className="expedition-grid">
+              {Object.keys(TRAIN_ROUTES).map(rId => {
+                const route = TRAIN_ROUTES[rId]
+                const isCurrent = (g.expedition?.currentRoute || 'tokyo') === rId
+                const isUnlocked = g.expedition?.unlockedRoutes?.includes(rId) || rId === 'tokyo'
+
+                return (
+                  <div key={rId} className={`expedition-card box ${isCurrent ? 'current-route' : ''}`}>
+                    <div className="expedition-card-top">
+                      <span className="expedition-icon">{route.icon}</span>
+                      <div className="expedition-title-block">
+                        <h4>{route.name}</h4>
+                        <span className="expedition-route-badge">{route.title} • {route.temp}</span>
+                      </div>
+                    </div>
+                    <p className="expedition-weather">{route.weatherDesc}</p>
+                    {route.specialRule && (
+                      <div className="special-rule-box">
+                        <span className="rule-label">⚠️ Aturan Khusus Daerah:</span>
+                        <p className="rule-text">{route.specialRule}</p>
+                      </div>
+                    )}
+                    <div className="expedition-multipliers">
+                      <span>Harga Sajian: x{route.priceMult}</span>
+                      <span>Kepuasan/Tip: x{route.tipMult}</span>
+                    </div>
+                    {route.exclusiveItems?.length > 0 && (
+                      <div className="exclusive-items-list">
+                        <span className="exclusive-label">✨ Bahan Eksklusif:</span>
+                        <div className="exclusive-chips">
+                          {route.exclusiveItems.map(it => (
+                            <span key={it.id} className="exclusive-chip">{it.n} (¥{it.p})</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="expedition-action">
+                      {isCurrent ? (
+                        <button className="btn route-btn current" disabled>📍 Sedang Beroperasi Di Sini</button>
+                      ) : (
+                        <button
+                          className="btn route-btn buy"
+                          disabled={g.money < route.ticketCost}
+                          onClick={() => Gm.travelToStation(rId)}
+                        >
+                          🎟️ {isUnlocked ? 'Berangkat Lagi' : 'Beli Tiket Perjalanan'} (¥{route.ticketCost.toLocaleString()})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setExpeditionOpen(false)}>Tutup Stasiun Kereta</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL LABORATORIUM KALDU KUSTOM (MASTER BROTH ALCHEMY) */}
+      {alchemyOpen && (
+        <div className="modal-overlay" onClick={() => setAlchemyOpen(false)}>
+          <div className="alchemy-modal box" onClick={e => e.stopPropagation()}>
+            <div className="alchemy-header">
+              <h2>⚗️ Laboratorium Kaldu Kustom Showa (Broth Alchemy)</h2>
+              <p className="alchemy-subtitle">
+                Padukan 5 sari rasa murni untuk menciptakan resep dashi orisinal koki. Kaldu bersertifikat paten melipatgandakan keuntungan dan aroma kedai!
+              </p>
+            </div>
+
+            <div className="alchemy-sliders-grid">
+              {[
+                { id: 'umami', name: 'Umami (Gurih Alami)', icon: '🌊', desc: 'Ekstrak Kombu Hidaka & Katsuobushi' },
+                { id: 'amami', name: 'Amami (Manis Lembut)', icon: '🍶', desc: 'Sari Mirin Beras & Kaldu Lobak Rebus' },
+                { id: 'shio', name: 'Shio (Asin Segar)', icon: '🧂', desc: 'Garam Samudra Kristal Laut Pedalaman' },
+                { id: 'kaori', name: 'Kaori (Aroma Wangi)', icon: '🍋', desc: 'Parutan Kulit Yuzu Segar & Kayu Cedar' },
+                { id: 'koku', name: 'Koku (Kedalaman/Body)', icon: '🍖', desc: 'Tekstur Kolagen Gurih dari Rebusan Tulang' }
+              ].map(param => {
+                const val = g.alchemy?.params?.[param.id] || 50
+                return (
+                  <div key={param.id} className="alchemy-param-card box">
+                    <div className="param-header">
+                      <span className="param-icon">{param.icon}</span>
+                      <div className="param-title-wrap">
+                        <strong>{param.name}</strong>
+                        <span className="param-desc">{param.desc}</span>
+                      </div>
+                      <span className="param-value">{val}%</span>
+                    </div>
+                    <div className="param-controls">
+                      <button
+                        className="btn param-btn"
+                        disabled={g.alchemy?.patented || val <= 10}
+                        onClick={() => Gm.adjustAlchemyParam(param.id, -5)}
+                      >
+                        -5
+                      </button>
+                      <div className="param-bar">
+                        <div className="param-bar-fill" style={{ width: `${val}%` }} />
+                      </div>
+                      <button
+                        className="btn param-btn"
+                        disabled={g.alchemy?.patented || val >= 100}
+                        onClick={() => Gm.adjustAlchemyParam(param.id, 5)}
+                      >
+                        +5
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="alchemy-harmony-panel box">
+              <div className="harmony-top">
+                <div className="harmony-score-box">
+                  <span className="harmony-label">Skor Harmoni Rasa:</span>
+                  <strong className="harmony-number" style={{ color: (g.alchemy?.harmonyScore || 0) >= 80 ? '#2ecc71' : '#f39c12' }}>
+                    {g.alchemy?.harmonyScore || 50}%
+                  </strong>
+                </div>
+                <div className="harmony-status-text">
+                  {(g.alchemy?.harmonyScore || 0) >= 80
+                    ? '✨ Harmoni Sempurna: Rasa dashi terpadu seimbang dan layak mendapatkan Hak Paten Kuliner!'
+                    : '⚖️ Butuh Penyesuaian: Imbangi Umami & Koku, serta seimbangkan kadar Shio dengan Amami.'}
+                </div>
+              </div>
+
+              {/* Input Nama & Pendaftaran Paten */}
+              <div className="patent-section">
+                {!g.alchemy?.patented ? (
+                  <div className="patent-unregistered">
+                    <div className="patent-input-wrap">
+                      <label>Nama Kaldu Orisinal Anda:</label>
+                      <input
+                        type="text"
+                        className="broth-name-input"
+                        placeholder="cth: Dashi Naga Emas Showa"
+                        value={customBrothNameInput || g.alchemy?.customName || ''}
+                        onChange={e => setCustomBrothNameInput(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      className="btn patent-submit-btn"
+                      disabled={g.money < 3000 || (g.alchemy?.harmonyScore || 0) < 80}
+                      onClick={() => Gm.patentBrothAction(customBrothNameInput || 'Dashi Mahakarya Showa')}
+                    >
+                      📜 Daftarkan Hak Paten Resmi (Biaya: ¥3.000)
+                    </button>
+                  </div>
+                ) : (
+                  <div className="patent-registered">
+                    <div className="registered-badge">
+                      🏆 Resep Paten Resmi: <strong>"{g.alchemy.customName}"</strong> (Harmoni {g.alchemy.harmonyScore}%)
+                    </div>
+                    <button
+                      className={`btn toggle-pot-btn ${g.alchemy.activeInPot ? 'pot-active' : ''}`}
+                      onClick={() => Gm.toggleCustomBrothInPot()}
+                    >
+                      🍲 Panci Oden: {g.alchemy.activeInPot ? '✅ Aktif Dituangkan (+35% Harga Rebusan)' : '❌ Nonaktif (Gunakan Resep Standar)'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setAlchemyOpen(false)}>Tutup Laboratorium Kaldu</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PASAR GELAP SINDIKAT JAM 03:30 */}
+      {syndicateOpen && (
+        <div className="modal-overlay" onClick={() => setSyndicateOpen(false)}>
+          <div className="syndicate-modal box" onClick={e => e.stopPropagation()}>
+            <div className="syndicate-header">
+              <h2>🐉 Pasar Gelap Sindikat Jam 03:30 (Midnight Syndicate)</h2>
+              <p className="syndicate-subtitle">
+                Pasar gelap rahasia yang menyediakan peralatan pusaka mistis berkekuatan luar biasa. Setiap kepemilikan meningkatkan panas kecurigaan polisi Koban!
+              </p>
+              
+              <div className="syndicate-heat-meter">
+                <div className="heat-header">
+                  <span className="heat-title">🚨 Tingkat Kecurigaan Koban (Heat Level):</span>
+                  <strong className={`heat-val ${g.syndicate?.heatLevel >= 75 ? 'danger-blink' : ''}`}>
+                    {Math.floor(g.syndicate?.heatLevel || 0)}/100
+                  </strong>
+                </div>
+                <div className="heat-bar-wrap">
+                  <div
+                    className="heat-bar-fill"
+                    style={{
+                      width: `${Math.min(100, g.syndicate?.heatLevel || 0)}%`,
+                      backgroundColor: (g.syndicate?.heatLevel || 0) >= 75 ? '#ff4757' : (g.syndicate?.heatLevel || 0) >= 40 ? '#ffa502' : '#2ed573'
+                    }}
+                  />
+                </div>
+                {g.syndicate?.raidAlert && (
+                  <div className="raid-alert-banner">
+                    ⚠️ SIAGA RAZIA: Inspektur polisi Koban sedang mengintai gerobak Anda! Segera sembunyikan barang bukti!
+                  </div>
+                )}
+              </div>
+
+              <div className="tatami-action-bar">
+                <button
+                  className="btn tatami-btn"
+                  disabled={g.money < 500 || (g.syndicate?.heatLevel || 0) <= 0}
+                  onClick={() => Gm.hideContrabandAction()}
+                >
+                  🤫 Sembunyikan Pusaka di Bawah Tatami (Biaya Suap ¥500 - Heat -35)
+                </button>
+                {g.syndicate?.hiddenUnderTatami && (
+                  <span className="tatami-status-text">📦 Pusaka tersimpan aman di kompartemen rahasia lantai.</span>
+                )}
+              </div>
+            </div>
+
+            <div className="syndicate-grid">
+              {Object.keys(SYNDICATE_ITEMS).map(relicId => {
+                const item = SYNDICATE_ITEMS[relicId]
+                const isOwned = g.syndicate?.ownedRelics?.includes(relicId)
+
+                return (
+                  <div key={relicId} className={`syndicate-card box ${isOwned ? 'relic-owned' : ''}`}>
+                    <div className="relic-icon">{item.icon}</div>
+                    <div className="relic-info">
+                      <h4>{item.name}</h4>
+                      <p className="relic-desc">{item.desc}</p>
+                      <div className="relic-benefit-box">
+                        <span className="benefit-label">⚡ Efek Mistis:</span>
+                        <p className="benefit-text">{item.benefit}</p>
+                      </div>
+                      <div className="relic-meta">
+                        <span className="relic-cost">Biaya: ¥{item.cost.toLocaleString()}</span>
+                        <span className="relic-heat">Koban Heat: +{item.heatGain}</span>
+                      </div>
+                    </div>
+                    <div className="relic-action">
+                      {isOwned ? (
+                        <button className="btn relic-btn owned" disabled>
+                          ✅ Pusaka Dimiliki
+                        </button>
+                      ) : (
+                        <button
+                          className="btn relic-btn buy"
+                          disabled={g.money < item.cost}
+                          onClick={() => Gm.buyRelicAction(relicId)}
+                        >
+                          🪙 Transaksi Bawah Tangan (¥{item.cost.toLocaleString()})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setSyndicateOpen(false)}>Tutup Pasar Gelap</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL GARIS HIDUP PELANGGAN & MALAM REUNI */}
+      {lifeArcOpen && (
+        <div className="modal-overlay" onClick={() => setLifeArcOpen(false)}>
+          <div className="lifearc-modal box" onClick={e => e.stopPropagation()}>
+            <div className="lifearc-header">
+              <h2>📖 Garis Hidup Dinamis Pelanggan & Malam Reuni</h2>
+              <p className="lifearc-subtitle">
+                Setiap mangkuk oden yang Anda sajikan mengiringi perjalanan hidup para pelanggan setia. Saksikan mereka tumbuh, menghadapi tantangan, dan meraih kebahagiaan!
+              </p>
+            </div>
+
+            <div className="lifearc-grid">
+              {[
+                { id: 'gimin', name: 'Pak Gimin' },
+                { id: 'hana', name: 'Nona Hana' },
+                { id: 'kenzo', name: 'Detektif Kenzo' },
+                { id: 'sumi', name: 'Nenek Sumi' }
+              ].map(char => {
+                const currentLvl = g.lifeArc?.progress?.[char.id] || 1
+                const milestones = LIFE_MILESTONES[char.id] || []
+
+                return (
+                  <div key={char.id} className="lifearc-card box">
+                    <div className="lifearc-card-header">
+                      <h4>{char.name}</h4>
+                      <span className="level-badge">Babak Kehidupan: Tahap {currentLvl}/3</span>
+                    </div>
+
+                    <div className="milestones-track">
+                      {milestones.map(m => {
+                        const isReached = currentLvl >= m.level
+                        const isCurrent = currentLvl === m.level
+                        return (
+                          <div key={m.level} className={`milestone-step ${isReached ? 'reached' : 'locked'} ${isCurrent ? 'current-step' : ''}`}>
+                            <div className="step-icon">{m.icon}</div>
+                            <div className="step-content">
+                              <strong>Tahap {m.level}: {m.title}</strong>
+                              <p>{m.story}</p>
+                            </div>
+                            <span className="step-status">{isReached ? '✅ Terbuka' : '🔒 Belum Tercapai'}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* SEKSI MALAM REUNI AKBAR */}
+            <div className="reunion-celebration-box box">
+              <div className="reunion-header">
+                <h3>🎉 Malam Reuni Akbar Showa (The Grand Reunion)</h3>
+                <p>
+                  Ketika pelanggan-pelanggan setia Anda telah mencapai kedewasaan hidup (minimal 3 karakter di Tahap 2+), mereka akan berkumpul di kedai Anda untuk malam reuni penuh kehangatan!
+                </p>
+              </div>
+
+              {g.lifeArc?.reunionHeld ? (
+                <div className="reunion-held-badge">
+                  🎊 Reuni Akbar Telah Dirayakan! (+¥5.000, +30 Reputasi, dan Kenangan Abadi di Album Polaroid)
+                </div>
+              ) : (
+                <div className="reunion-trigger-wrap">
+                  <button
+                    className="btn grand-reunion-btn"
+                    disabled={!canTriggerReunion(g.lifeArc)}
+                    onClick={() => Gm.triggerReunionAction()}
+                  >
+                    {canTriggerReunion(g.lifeArc)
+                      ? '🎊 RAYAKAN MALAM REUNI AKBAR SHOWA SEKARANG!'
+                      : '🔒 Syarat Belum Terpenuhi: Capai minimal Tahap 2 pada 3 pelanggan'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setLifeArcOpen(false)}>Tutup Buku Jejak Hidup</button>
           </div>
         </div>
       )}
