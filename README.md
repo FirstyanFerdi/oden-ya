@@ -8,7 +8,7 @@ Game simulasi manajemen kedai oden malam hari bergaya *retro pixel art* dengan s
 
 ### 1. Clone & Masuk ke Folder:
 ```bash
-git clone https://github.com/USERNAME/NAMA_REPO.git
+(https://github.com/FirstyanFerdi/oden-ya.git)
 cd NAMA_REPO
 ```
 
