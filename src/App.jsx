@@ -6,7 +6,8 @@ import {
   STAFF, GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
   DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
   KNIFE_TECHNIQUES, DELIVERY_CLIENTS,
-  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore
+  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
+  FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -48,6 +49,11 @@ export default function App() {
   const [cookOffOpen, setCookOffOpen] = useState(false)
   const [masteryOpen, setMasteryOpen] = useState(false)
   const [polaroidOpen, setPolaroidOpen] = useState(false)
+  const [dynastyOpen, setDynastyOpen] = useState(false)
+  const [grandPrixOpen, setGrandPrixOpen] = useState(false)
+  const [cellarOpen, setCellarOpen] = useState(false)
+  const [factionsOpen, setFactionsOpen] = useState(false)
+  const [chosenApprentice, setChosenApprentice] = useState('kenji')
   const [showRiddleHint, setShowRiddleHint] = useState(false)
   const [isMuted, setIsMuted] = useState(Audio.getMuteState())
   const [shopTab, setShopTab] = useState('items') // 'items', 'eq', 'staff'
@@ -127,6 +133,10 @@ export default function App() {
     setCookOffOpen(false)
     setMasteryOpen(false)
     setPolaroidOpen(false)
+    setDynastyOpen(false)
+    setGrandPrixOpen(false)
+    setCellarOpen(false)
+    setFactionsOpen(false)
   }
 
   return (
@@ -205,6 +215,28 @@ export default function App() {
         {!g.feverActive && g.combo > 1 && (
           <div className="box combo-badge">
             🔥 COMBO x{g.combo}!
+          </div>
+        )}
+
+        {/* Indikator Arashi Rush & Zen Focus */}
+        {g.arashi?.zenActive && (
+          <div className="box zen-badge" title="Mata Batin Zen Focus: Waktu Melambat & Presisi Koki!">
+            🧘 ZEN FOCUS ({Math.ceil(g.arashi.zenTimer)}s)
+          </div>
+        )}
+        {g.arashi?.active && !g.arashi?.zenActive && (
+          <div className="box arashi-badge" title="Arashi Rush Hour: Pesanan Badai & Tips x3.5!">
+            ⚡ ARASHI RUSH x3.5 ({Math.ceil(g.arashi.duration)}s)
+          </div>
+        )}
+        {!g.arashi?.active && g.arashi?.meter > 20 && (
+          <div className="box arashi-meter-chip" title="Meteran Arashi Rush">
+            ⚡ Arashi: {Math.floor(g.arashi.meter)}%
+          </div>
+        )}
+        {g.grandPrixTrophy && (
+          <div className="box trophy-badge" title="Piala Bergilir Kaisar Showa: Reputasi +50%">
+            🏆 Juara Grand Prix
           </div>
         )}
 
@@ -304,6 +336,18 @@ export default function App() {
           <button className="btn" onClick={() => { closeAllModals(); setPolaroidOpen(true) }}>
             📷 Album ({g.polaroids ? g.polaroids.length : 0})
           </button>
+          <button className="btn dynasty-btn" onClick={() => { closeAllModals(); setDynastyOpen(true) }}>
+            🏛️ Dinasti {canPrestige(g) ? '(!)' : ''}
+          </button>
+          <button className="btn grandprix-btn" onClick={() => { closeAllModals(); setGrandPrixOpen(true); if (!g.grandPrixSession) Gm.startGrandPrix() }}>
+            🏆 Grand Prix {g.grandPrixTrophy ? '★' : ''}
+          </button>
+          <button className="btn cellar-btn" onClick={() => { closeAllModals(); setCellarOpen(true) }}>
+            🏺 Fermentasi
+          </button>
+          <button className="btn factions-btn" onClick={() => { closeAllModals(); setFactionsOpen(true) }}>
+            ⚖️ Faksi Distrik {g.factions?.activeDilemma ? '(!)' : ''}
+          </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
           </button>
@@ -315,7 +359,9 @@ export default function App() {
         <div className="panel box">
           <div className="panel-header">
             <span className="guest-badge">
-              {order.isMidnightRiddle
+              {order.isZashiki
+                ? `🏛️ ${order.zashikiData?.icon} ${order.zashikiData?.name} (${order.zashikiData?.title})`
+                : order.isMidnightRiddle
                 ? `🌙 ${order.midnightData?.avatar} ${order.midnightData?.name} (${order.midnightData?.title})`
                 : order.isInspector
                 ? `🏆 ${order.inspectorData?.avatar} ${order.inspectorData?.name} (${order.inspectorData?.title})`
@@ -331,6 +377,15 @@ export default function App() {
               Kesabaran: {Math.max(0, Math.ceil(order.pat))} dtk
             </span>
           </div>
+
+          {/* Tamu Bangsawan Zashiki Ginza */}
+          {order.isZashiki && order.zashikiData && (
+            <div className="zashiki-card box">
+              <div className="zashiki-title">🏛️ Jamuan Kehormatan Ginza: {order.zashikiData.name}</div>
+              <div className="zashiki-dialogue">"{order.zashikiData.dialogue}"</div>
+              <div className="zashiki-tip-hint">✨ Multiplier Anggaran: x{order.zashikiData.budgetMultiplier} | Sake Favorit: {order.zashikiData.favSake.toUpperCase()}</div>
+            </div>
+          )}
 
           {/* Mood Psikologi Tamu & Katarsis */}
           {order.mood && !order.isMidnightRiddle && (
@@ -395,6 +450,36 @@ export default function App() {
               <button className="btn fortune-order-btn" onClick={() => Gm.startOmikuji(order)}>
                 🎴 Ramalkan Nasib Tamu (Omikuji)
               </button>
+            )}
+          </div>
+
+          {/* Sommelier Sake Pairing Bar */}
+          <div className="sake-sommelier-bar box">
+            <span className="sake-label">🍶 Pasangan Sake (Sommelier):</span>
+            <button
+              className={`btn sake-chip-btn ${order.servedSake === 'atsukan' ? 'active' : ''}`}
+              onClick={() => Gm.serveSakeBottle('atsukan')}
+              title="Atsukan Hangat: Harmoni dengan kue tahu, telur & mochi"
+            >
+              🍶 Atsukan
+            </button>
+            <button
+              className={`btn sake-chip-btn ${order.servedSake === 'ginjo' ? 'active' : ''}`}
+              onClick={() => Gm.serveSakeBottle('ginjo')}
+              title="Junmai Ginjo: Segar untuk lobak & kuah bening"
+            >
+              🍶 Junmai Ginjo
+            </button>
+            <button
+              className={`btn sake-chip-btn ${order.servedSake === 'koshu' ? 'active' : ''}`}
+              onClick={() => Gm.serveSakeBottle('koshu')}
+              disabled={(g.fermentation?.inventory?.vintage_koshu || 0) <= 0}
+              title="Koshu Vintage 1975: Harmoni mewah untuk daging urat sapi & kepiting"
+            >
+              🍶 Koshu 1975 ({g.fermentation?.inventory?.vintage_koshu || 0})
+            </button>
+            {order.servedSake && (
+              <span className="served-sake-status">✅ Sake Disajikan: <strong>{order.servedSake.toUpperCase()}</strong></span>
             )}
           </div>
 
@@ -1792,6 +1877,394 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setPolaroidOpen(false)}>Tutup Album Kenangan</button>
+          </div>
+        </div>
+      )}
+
+      {/* 1. Modal Warisan Dinasti Showa & Restoran Ginza */}
+      {dynastyOpen && (
+        <div className="modal-overlay" onClick={() => setDynastyOpen(false)}>
+          <div className="dynasty-modal box" onClick={e => e.stopPropagation()}>
+            <div className="dynasty-header">
+              <h2>🏛️ Warisan Dinasti Showa & Restoran Ginza</h2>
+              <p className="dynasty-subtitle">
+                Buka lembaran sejarah baru, serahkan gerobak lama kepada murid kepala, dan resmikan restoran mewah di Ginza.
+              </p>
+            </div>
+
+            <div className="dynasty-status-grid">
+              <div className="dynasty-card">
+                <span className="card-label">Tingkat Dinasti</span>
+                <span className="card-val">👑 Level {g.dynasty?.dynastyLevel || 0}</span>
+                <span className="card-sub">{g.dynasty?.totalPrestiges || 0} Kali Reinkarnasi Warisan</span>
+              </div>
+              <div className="dynasty-card">
+                <span className="card-label">Kaldu Emas Abadi</span>
+                <span className="card-val">{g.dynasty?.goldenDashiActive ? '✨ Aktif' : '🔒 Belum Aktif'}</span>
+                <span className="card-sub">+25% Kepuasan Dasar Semua Tamu</span>
+              </div>
+              <div className="dynasty-card">
+                <span className="card-label">Murid Pengelola Gerobak</span>
+                <span className="card-val">
+                  {g.dynasty?.apprentice === 'kenji' ? '🧑‍🍳 Kenji' : g.dynasty?.apprentice === 'aoi' ? '🎸 Nona Aoi' : 'Belum Ada'}
+                </span>
+                <span className="card-sub">Total Dividen: ¥{(g.dynasty?.apprenticeEarningsTotal || 0).toLocaleString()}</span>
+              </div>
+              <div className="dynasty-card">
+                <span className="card-label">Ruang Jamuan Zashiki</span>
+                <span className="card-val">{g.dynasty?.zashikiUnlocked ? '🏯 Terbuka' : '🔒 Khusus Ginza'}</span>
+                <span className="card-sub">Menjamu Tamu Bangsawan & Zaibatsu</span>
+              </div>
+            </div>
+
+            <div className="dynasty-prestige-section box">
+              <h3>👑 Bangun Dinasti Baru (Prestige Reincarnation)</h3>
+              <p className="prestige-desc">
+                Syarat: Mencapai Bintang Michelin 3 (★★★) atau Reputasi 85 atau modal ¥60.000.
+                Anda akan mewariskan gerobak lama kepada murid pilihan dan membuka Restoran Flagship Ginza!
+              </p>
+
+              <div className="apprentice-selection">
+                <span className="select-label">Pilih Murid Kepala untuk Mengelola Gerobak Lama:</span>
+                <div className="apprentice-options">
+                  <button
+                    className={`btn apprentice-btn ${chosenApprentice === 'kenji' ? 'selected' : ''}`}
+                    onClick={() => setChosenApprentice('kenji')}
+                  >
+                    🧑‍🍳 Kenji (Dividen Stabil & Bahan Otomatis)
+                  </button>
+                  <button
+                    className={`btn apprentice-btn ${chosenApprentice === 'aoi' ? 'selected' : ''}`}
+                    onClick={() => setChosenApprentice('aoi')}
+                  >
+                    🎸 Nona Aoi (Dividen Tinggi dari Fans Musik)
+                  </button>
+                </div>
+              </div>
+
+              {canPrestige(g) ? (
+                <button
+                  className="btn execute-prestige-btn"
+                  onClick={() => {
+                    Gm.triggerPrestige(chosenApprentice)
+                    setDynastyOpen(false)
+                  }}
+                >
+                  👑 Resmikan Warisan Dinasti & Buka Restoran Ginza (+¥15.000 Modal)
+                </button>
+              ) : (
+                <div className="prestige-locked-hint">
+                  🔒 Belum memenuhi syarat prestige. Kumpulkan 3 Bintang Michelin, ¥60.000, atau Reputasi 85!
+                </div>
+              )}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setDynastyOpen(false)}>Tutup Panel Dinasti</button>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Modal Turnamen Akbar Grand Prix Kanto vs Kansai */}
+      {grandPrixOpen && (
+        <div className="modal-overlay" onClick={() => setGrandPrixOpen(false)}>
+          <div className="grandprix-modal box" onClick={e => e.stopPropagation()}>
+            <div className="grandprix-header">
+              <h2>🏆 The Grand Showa Culinary Grand Prix</h2>
+              <p className="grandprix-subtitle">
+                Pertarungan akbar 3 babak knockout melawan Master Koki Ryuji dari Kansai demi memperebutkan Piala Bergilir Kaisar!
+              </p>
+            </div>
+
+            {g.grandPrixSession ? (
+              <div className="grandprix-arena box">
+                <div className="grandprix-status-bar">
+                  <span className="arena-round">
+                    {g.grandPrixSession.finished
+                      ? '🏁 HASIL AKHIR PERTANDINGAN'
+                      : `BABAK ${g.grandPrixSession.round}: ${
+                          g.grandPrixSession.round === 1
+                            ? 'Ujian Rasa Dashi Buta'
+                            : g.grandPrixSession.round === 2
+                            ? 'Speed Kaiseki Plating'
+                            : 'Duel Kuali Api Ryuji'
+                        }`}
+                  </span>
+                  <span className="arena-score">
+                    Skor: Anda ({g.grandPrixSession.playerScore}) vs Ryuji ({g.grandPrixSession.rivalScore})
+                  </span>
+                  {!g.grandPrixSession.finished && (
+                    <span className="arena-timer">⏱️ {Math.max(0, Math.ceil(g.grandPrixSession.timer))}s</span>
+                  )}
+                </div>
+
+                {/* Konten Tiap Babak */}
+                {g.grandPrixSession.round === 1 && !g.grandPrixSession.round1Data.submitted && (
+                  <div className="round1-arena">
+                    <p className="round-instruction">
+                      Seimbangkan ketiga takaran dashi agar mendekati harmoni rahasia dewan juri kekaisaran!
+                    </p>
+                    <div className="slider-row">
+                      <span>🌿 Kombu Hokkaido: {g.grandPrixSession.round1Data.kombu}%</span>
+                      <div className="slider-btns">
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'kombu', -10)}>-10</button>
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'kombu', 10)}>+10</button>
+                      </div>
+                    </div>
+                    <div className="slider-row">
+                      <span>🐟 Katsuobushi Asap: {g.grandPrixSession.round1Data.katsuo}%</span>
+                      <div className="slider-btns">
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'katsuo', -10)}>-10</button>
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'katsuo', 10)}>+10</button>
+                      </div>
+                    </div>
+                    <div className="slider-row">
+                      <span>🍶 Shoyu Tradisional: {g.grandPrixSession.round1Data.shoyu}%</span>
+                      <div className="slider-btns">
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'shoyu', -10)}>-10</button>
+                        <button className="btn" onClick={() => Gm.adjustDashiRatio(g.grandPrixSession, 'shoyu', 10)}>+10</button>
+                      </div>
+                    </div>
+                    <button className="btn submit-r1-btn" onClick={() => Gm.submitDashiTasting(g.grandPrixSession)}>
+                      🍲 Sajikan Dashi ke Meja Juri!
+                    </button>
+                  </div>
+                )}
+
+                {g.grandPrixSession.round === 2 && (
+                  <div className="round2-arena">
+                    <p className="round-instruction">
+                      Tata 3 bahan pesanan dewan juri (Lobak, Telur, Kepiting Matsuba) ke atas piring saji secepat mungkin!
+                    </p>
+                    <div className="target-plating-badges">
+                      <span>Target Juri: </span>
+                      <span className="badge">Lobak</span>
+                      <span className="badge">Telur</span>
+                      <span className="badge">Kepiting Matsuba</span>
+                    </div>
+                    <div className="plating-pick-row">
+                      {['daikon', 'egg', 'matsuba_crab', 'chikuwa', 'gyusuji'].map(id => (
+                        <button
+                          key={id}
+                          className="btn plate-pick-btn"
+                          onClick={() => Gm.addPlatingItem(g.grandPrixSession, id)}
+                        >
+                          + {item(id)?.n || id}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="placed-status">
+                      Piring Anda: {g.grandPrixSession.round2Data.placedItems.map(id => item(id)?.n || id).join(', ') || '(Kosong)'}
+                    </div>
+                  </div>
+                )}
+
+                {g.grandPrixSession.round === 3 && !g.grandPrixSession.finished && (
+                  <div className="round3-arena">
+                    <p className="round-instruction">
+                      Klik tombol kuali secepat mungkin untuk menyempurnakan karamelisasi Kaldu Imperial sebelum Ryuji menyusul!
+                    </p>
+                    <div className="duel-gauge-bar">
+                      <div className="bar-fill player" style={{width: `${Math.min(100, (g.grandPrixSession.round3Data.potHeatClicks / 25) * 100)}%`}}>
+                        Anda: {g.grandPrixSession.round3Data.potHeatClicks}/25
+                      </div>
+                      <div className="bar-fill rival" style={{width: `${Math.min(100, (g.grandPrixSession.round3Data.rivalClicks / 25) * 100)}%`}}>
+                        Ryuji: {Math.floor(g.grandPrixSession.round3Data.rivalClicks)}/25
+                      </div>
+                    </div>
+                    <button className="btn stir-pot-btn" onClick={() => Gm.clickGrandPrixStir(g.grandPrixSession)}>
+                      🔥 ADUK KUALI SECEPATNYA!
+                    </button>
+                  </div>
+                )}
+
+                {/* Log Pertandingan */}
+                <div className="grandprix-log-box">
+                  {g.grandPrixSession.log.map((line, lIdx) => (
+                    <div key={lIdx} className="log-line">{line}</div>
+                  ))}
+                </div>
+
+                {g.grandPrixSession.finished && (
+                  <button className="btn finish-gp-btn" onClick={() => { setGrandPrixOpen(false) }}>
+                    Selesai & Terima Hasil Turnamen
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grandprix-intro box">
+                <div className="trophy-display">
+                  <span className="big-trophy">🏆</span>
+                  <h3>Piala Bergilir Kaisar Showa</h3>
+                  <p>
+                    {g.grandPrixTrophy
+                      ? 'Selamat! Anda telah memenangkan trofi tertinggi dan gelar Master Itamae Nasional!'
+                      : 'Trofi legendaris saat ini dipegang oleh Master Ryuji dari distrik Kansai.'}
+                  </p>
+                </div>
+                <button className="btn start-gp-btn" onClick={Gm.startGrandPrix}>
+                  ⚔️ Mulai Pertarungan Grand Prix Nasional Sekarang!
+                </button>
+              </div>
+            )}
+
+            <button className="btn close-btn" onClick={() => setGrandPrixOpen(false)}>Tutup Grand Prix</button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Modal Gudang Fermentasi Bawah Tanah & Sommelier Sake */}
+      {cellarOpen && (
+        <div className="modal-overlay" onClick={() => setCellarOpen(false)}>
+          <div className="cellar-modal box" onClick={e => e.stopPropagation()}>
+            <div className="cellar-header">
+              <h2>🏺 Gudang Fermentasi Bawah Tanah & Sommelier Sake</h2>
+              <p className="cellar-subtitle">
+                Gentong keramik Showa (Kame) untuk mematangkan hidangan bernilai tinggi dan memadukan aroma sake legendaris.
+              </p>
+            </div>
+
+            <div className="vats-grid">
+              {g.fermentation?.vats?.map((vat, vIdx) => {
+                const recipe = FERMENTATION_RECIPES[vat.recipeId]
+                return (
+                  <div key={vat.id} className={`vat-card box ${vat.status}`}>
+                    <div className="vat-icon">{recipe.yieldIcon}</div>
+                    <div className="vat-title">{recipe.name}</div>
+                    <div className="vat-desc">{recipe.desc}</div>
+                    <div className="vat-progress-bar">
+                      <div
+                        className="vat-fill"
+                        style={{
+                          width: vat.status === 'ready'
+                            ? '100%'
+                            : `${Math.min(100, (vat.currentDays / recipe.daysRequired) * 100)}%`
+                        }}
+                      />
+                    </div>
+                    <div className="vat-status-text">
+                      Status: <strong>
+                        {vat.status === 'empty'
+                          ? 'Kosong'
+                          : vat.status === 'fermenting'
+                          ? `Sedang Menua (${vat.currentDays}/${recipe.daysRequired} Hari)`
+                          : '✨ SIAP PANEN!'}
+                      </strong>
+                    </div>
+                    {vat.status === 'empty' && (
+                      <button className="btn ferment-btn" onClick={() => Gm.startCellarFerment(vIdx)}>
+                        Mulai Fermentasi (Biaya ¥{recipe.cost})
+                      </button>
+                    )}
+                    {vat.status === 'ready' && (
+                      <button className="btn harvest-btn" onClick={() => Gm.harvestCellarVat(vIdx)}>
+                        🌾 Panen 2x {recipe.yieldName}!
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="cellar-inventory-box box">
+              <h3>📦 Inventaris Hasil Fermentasi Siap Saji:</h3>
+              <div className="inv-chips-row">
+                <span className="inv-chip">
+                  🥚 Telur Selai Emas: <strong>{g.fermentation?.inventory?.tamago_selai || 0}</strong> porsi
+                </span>
+                <span className="inv-chip">
+                  🌶️ Karashi Miso Antik: <strong>{g.fermentation?.inventory?.aged_karashi_cond || 0}</strong> porsi
+                </span>
+                <span className="inv-chip">
+                  🍶 Botol Koshu Vintage 1975: <strong>{g.fermentation?.inventory?.vintage_koshu || 0}</strong> botol
+                </span>
+              </div>
+            </div>
+
+            <div className="sommelier-guide-box box">
+              <h3>🍶 Panduan Harmoni Pasangan Makanan (Food-Sake Pairing Matrix)</h3>
+              <div className="pairing-guide-grid">
+                <div className="guide-item">
+                  <strong>🍶 Atsukan Hangat:</strong>
+                  <p>Pasangan sempurna untuk tahu sutra, telur rebus, dan mochi kinchaku. Menciptakan kehangatan jiwa.</p>
+                </div>
+                <div className="guide-item">
+                  <strong>🍶 Junmai Ginjo Kering:</strong>
+                  <p>Aroma bunga segar yang mengangkat rasa manis alami kuah lobak daikon dan konnyaku bening.</p>
+                </div>
+                <div className="guide-item">
+                  <strong>🍶 Koshu Vintage 1975:</strong>
+                  <p>Kepekatan kayu cedar tua yang meledakkan rasa gurih urat sapi empuk, gurita Tsukiji, dan kepiting Matsuba (+150% tip!).</p>
+                </div>
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setCellarOpen(false)}>Tutup Gudang Bawah Tanah</button>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Modal Segitiga Pengaruh Faksi Distrik */}
+      {factionsOpen && (
+        <div className="modal-overlay" onClick={() => setFactionsOpen(false)}>
+          <div className="factions-modal box" onClick={e => e.stopPropagation()}>
+            <div className="factions-header">
+              <h2>⚖️ Segitiga Pengaruh Faksi Distrik (District Triad Politics)</h2>
+              <p className="factions-subtitle">
+                Pilihan diplomasi dan pelayanan Anda menentukan dinamika kekuasaan jalanan antara hukum, mafia, dan warga pasar.
+              </p>
+            </div>
+
+            <div className="factions-grid">
+              {['police', 'yakuza', 'shoutengai'].map(fId => {
+                const fData = FACTION_INFO[fId]
+                const repVal = g.factions?.rep?.[fId] || 50
+                const isPerkActive = repVal >= 70
+                return (
+                  <div key={fId} className={`faction-card box ${isPerkActive ? 'perk-active' : ''}`}>
+                    <div className="faction-icon">{fData.icon}</div>
+                    <div className="faction-name">{fData.name}</div>
+                    <div className="faction-title">{fData.title}</div>
+                    <div className="faction-rep-bar">
+                      <div className="rep-fill" style={{width: `${repVal}%`}} />
+                    </div>
+                    <div className="rep-score">Pengaruh: {repVal}/100</div>
+                    <p className="faction-desc">{fData.desc}</p>
+                    <div className="faction-perk-box">
+                      <span className="perk-label">🎁 Hak Istimewa (Rep 70+):</span>
+                      <p className="perk-text">{fData.perk}</p>
+                      <span className={`perk-status ${isPerkActive ? 'active' : 'inactive'}`}>
+                        {isPerkActive ? '✅ Hak Istimewa Aktif!' : '🔒 Belum Aktif (Butuh Reputasi 70+)'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Dilema Harian Distrik Aktif */}
+            {g.factions?.activeDilemma && (
+              <div className="dilemma-box box">
+                <div className="dilemma-header">
+                  <span className="dilemma-icon">⚖️</span>
+                  <h3>Dilema Distrik: {g.factions.activeDilemma.title}</h3>
+                </div>
+                <p className="dilemma-desc">{g.factions.activeDilemma.desc}</p>
+                <div className="dilemma-choices">
+                  {g.factions.activeDilemma.choices.map((choice, cIdx) => (
+                    <button
+                      key={cIdx}
+                      className="btn dilemma-choice-btn"
+                      onClick={() => Gm.chooseFactionOption(cIdx)}
+                    >
+                      <span className="choice-text">{choice.text}</span>
+                      {choice.cost > 0 && <span className="choice-cost"> (Biaya: ¥{choice.cost})</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button className="btn close-btn" onClick={() => setFactionsOpen(false)}>Tutup Hubungan Faksi</button>
           </div>
         </div>
       )}

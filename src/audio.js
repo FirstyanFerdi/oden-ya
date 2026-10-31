@@ -391,6 +391,51 @@ export function playSkillUnlock() {
   })
 }
 
+// SFX: Detak Jantung Zen Focus (Mata Batin Koki Bullet-Time)
+export function playZenFocusBeat() {
+  if (!ctx || isMuted) return
+  playTone(55, 'sine', 0.18, 0.28, -15)
+  setTimeout(() => playTone(50, 'triangle', 0.15, 0.22, -10), 160)
+}
+
+// SFX: Denting Harmoni Gourmet Euphoria (Sake-Food Pairing Sempurna)
+export function playEuphoriaChime() {
+  if (!ctx || isMuted) return
+  const notes = [587.33, 739.99, 880.00, 1174.66, 1479.98]
+  notes.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'sine', 0.7, 0.14)
+    }, idx * 60)
+  })
+}
+
+// SFX: Fanfare Badai Pesanan Arashi Rush
+export function playArashiRushFanfare() {
+  if (!ctx || isMuted) return
+  playTone(220, 'sawtooth', 0.2, 0.25, 40)
+  setTimeout(() => playTone(277.18, 'sawtooth', 0.2, 0.25, 40), 90)
+  setTimeout(() => playTone(329.63, 'sawtooth', 0.45, 0.3, 80), 180)
+}
+
+// SFX: Resonansi Gong Agung Grand Prix Kaisar Showa
+export function playGrandPrixGong() {
+  if (!ctx || isMuted) return
+  playTone(85, 'sawtooth', 2.8, 0.38, -25)
+  playTone(130, 'triangle', 2.2, 0.2)
+  setTimeout(() => playTone(260, 'sine', 1.8, 0.12), 120)
+}
+
+// SFX: Kemegahan Dinasti Showa (Prestige Fanfare)
+export function playPrestigeFanfare() {
+  if (!ctx || isMuted) return
+  const gagaku = [329.63, 392.00, 440.00, 523.25, 659.25, 783.99]
+  gagaku.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'triangle', 0.8, 0.18)
+    }, idx * 90)
+  })
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

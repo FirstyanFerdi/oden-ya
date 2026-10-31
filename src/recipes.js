@@ -62,6 +62,26 @@ export const FUSION_RECIPES = [
     icon: '⭐',
     desc: 'Empat pilar oden klasik yang disajikan dalam satu mangkok kuah keemasan sempurna.',
     lore: 'Menu tertinggi kedai oden yang menghidupkan kembali kejayaan era Showa.'
+  },
+  {
+    id: 'imperial_golden_oden',
+    name: 'Piring Mahkota Kaisar Showa',
+    subtitle: 'Lobak Istana + Kepiting Matsuba + Telur Selai Emas',
+    items: ['imperial_daikon', 'matsuba_crab', 'tamago_selai'],
+    bonusPrice: 650,
+    icon: '👑',
+    desc: 'Kombinasi bahan surgawi hasil kejuaraan nasional dan fermentasi bawah tanah.',
+    lore: 'Puncak tertinggi kuliner Dinasti Showa yang hanya pernah disajikan di istana kekaisaran.'
+  },
+  {
+    id: 'shogunate_delight',
+    name: 'Jamuan Agung Panglima Perang',
+    subtitle: 'Kepiting Matsuba + Urat Sapi + Daging Sapi Pilihan',
+    items: ['matsuba_crab', 'gyusuji'],
+    bonusPrice: 500,
+    icon: '⚔️',
+    desc: 'Perpaduan manisnya daging kepiting salju dengan kenyal gurihnya urat sapi lembut.',
+    lore: 'Hidangan penuh tenaga dan kemewahan yang dinikmati para jenderal di zaman dahulu.'
   }
 ]
 

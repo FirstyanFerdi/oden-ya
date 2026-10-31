@@ -16,13 +16,20 @@ import {MIDNIGHT_GUESTS, getMidnightGuest, evaluateMidnightRiddle} from './midni
 import {createCookOffSession, updateCookOff, clickCookOffAction} from './cookoff.js'
 import {MASTERY_SKILLS, canUnlockSkill} from './mastery.js'
 import {POLAROID_ALBUM, calculateKaisekiScore} from './kaiseki.js'
+import {createInitialArashiState, updateArashi, addArashiProgress, startArashiRush, triggerZenFocus, onArashiServe, createMultiCourseDemand} from './arashi.js'
+import {ZASHIKI_VIP_GUESTS, createInitialDynastyState, canPrestige, executePrestige, calculateApprenticeDailyIncome, spawnZashikiGuest} from './dynasty.js'
+import {createGrandPrixSession, updateGrandPrix, adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir} from './grandprix.js'
+import {FERMENTATION_RECIPES, createInitialFermentationCellar, advanceCellarDays, startFermenting, harvestVat, evaluateSakePairing} from './fermentation.js'
+import {FACTION_INFO, FACTION_DILEMMAS, createInitialFactionState, adjustFactionRep, triggerRandomDilemma, resolveDilemma} from './factions.js'
 import * as Audio from './audio.js'
 
 export {
   GRILL_ITEMS, AUCTION_ITEMS, FORTUNES, getGrillState,
   DASHI_INGREDIENTS, getVatTier, GUEST_MOODS, GREETINGS, HEIRLOOMS,
   KNIFE_TECHNIQUES, DELIVERY_CLIENTS, STREET_FACTIONS,
-  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore
+  SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
+  ZASHIKI_VIP_GUESTS, FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige,
+  adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -36,15 +43,18 @@ export const ITEMS = [
   {id: 'gyusuji', n: 'Urat Sapi', p: 220, c: '#a8503a', cost: 300, rep: 5, comp: 2},
   {id: 'kinchaku', n: 'Mochi Kinchaku', p: 180, c: '#c98a3c', cost: 400, rep: 12, comp: 3},
   {id: 'atsuage', n: 'Tahu Goreng', p: 200, c: '#d4a548', cost: 500, rep: 22, comp: 3},
-  {id: 'tako', n: 'Sate Gurita', p: 300, c: '#c4567a', cost: 800, rep: 38, comp: 1}
+  {id: 'tako', n: 'Sate Gurita', p: 300, c: '#c4567a', cost: 800, rep: 38, comp: 1},
+  {id: 'imperial_daikon', n: 'Lobak Istana Kyoto', p: 450, c: '#f5ecd5', cost: 1200, rep: 70, comp: 0},
+  {id: 'matsuba_crab', n: 'Kepiting Matsuba', p: 600, c: '#e74c3c', cost: 1500, rep: 80, comp: 1},
+  {id: 'tamago_selai', n: 'Telur Selai Emas', p: 450, c: '#f39c12', cost: 1000, rep: 75, comp: 3}
 ]
 
 // 4 Sekat Kompartemen Panci
 export const COMPARTMENTS = [
-  {id: 0, name: 'Sekat Sayur (Lobak & Konnyaku)', allowed: ['daikon', 'konnyaku']},
-  {id: 1, name: 'Sekat Olahan Laut (Chikuwa & Gurita)', allowed: ['chikuwa', 'tako']},
+  {id: 0, name: 'Sekat Sayur (Lobak, Konnyaku, Lobak Istana)', allowed: ['daikon', 'konnyaku', 'imperial_daikon']},
+  {id: 1, name: 'Sekat Olahan Laut (Chikuwa, Gurita, Kepiting)', allowed: ['chikuwa', 'tako', 'matsuba_crab']},
   {id: 2, name: 'Sekat Daging (Urat Sapi)', allowed: ['gyusuji']},
-  {id: 3, name: 'Sekat Telur, Mochi & Tahu', allowed: ['egg', 'kinchaku', 'atsuage']}
+  {id: 3, name: 'Sekat Telur, Mochi & Tahu (Termasuk Telur Selai)', allowed: ['egg', 'kinchaku', 'atsuage', 'tamago_selai']}
 ]
 
 // Kondimen & Minuman
@@ -219,14 +229,26 @@ export function newGame(demo = false) {
     masteryProgress: 0,
     unlockedSkills: [],
     // Album Foto Polaroid Showa
-    polaroids: ['polaroid_salaryman']
+    polaroids: ['polaroid_salaryman'],
+    // Fase 7: Arashi Rush & Zen Focus
+    arashi: createInitialArashiState(),
+    // Warisan Dinasti Showa & Restoran Flagship Ginza
+    dynasty: createInitialDynastyState(),
+    // Turnamen Akbar Grand Prix Kanto vs Kansai
+    grandPrixSession: null,
+    grandPrixTrophy: false,
+    // Gudang Fermentasi Bawah Tanah
+    fermentation: createInitialFermentationCellar(),
+    // Segitiga Pengaruh Faksi Distrik
+    factions: createInitialFactionState()
   }
 }
 
 function generateMarketPrices(day = 1) {
   const base = {
     daikon: 35, egg: 45, konnyaku: 30, chikuwa: 40,
-    gyusuji: 90, kinchaku: 75, atsuage: 70, tako: 120
+    gyusuji: 90, kinchaku: 75, atsuage: 70, tako: 120,
+    imperial_daikon: 200, matsuba_crab: 260, tamago_selai: 180
   }
   const news = generateDailyMarketNews(day)
   const result = {}
@@ -311,6 +333,13 @@ function loadSavedGame() {
     data.masteryProgress = Number.isFinite(data.masteryProgress) ? data.masteryProgress : 0
     data.unlockedSkills = data.unlockedSkills || []
     data.polaroids = data.polaroids || ['polaroid_salaryman']
+    data.arashi = data.arashi || createInitialArashiState()
+    data.arashi.zenActive = false
+    data.dynasty = data.dynasty || createInitialDynastyState()
+    data.grandPrixSession = null
+    data.grandPrixTrophy = !!data.grandPrixTrophy
+    data.fermentation = data.fermentation || createInitialFermentationCellar()
+    data.factions = data.factions || createInitialFactionState()
     return data
   } catch (e) {
     return null
@@ -366,7 +395,12 @@ export function saveGame() {
       masteryProgress: G.masteryProgress,
       unlockedSkills: G.unlockedSkills,
       polaroids: G.polaroids,
-      districtMonopoly: G.districtMonopoly
+      districtMonopoly: G.districtMonopoly,
+      arashi: G.arashi,
+      dynasty: G.dynasty,
+      grandPrixTrophy: G.grandPrixTrophy,
+      fermentation: G.fermentation,
+      factions: G.factions
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -461,6 +495,33 @@ export const startNewDay = () => {
     } else if (vt.tier === 'matured') {
       G.floats.push({x: 140, y: 40, t: 0, s: '⭐ Biang Kaldu Emas 3 Hari Siap!', c: '#f39c12'})
     }
+  }
+
+  // Majukan Proses Fermentasi Bawah Tanah
+  if (G.fermentation) {
+    advanceCellarDays(G.fermentation)
+    const readyVats = G.fermentation.vats.filter(v => v.status === 'ready')
+    if (readyVats.length > 0) {
+      G.floats.push({x: 140, y: 45, t: 0, s: `🏺 ${readyVats.length} Gentong Fermentasi Bawah Tanah Siap Dipanen!`, c: '#2ecc71'})
+    }
+  }
+
+  // Dividen Harian Murid Dinasti Ginza
+  if (G.dynasty && G.dynasty.apprentice) {
+    const appInc = calculateApprenticeDailyIncome(G)
+    G.floats.push({x: 140, y: 35, t: 0, s: `🪙 Dividen Murid Kedai Lama: +¥${appInc}!`, c: '#ffd700'})
+  }
+
+  // Pemicu Dilema Faksi Distrik Setiap 3 Hari
+  if (G.factions && G.day % 3 === 0 && !G.factions.activeDilemma) {
+    triggerRandomDilemma(G.factions)
+  }
+
+  // Reset Arashi & Zen Focus
+  if (G.arashi) {
+    G.arashi.active = false
+    G.arashi.zenActive = false
+    G.arashi.meter = 0
   }
 
   // Reset Gerobak Saingan & Telepon Pesanan
@@ -1107,7 +1168,21 @@ function spawn() {
   const isMidnight = G.hour === 23 || G.hour === 0 || G.hour === 1
   let specialData = null
 
-  if (Math.random() < 0.12 && G.rep >= 35) {
+  // Tamu Bangsawan Ruang VIP Zashiki jika di Ginza
+  const zashikiGuest = spawnZashikiGuest(G)
+  if (zashikiGuest) {
+    specialData = {
+      id: zashikiGuest.id,
+      name: zashikiGuest.name,
+      isZashiki: true,
+      zashikiData: zashikiGuest,
+      hair: '#ffffff',
+      shirt: '#d4af37',
+      patience: 32
+    }
+    Audio.playPrestigeFanfare()
+    G.floats.push({x: 140, y: 50, t: 0, s: `🏛️ TAMU BANGSAWAN GINZA: ${zashikiGuest.name}!`, c: '#f1c40f'})
+  } else if (Math.random() < 0.12 && G.rep >= 35) {
     // Inspektur Michelin Menyamar
     specialData = SPECIAL_ENCOUNTERS.inspector
     G.floats.push({x: 140, y: 50, t: 0, s: '🕵️‍♂️ Tamu Misterius Mengamati Kedai...', c: '#a29bfe'})
@@ -1142,6 +1217,8 @@ function spawn() {
     charName: specialData ? specialData.name : 'Tamu Berteduh',
     isBoss: specialData?.isBoss || false,
     bossData: specialData?.isBoss ? specialData : null,
+    isZashiki: specialData?.isZashiki || false,
+    zashikiData: specialData?.zashikiData || null,
     isInspector: specialData?.isInspector || false,
     inspectorData: specialData?.isInspector ? specialData : null,
     isSanitation: specialData?.isSanitation || false,
@@ -1297,12 +1374,39 @@ export function serve() {
   // Bintang Michelin Multiplier
   const michelinMultiplier = G.michelinStars === 1 ? 1.2 : G.michelinStars === 2 ? 1.45 : G.michelinStars === 3 ? 1.8 : 1.0
 
-  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier)
+  // Multiplier Dinasti Emas (Golden Dashi Heritage)
+  const dynastyMultiplier = G.dynasty?.goldenDashiActive ? 1.25 : 1.0
+
+  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier * dynastyMultiplier)
   let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier) : 0
+
+  // Efek Arashi Rush Hour (Tip Multiplier x3.5)
+  if (G.arashi?.active) {
+    tip = Math.round(tip * 3.5)
+  }
+
+  // Evaluasi Harmoni Makanan & Sake (Food-Sake Pairing Matrix)
+  if (c.servedSake) {
+    const pairRes = evaluateSakePairing(G.plate, c.servedSake)
+    if (pairRes.match) {
+      tip = Math.round(tip * pairRes.tipMultiplier)
+      Audio.playEuphoriaChime()
+      G.floats.push({x: c.x, y: c.y - 80, t: 0, s: `✨ GOURMET EUPHORIA! ${pairRes.note}`, c: '#ffd700'})
+    }
+  }
 
   // Cuaca Ekstrem
   if (G.weather === 'topan') tip = Math.round(tip * 2.0)
   if (G.isBlackout && G.candleLit) tip = Math.round(tip * 1.35)
+
+  // Hadiah Tamu Bangsawan Ruang VIP Zashiki (Ginza Flagship)
+  if (c.isZashiki && c.zashikiData && sat >= 0.75) {
+    gain = Math.round(gain * c.zashikiData.budgetMultiplier)
+    tip = Math.round(tip * c.zashikiData.budgetMultiplier)
+    G.rep += 8
+    Audio.playPrestigeFanfare()
+    G.floats.push({x: c.x, y: c.y - 70, t: 0, s: `🏛️ JAMUAN BANGSAWAN GINZA: +¥${gain + tip}!`, c: '#f1c40f'})
+  }
 
   // Hadiah Tamu Teka-Teki Tengah Malam (Shinya Shokudo)
   if (c.isMidnightRiddle && c.midnightData) {
@@ -1389,8 +1493,10 @@ export function serve() {
     }
   }
 
-  const repMult = G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0
+  const grandPrixRepBonus = G.grandPrixTrophy ? 1.5 : 1.0
+  const repMult = (G.heirlooms.includes('silver_hairpin') ? 1.25 : 1.0) * grandPrixRepBonus
   G.rep = Math.max(0, G.rep + (sat > 0.7 ? 2.5 : sat > 0.4 ? 0.5 : -1) * repMult)
+  onArashiServe(G, sat >= 0.65)
   G.plate.forEach(i => G.pop[i] = (G.pop[i] || 0) + 1)
 
   const stars = sat > 0.85 ? 3 : sat > 0.55 ? 2 : 1
@@ -1620,6 +1726,29 @@ export function update(dt) {
     updateCookOff(g.cookOffSession, validDt)
   }
 
+  // Update Fase 7: Arashi Rush & Zen Focus
+  if (g.arashi) {
+    updateArashi(g, validDt)
+  }
+
+  // Update Fase 7: Turnamen Akbar Grand Prix Kanto vs Kansai
+  if (g.grandPrixSession && !g.grandPrixSession.finished) {
+    updateGrandPrix(g.grandPrixSession, validDt)
+    if (g.grandPrixSession.finished && g.grandPrixSession.winner === 'player' && !g.grandPrixTrophy) {
+      g.grandPrixTrophy = true
+      g.money += 20000
+      g.rep += 25
+      Audio.playGrandPrixGong()
+      Audio.playPrestigeFanfare()
+      g.floats.push({x: 160, y: 50, t: 0, s: '🏆 PIALA BERGILIR KAISAR DIMENANGKAN! +¥20,000!', c: '#ffd700'})
+      if (!g.owned.includes('imperial_daikon')) g.owned.push('imperial_daikon')
+      if (!g.owned.includes('matsuba_crab')) g.owned.push('matsuba_crab')
+      g.stock.imperial_daikon = (g.stock.imperial_daikon || 0) + 5
+      g.stock.matsuba_crab = (g.stock.matsuba_crab || 0) + 5
+      saveGame()
+    }
+  }
+
   // Update Partikel Salju & Suhu Kompor saat Salju
   if (g.weather === 'salju' && g.snowParticles) {
     g.snowParticles.forEach(p => {
@@ -1714,7 +1843,9 @@ export function update(dt) {
           const n = 1 + (Math.random() * Math.min(3, 1 + level() + 1) | 0)
           c.order = []
 
-          if (c.bossData) {
+          if (c.zashikiData) {
+            c.order = c.zashikiData.favoriteOden.slice()
+          } else if (c.bossData) {
             c.order = c.bossData.favItems.slice()
             c.condimentReq = c.bossData.favCondiment
           } else if (char && Math.random() < 0.8) {
@@ -1737,7 +1868,11 @@ export function update(dt) {
       if (c !== g.target) {
         // Staf Aoi memperlambat pengurangan kesabaran
         const decayRate = g.staff.aoi ? 0.7 : 1.0
-        c.pat -= validDt * decayRate
+        let rushDecay = 1.0
+        if (g.arashi?.active) {
+          rushDecay = g.arashi.zenActive ? 0.45 : 1.25
+        }
+        c.pat -= validDt * decayRate * rushDecay
       }
       if (c.pat <= 0) {
         c.st = 'leave'
@@ -1780,4 +1915,67 @@ export function click(x, y) {
 
   const c = g.cust.find(c => c.st === 'wait' && Math.abs(c.x - x) < 10 && y > c.y - 24 && y < c.y + 4)
   if (c) openOrder(c)
+}
+
+// --- FASE 7: HELPER FUNCTIONS & AKSI PEMAIN ---
+export function triggerPrestige(apprenticeId = 'kenji') {
+  if (!canPrestige(G)) return false
+  const ok = executePrestige(G, apprenticeId)
+  if (ok) {
+    Audio.playPrestigeFanfare()
+    saveGame()
+  }
+  return ok
+}
+
+export function startGrandPrix() {
+  if (G.grandPrixSession && !G.grandPrixSession.finished) return
+  G.grandPrixSession = createGrandPrixSession()
+  Audio.playGrandPrixGong()
+  saveGame()
+}
+
+export function startCellarFerment(vatIndex) {
+  if (!G.fermentation) G.fermentation = createInitialFermentationCellar()
+  const ok = startFermenting(G.fermentation, vatIndex, G)
+  if (ok) {
+    Audio.playBubblingVat()
+    saveGame()
+  }
+  return ok
+}
+
+export function harvestCellarVat(vatIndex) {
+  if (!G.fermentation) return null
+  const recipe = harvestVat(G.fermentation, vatIndex)
+  if (recipe) {
+    Audio.playFeverSound()
+    G.floats.push({x: 160, y: 50, t: 0, s: `🏺 Berhasil Memanen: ${recipe.yieldName}!`, c: '#ffd700'})
+    saveGame()
+  }
+  return recipe
+}
+
+export function chooseFactionOption(choiceIndex) {
+  if (!G.factions || !G.factions.activeDilemma) return null
+  const res = resolveDilemma(G.factions, choiceIndex, G)
+  if (res && res.success) {
+    Audio.playCoinSound()
+    G.floats.push({x: 160, y: 60, t: 0, s: '⚖️ Relasi Faksi Diperbarui!', c: '#a29bfe'})
+    saveGame()
+  }
+  return res
+}
+
+export function serveSakeBottle(sakeType = 'atsukan') {
+  if (!G.target) return false
+  if (sakeType === 'koshu') {
+    if ((G.fermentation?.inventory?.vintage_koshu || 0) <= 0) return false
+    G.fermentation.inventory.vintage_koshu--
+  }
+  G.target.servedSake = sakeType
+  Audio.playSakePour()
+  G.floats.push({x: G.target.x, y: G.target.y - 45, t: 0, s: `🍶 Sajian Sake: ${sakeType === 'koshu' ? 'Koshu Vintage 1975' : sakeType === 'ginjo' ? 'Junmai Ginjo' : 'Atsukan Hangat'}!`, c: '#ffd700'})
+  saveGame()
+  return true
 }

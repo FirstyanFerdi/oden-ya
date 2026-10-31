@@ -221,8 +221,33 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - Penilaian harmoni estetika visual piring saji (Wabi-Sabi). Skor Kaiseki $\ge 80\%$ memberikan bonus nilai hidangan instan **+25%**.
 - **Album Foto Polaroid Kenangan Showa**: Galeri 6 foto instan polaroid berbingkai retro vintage yang mengabadikan kisah emosional para tamu ikonik kedai.
 
-### 32. 💾 Penyimpanan Otomatis (Auto-Save)
-- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, poin keahlian master, album polaroid, musim aktif, dan monopoli distrik) otomatis tersimpan di `localStorage` peramban.
+### 32. ⚡ Tingkat Kesulitan Adaptif: Arashi Rush Hour & Zen Focus
+- **Arashi Rush Hour**: Meteran terisi dari sajian cepat dan akurat. Saat penuh, badai pesanan terpicu selama 35 detik dengan pesanan multi-tahap (Oden + Sate / Sake), kesabaran lebih ketat, dan pengganda tip melonjak hingga **x3.5**!
+- **Mata Batin Zen Focus (Bullet-Time)**: Pertahankan kombo tinggi saat Arashi untuk memperlambat waktu sebesar 50% ($0.45\times$) dengan detak jantung koki dan aura emas berpendarkan kelembutan konsentrasi mutlak.
+
+### 33. 🏛️ Warisan Dinasti Showa & Restoran Flagship Ginza (Prestige New Game+)
+- Buka restoran permanen termewah di distrik **Ginza** (`ginza`) setelah mencapai Bintang Michelin 3 (★★★) atau modal ¥60.000.
+- Angkat Murid Kepala (Kenji atau Nona Aoi) untuk mengelola gerobak lama, menghasilkan dividen pendapatan pasif harian (**¥1.800 – ¥3.000 / hari**).
+- Mewariskan kaldu leluhur keemasan (*Golden Dashi Heritage*) dan menjamu tokoh bangsawan di **Ruang Tertutup Zashiki** (*Menteri Kebudayaan Kato*, *Sutradara Otomo*, *Taipan Zaibatsu Tanaka*) dengan anggaran sajian fantastis ($4.0\times - 6.0\times$).
+
+### 34. 🏆 The Grand Showa Culinary Grand Prix (Kanto vs Kansai)
+- Turnamen knockout akbar 3 babak melawan Master Koki Ryuji dari Kansai:
+  - *Babak 1*: Ujian Rasa Dashi Buta (*Blind Tasting* Kombu, Katsuobushi, Shoyu).
+  - *Babak 2*: Kecepatan Penataan Kaiseki Kehormatan (*Speed Kaiseki Plating*).
+  - *Babak 3*: Duel Kuali Api Pamungkas Ryuji (*Imperial Heat Duel*).
+- Menangkan **Piala Bergilir Kaisar Showa** di rak etalase kedai, gelar *Master Itamae Nasional* (+50% reputasi harian), dan pembukaan bahan langka S-Tier: *Kepiting Matsuba Echizen* dan *Lobak Istana Kyoto*.
+
+### 35. 🏺 Gudang Fermentasi Bawah Tanah & Sommelier Sake (Food-Sake Pairing)
+- **3 Gentong Keramik Kuno (*Kame*)**: Matangkan bahan mentah dari hari ke hari menjadi hidangan bernilai jual tinggi (*Telur Selai Emas 3 Hari*, *Aged Karashi Miso 2 Hari*, *Botol Koshu Vintage 1975 4 Hari*).
+- **Matriks Harmoni Pasangan Makanan & Sake**: Padukan Atsukan Hangat untuk kue tahu/telur, Junmai Ginjo Kering untuk lobak bening, dan Koshu Vintage 1975 untuk daging urat sapi/kepiting demi memicu **Gourmet Euphoria** (+150% tip!).
+
+### 36. ⚖️ Segitiga Pengaruh Faksi Distrik (District Triad Politics)
+- Kelola dinamika politik jalanan antara tiga kekuatan distrik: **Koban (Inspektur Kenzo)**, **Klan Gumi (Oyabun Ryuzo)**, dan **Shoutengai (Madam Yoshiko)**.
+- Capai reputasi 70+ untuk membuka hak istimewa eksklusif (*Patroli Koban Anti-Pencuri*, *Diskon 40% Pasar Gelap Tsukiji*, *Festival Matsuri Rakyat 250% Pengunjung*).
+- Ambil keputusan moral dan ekonomi dalam **Dilema Distrik** harian.
+
+### 37. 💾 Penyimpanan Otomatis (Auto-Save)
+- Seluruh progres permainan (saldo uang, reputasi, level kedai, biang kaldu vat, stok bahan, pisau prep, sate panggangan, buff lelang S-tier, bintang Michelin, pusaka heirlooms, bento sepeda, sertifikat higienis, poin keahlian master, album polaroid, musim aktif, monopoli distrik, level dinasti Ginza, piala Grand Prix, gentong fermentasi bawah tanah, dan reputasi 3 faksi distrik) otomatis tersimpan di `localStorage` peramban.
 
 ---
 
@@ -230,27 +255,37 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 
 1. **Persiapan Pagi/Sore**:
    - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
+   - Buka menu **🏺 Fermentasi** untuk memeriksa gentong bawah tanah dan memanen Telur Selai Emas atau Sake Vintage.
+   - Buka menu **⚖️ Faksi Distrik** untuk memantau neraca pengaruh kekuasaan jalanan dan menyelesaikan dilema distrik.
    - Buka menu **🍂 Musim** untuk memeriksa kalender musim aktif dan bahan eksklusifnya.
    - Buka menu **📜 Keahlian** untuk membuka ranting skill pohon keahlian master.
    - Buka menu **🐟 Lelang Tsukiji** untuk mengikuti perang lelang bahan langka S-Tier.
-   - Buka menu **🗺️ Peta** untuk berpindah distrik kota yang telah terbuka.
+   - Buka menu **🗺️ Peta** untuk berpindah distrik kota (Stasiun, Meguro Sakura, Shinjuku Neon, atau Ginza Flagship).
    - Buka menu **📻 Radio** untuk memutar kaset pita favoritmu.
    - Buka menu **🏪 Toko & Staf** untuk memperbesar kapasitas panci dan merekrut asisten.
 2. **Memasuki Kedai**: Klik pada gerobak/tenda kedai untuk masuk.
 3. **Melayani Tamu & Menjaga Kombo**: Saat tamu duduk di kursi, **klik tamu tersebut** untuk membuka panci oden.
 4. **Mengambil Bahan Matang & Sate Bakar**:
    - Perhatikan pesanan tamu, bumbu pelengkap, dan perhatikan skor **🍱 Harmoni Kaiseki** di piring saji.
-   - Jika tamu meminta sake hangat, klik tombol minigame **🍶 Tuang Sake** dan lepas tepat di zona hijau.
+   - Pilih botol sake yang cocok pada **🍶 Pasangan Sake (Sommelier)** untuk memicu efek *Gourmet Euphoria* (+150% tip!).
    - Jika tamu ingin diramal, klik **🎴 Ramalkan Nasib (Omikuji)**.
    - Klik **🍲 Sajikan ke Tamu!**.
-   - Layani tamu berturut-turut untuk memicu **⚡ FEVER MODE (3x Uang)**!
-5. **Duel Kuliner**: Buka menu **🔥 Duel Yamada** untuk menantang gerobak saingan Yamada-ya demi memenangkan monopoli distrik 3 hari.
-6. **Jam 02:00 Dini Hari**: Pilih **Tutup & Tidur** atau **Buka Shinya Shokudo** untuk melayani tamu teka-teki nokturnal hingga jam 05:00 subuh!
+   - Layani tamu berturut-turut untuk memicu **⚡ ARASHI RUSH x3.5** dan **🧘 ZEN FOCUS (Bullet-Time)**!
+5. **Turnamen Akbar & Duel**:
+   - Buka menu **🏆 Grand Prix** untuk menantang Master Ryuji dalam turnamen 3 babak knockout demi memperebutkan Piala Bergilir Kaisar.
+   - Buka menu **🔥 Duel Yamada** untuk menantang gerobak saingan Yamada-ya demi memenangkan monopoli distrik 3 hari.
+6. **Ekspansi Dinasti**: Setelah mencapai Michelin 3-Star atau modal ¥60.000, buka menu **🏛️ Dinasti** untuk mengangkat murid kepala dan mendirikan Restoran Flagship Ginza.
+7. **Jam 02:00 Dini Hari**: Pilih **Tutup & Tidur** atau **Buka Shinya Shokudo** untuk melayani tamu teka-teki nokturnal hingga jam 05:00 subuh!
 
 ---
 
 ## 📂 Struktur Berkas
 
+- [src/arashi.js](src/arashi.js) – Sistem tingkat kesulitan adaptif Arashi Rush Hour (x3.5 tip) dan mode bullet-time Zen Focus.
+- [src/dynasty.js](src/dynasty.js) – Sistem prestige Dinasti Showa, pembukaan lokasi ke-4 Ginza Flagship, dividen murid harian, dan tamu bangsawan Zashiki VIP.
+- [src/grandprix.js](src/grandprix.js) – Turnamen 3 babak kejuaraan nasional (Blind Dashi Tasting, Speed Kaiseki Plating, Duel Kuali Api), Piala Bergilir Kaisar, dan bahan S-tier Echizen Matsuba Crab & Imperial Daikon.
+- [src/fermentation.js](src/fermentation.js) – Gudang fermentasi gentong keramik bawah tanah (Telur Selai Emas, Aged Karashi Miso, Botol Koshu Vintage 1975) dan matriks harmoni pasangan makanan & sake (Food-Sake Pairing).
+- [src/factions.js](src/factions.js) – Sistem segitiga pengaruh faksi distrik (Polisi Koban, Mafia Yakuza, Pedagang Shoutengai) dan dilema harian jalanan.
 - [src/seasons.js](src/seasons.js) – Siklus 4 musim dinamis (Haru, Natsu, Aki, Fuyu), bahan musiman eksklusif, dan warta berita fluktuasi pasar komoditas.
 - [src/midnight.js](src/midnight.js) – Modus rahasia tengah malam Shinya Shokudo (02:00 - 05:00), tamu nokturnal misterius, dan evaluasi teka-teki puitis.
 - [src/cookoff.js](src/cookoff.js) – Duel kuliner jalanan terbuka melawan rival Yamada-ya (3 babak: Adu Aroma, Kecepatan Sate, dan Harmoni Kaiseki).
@@ -264,14 +299,14 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/grill.js](src/grill.js) – Sub-stasiun panggangan sate yakitori, status bakar, balik sate, oles saus tare, dan bonus karamel emas.
 - [src/auction.js](src/auction.js) – Minigame lelang subuh Pasar Ikan Tsukiji, bot penawar saingan, dan bahan grade S-Tier.
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
-- [src/recipes.js](src/recipes.js) – Daftar 6 resep kombinasi rahasia (*Fusion Dex*), deteksi kecocokan piring, dan bonus harga.
-- [src/locations.js](src/locations.js) – Sistem 3 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, jepretan polaroid, genderang cook-off, dan lonceng midnight.
-- [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Inspektur Michelin Masaru, dan Inspektur Sanitasi Kato.
+- [src/recipes.js](src/recipes.js) – Daftar resep kombinasi rahasia (*Fusion Dex*), resep mahkota kekaisaran (*Imperial Golden Oden*), deteksi kecocokan piring, dan bonus harga.
+- [src/locations.js](src/locations.js) – Sistem 4 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon, Ginza Flagship) beserta pengali harga dan tip.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, jepretan polaroid, genderang cook-off, lonceng midnight, detak zen focus, chime euphoria, gong grand prix, dan fanfare dinasti.
+- [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Tamu Bangsawan Zashiki (Menteri Kato, Sutradara Otomo, Taipan Tanaka), Inspektur Michelin, dan Inspektur Sanitasi.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim (sakura, maple, salju), suasana malam Shinya Shokudo, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, bingkai polaroid, arena cook-off, pohon skill, termometer bento, bar lelang, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 6.
+- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim (sakura, maple, salju), suasana malam Shinya Shokudo, aura Zen Focus, gelombang Arashi Rush, Piala Bergilir Kaisar, kuali biang kaldu master, telepon putar, sepeda pengantar, gerobak saingan Yamada-ya, panggangan sate arang, plakat emas Michelin, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, animasi pendar FEVER, bingkai polaroid, arena cook-off, pohon skill, termometer bento, bar lelang, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 7.
 

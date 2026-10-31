@@ -39,5 +39,18 @@ export const LOCATIONS = [
     bgColor: '#0d091a',
     particle: 'neon',
     unlocked: false
+  },
+  {
+    id: 'ginza',
+    name: 'Restoran Flagship Ginza Showa',
+    title: 'Puncak Dinasti Gastronomi',
+    icon: '🏛️',
+    repReq: 90,
+    bonusDesc: 'Restoran permanen dengan tatami kayu Hinoki, lentera emas & Ruang VIP Zashiki. Pelanggan bangsawan & tips melimpah (+120%)!',
+    priceMultiplier: 2.2,
+    tipMultiplier: 2.2,
+    bgColor: '#16100c',
+    particle: 'gold_leaf',
+    unlocked: false
   }
 ]

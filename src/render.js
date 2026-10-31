@@ -190,6 +190,37 @@ export function draw(ctx) {
     T('深夜', 296, 7, '#ffd700', 5)
   }
 
+  // EFEK VISUAL ARASHI RUSH HOUR (Top Fiery Wave & Energy Pulses)
+  if (G.arashi?.active) {
+    const pulse = 0.6 + 0.4 * Math.sin(G.t * 14)
+    R(0, 0, W, 2, `rgba(231, 76, 60, ${pulse})`)
+    R(0, 2, W, 1, `rgba(243, 156, 18, ${pulse * 0.7})`)
+  }
+
+  // EFEK VISUAL ZEN FOCUS STATE (Golden Bullet-Time Slow-Mo Vignette)
+  if (G.arashi?.zenActive) {
+    const zenPulse = 0.4 + 0.3 * Math.sin(G.t * 6)
+    ctx.strokeStyle = `rgba(241, 196, 15, ${zenPulse})`
+    ctx.lineWidth = 4
+    ctx.strokeRect(2, 2, W - 4, H - 4)
+
+    // Bintik Emas Lembut Melayang Pelan
+    for (let k = 0; k < 8; k++) {
+      const zx = ((G.t * 15 + k * 42) % (W + 20)) - 10
+      const zy = ((G.t * 10 + k * 28) % (H + 20)) - 10
+      R(zx, zy, 2, 2, '#ffeaa7')
+    }
+  }
+
+  // Partikel Daun Emas Melayang di Restoran Flagship Ginza
+  if (G.currentLocation === 'ginza') {
+    for (let k = 0; k < 10; k++) {
+      const gx = ((G.t * 12 + k * 33) % (W + 10)) - 5
+      const gy = ((G.t * 16 + k * 21) % (H + 10)) - 5
+      R(gx, gy, 2, 1, k % 2 === 0 ? '#f1c40f' : '#e67e22')
+    }
+  }
+
   if (G.scene === 'in' && z > 0.4) {
     ctx.fillStyle = `rgba(0,0,0,${z * 0.35})`
     ctx.fillRect(0, 0, W, H)
@@ -235,6 +266,11 @@ export function draw(ctx) {
       // Inspektur Michelin Samaran: Jas Abu-abu & Kacamata Hitam Misterius
       R(x - 3, yy - 14, 6, 2, '#2c3e50')
       R(x - 1, yy - 14, 2, 1, '#74b9ff')
+    } else if (c.isZashiki) {
+      // Tamu Bangsawan Showa: Topi Silinder Emas & Bros Kekaisaran
+      R(x - 3, yy - 21, 6, 3, '#d4af37')
+      R(x - 4, yy - 18, 8, 1, '#f1c40f')
+      R(x - 1, yy - 7, 2, 3, '#e74c3c')
     }
 
     if (walk) {
@@ -285,6 +321,17 @@ export function draw(ctx) {
         else if (hid === 'vintage_coin') R(hx, 8, 4, 4, '#e0e0e0')
         else if (hid === 'poet_pen') R(hx, 7, 2, 7, '#9b59b6')
       })
+    }
+
+    // Piala Bergilir Kaisar Showa (Grand Prix Trophy)
+    if (G.grandPrixTrophy) {
+      const tx = 275, ty = 34
+      R(tx - 3, ty, 7, 2, '#d4af37')
+      R(tx - 2, ty + 2, 5, 4, '#f1c40f')
+      R(tx - 1, ty + 6, 3, 2, '#b8860b')
+      R(tx - 3, ty + 8, 7, 2, '#7f8c8d')
+      R(tx, ty + 3, 1, 1, '#ffffff')
+      glow(tx, ty + 4, 14, 0.45)
     }
 
     // Kuali Besar Biang Kaldu Induk (Master Dashi Vat)
@@ -479,7 +526,7 @@ export function draw(ctx) {
 
     // Teks Mengapung
     G.floats.forEach(f => {
-      if (f.t > 0) T(f.s, f.x - 10, f.y - f.t * 18, f.c, 10)
+      if (f.t >= 0 && f.s) T(f.s, f.x - 10, f.y - f.t * 18, f.c, 10)
     })
 
     if (G.scene === 'in') {

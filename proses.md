@@ -314,6 +314,65 @@ Pengembangan skala besar untuk menghadirkan gameplay yang lebih mendalam, dinami
 - `playMidnightBell()`: Dentang lonceng kuil tengah malam penanda 02:00 Shinya Shokudo.
 - `playSkillUnlock()`: Fanfare arpeggio kemenangan saat membuka keahlian master koki.
 
+---
+
+## 10. Fase Pengembangan Fitur Lanjutan: Tahap 7 (The Showa Dynasty & Culinary Grand Prix)
+
+Ekspansi sistem strategi mendalam, tingkat kesulitan adaptif, serta konten *mid-to-endgame* untuk menjaga daya tarik jangka panjang.
+
+### A. Tingkat Kesulitan Adaptif: Arashi Rush Hour & Zen Focus (`src/arashi.js`)
+- **Indikator Arashi Rush**:
+  - Meteran bertambah seiring kecepatan dan akurasi sajian koki. Saat mencapai 100%, mode **Arashi Rush** terpicu selama 35 detik.
+  - Kesulitan meningkat secara adaptif: durasi kesabaran berkurang 25%, tamu memesan paket multi-tahap (Oden + Sate / Sake), namun pengganda tip meroket menjadi **x3.5**.
+- **Mata Batin Zen Focus (Bullet-Time)**:
+  - Berhasil mempertahankan kombo tinggi ($\ge 6$) saat Arashi aktif memicu **Zen Focus** selama 9 detik.
+  - Waktu kesabaran tamu dan pemanggangan melambat drastis ($0.45\times$), disertai pendaran aura emas dan detak jantung koki yang ritmis.
+
+### B. Warisan Dinasti Showa & Restoran Flagship Ginza (`src/dynasty.js`)
+- **Sistem Prestige (Reinkarnasi Warisan)**:
+  - Dibuka setelah meraih Bintang Michelin 3 (★★★), modal ¥60.000, atau Reputasi 85.
+  - Koki mengangkat murid kepala (Kenji atau Nona Aoi) untuk mengelola gerobak lama, menghasilkan dividen harian pasif (**¥1.800 – ¥3.000 / hari**).
+  - Membuka lokasi ke-4: **Restoran Flagship Ginza Showa** (`ginza`) dengan dekorasi tatami Hinoki dan Ruang Tertutup Zashiki.
+  - Mewariskan kaldu leluhur keemasan (*Golden Dashi Heritage*) dengan bonus kepuasan dasar +25% permanen.
+- **Tamu Bangsawan Ruang VIP Zashiki**:
+  - Tiga tokoh era Showa: *Menteri Kebudayaan Kato*, *Sutradara Sinema Otomo*, dan *Taipan Zaibatsu Tanaka* yang memberikan anggaran sajian masif ($4.0\times - 6.0\times$ harga normal).
+
+### C. Turnamen Akbar Kuliner: Grand Prix Kanto vs Kansai (`src/grandprix.js`)
+- Turnamen knockout 3 babak bergengsi melawan Master Koki Ryuji dari Kansai:
+  - **Babak 1 (Dashi Blind Tasting)**: Menyeimbangkan rasio Kombu, Katsuobushi, dan Shoyu agar mendekati harmoni juri kekaisaran.
+  - **Babak 2 (Speed Kaiseki Plating)**: Menata 3 bahan pesanan kehormatan (Lobak, Telur, Kepiting Matsuba) dalam batas waktu ketat.
+  - **Babak 3 (Duel Kuali Api Ryuji)**: Kecepatan mengaduk kuali untuk karamelisasi Kaldu Imperial sebelum rival menyusul.
+- **Hadiah Kemenangan**:
+  - **Piala Bergilir Kaisar Showa** yang terpajang megah di rak kedai dan restoran.
+  - Gelar *Master Itamae Nasional* (+50% perolehan reputasi harian).
+  - Pembukaan pasokan bahan langka S-Tier: *Kepiting Matsuba Echizen* dan *Lobak Istana Kyoto*.
+
+### D. Gudang Fermentasi Bawah Tanah & Sommelier Sake (`src/fermentation.js`)
+- **3 Gentong Keramik Kuno (*Kame*)**:
+  - *Telur Marinasi Shoyu 3 Hari*: Menghasilkan **Telur Selai Emas** bernilai jual tinggi.
+  - *Aged Karashi Miso 2 Hari*: Mustard pedas beraroma perilla fermentasi.
+  - *Gentong Sake Koshu Vintage 1975*: Mematangkan botol sake kayu cedar antik selama 4 hari.
+- **Matriks Harmoni Pasangan Makanan & Sake (Food-Sake Pairing)**:
+  - *Atsukan Hangat*: Harmonisasi sempurna dengan kue tahu, telur, dan mochi.
+  - *Junmai Ginjo Kering*: Mengangkat kesegaran kuah sayur lobak dan konnyaku.
+  - *Koshu Vintage 1975*: Ledakan rasa gurih untuk urat sapi empuk, gurita, dan kepiting (+150% tip & efek *Gourmet Euphoria*).
+
+### E. Segitiga Pengaruh Faksi Distrik (`src/factions.js`)
+- Tiga faksi yang bersaing memperebutkan pengaruh di jalanan:
+  - 👮‍♂️ **Koban (Inspektur Kenzo)**: Hak istimewa *Patroli Koban* (bebas razia sanitasi dan anti pencuri).
+  - 🐉 **Klan Gumi (Oyabun Ryuzo)**: Hak istimewa *Pasar Gelap Tsukiji* (diskon lelang 40% dan rival tidak berkutik).
+  - 🏮 **Shoutengai (Madam Yoshiko)**: Hak istimewa *Festival Matsuri Rakyat* (pengunjung melonjak 250%).
+- **Dilema Distrik Harian**:
+  - Setiap 3 hari muncul peristiwa dilematis (jam malam, sumbangan lampion festival, tawaran pasokan kombu gelap) yang mengubah neraca kekuasaan ketiga faksi.
+
+### F. Efek Audio Prosedural Tambahan (`src/audio.js`)
+- `playZenFocusBeat()`: Detak jantung koki saat memasuki konsentrasi pelan waktu.
+- `playEuphoriaChime()`: Denting harmoni keemasan saat pasangan makanan dan sake pas.
+- `playArashiRushFanfare()`: Fanfare genderang mendadak tanda badai pesanan datang.
+- `playGrandPrixGong()`: Resonansi gong kuil pembuka dan penutup pertandingan kejuaraan nasional.
+- `playPrestigeFanfare()`: Melodi Gagaku klasik kaisar saat pembukaan dinasti dan perjamuan bangsawan.
+
+
 
 
 
