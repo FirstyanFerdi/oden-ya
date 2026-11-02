@@ -3213,8 +3213,235 @@ canvas {
 .perk-pill.unlocked { background: #15803d; color: #fef08a; border: 1px solid #22c55e; }
 .perk-pill.locked { background: #331522; color: #88546b; border: 1px solid #4a1d32; }
 
+/* --- FASE 9: INSIDEN DARURAT & PERISTIWA ACAK TAK TERDUGA (STREET ANOMALIES) --- */
+.anomaly-hud-btn {
+  background: #2c1a0e;
+  border-color: #d35400;
+  color: #f39c12;
+  font-weight: bold;
+}
+.anomaly-hud-btn.anomaly-pulsing {
+  background: #c0392b;
+  border-color: #e74c3c;
+  color: #fff;
+  animation: pulse-danger 1s infinite alternate;
+}
+@keyframes pulse-danger {
+  from { box-shadow: 0 0 4px #e74c3c; transform: scale(1); }
+  to { box-shadow: 0 0 12px #ff4757; transform: scale(1.04); }
+}
+
+/* Live Emergency Alert Bar */
+.emergency-alert-bar {
+  background: linear-gradient(90deg, #2b1111, #421818, #2b1111);
+  border: 2px solid #e74c3c;
+  padding: 8px 12px;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+}
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.alert-icon { font-size: 1.6em; }
+.alert-info { display: flex; flex-direction: column; gap: 2px; }
+.alert-title { font-weight: bold; color: #ffeaa7; font-size: 0.9em; }
+.alert-progress { font-size: 0.8em; color: #fab1a0; font-family: monospace; }
+.alert-timer { font-weight: bold; color: #ff7675; font-size: 0.95em; }
+.alert-actions { display: flex; gap: 6px; }
+.alert-act-btn { font-size: 0.8em; padding: 5px 9px; font-weight: bold; }
+
+/* Bottom Nav Button */
+.anomaly-btn {
+  background: #2b1411;
+  border-color: #e67e22;
+  color: #f39c12;
+}
+.anomaly-btn:hover { background: #d35400; color: #fff; }
+
+/* Day Summary Anomaly Card */
+.anomaly-summary-card {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.anomaly-summary-card.success {
+  background: #0f2417;
+  border: 2px solid #2ecc71;
+}
+.anomaly-summary-card.failed {
+  background: #2a1115;
+  border: 2px solid #e74c3c;
+}
+.anomaly-summary-header { display: flex; align-items: center; gap: 10px; }
+.anomaly-summary-icon { font-size: 1.6em; }
+.anomaly-summary-header h4 { margin: 0; font-size: 0.95em; color: #f5f6fa; }
+.anomaly-summary-status { font-size: 0.75em; font-weight: bold; }
+.anomaly-summary-card.success .anomaly-summary-status { color: #2ecc71; }
+.anomaly-summary-card.failed .anomaly-summary-status { color: #e74c3c; }
+.anomaly-summary-desc { font-size: 0.82em; color: #dcdde1; margin: 0; }
+.anomaly-summary-delta { display: flex; gap: 16px; font-size: 0.82em; font-weight: bold; color: #fbc531; }
+
+/* Anomaly Modal Styles */
+.anomaly-modal {
+  width: 95%;
+  max-width: 820px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #181924;
+  border: 2px solid #d35400;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.anomaly-subtitle {
+  font-size: 0.82em;
+  color: #bdc3c7;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Active Anomaly Banner in Modal */
+.active-anomaly-banner {
+  background: #2d1612;
+  border: 2px solid #e67e22;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.active-anomaly-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.active-anomaly-icon { font-size: 1.8em; }
+.active-anomaly-header h3 { margin: 0; color: #f39c12; font-size: 1.05em; }
+.active-anomaly-badge {
+  font-size: 0.7em;
+  background: #c0392b;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.active-anomaly-timer { margin-left: auto; color: #ff7675; font-size: 0.9em; }
+.anomaly-objective-box {
+  background: #1c0e0b;
+  padding: 6px 10px;
+  border-left: 3px solid #e67e22;
+  font-size: 0.82em;
+  color: #dfe6e9;
+}
+.anomaly-progress-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #23120f;
+  padding: 8px 10px;
+  border-radius: 2px;
+}
+.prog-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85em;
+  color: #f5f6fa;
+}
+.sub-act { margin-left: auto; }
+.badge-lit { color: #f1c40f; font-weight: bold; font-size: 0.82em; }
+
+.no-anomaly-banner {
+  background: #151a24;
+  border: 1px dashed #4b6584;
+  padding: 10px;
+  font-size: 0.8em;
+  color: #a5b1c2;
+  text-align: center;
+}
+
+/* Catalog Grid of Anomalies */
+.anomalies-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.anomaly-card {
+  background: #1f212d;
+  border: 2px solid #3d4358;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.anomaly-card-header { display: flex; align-items: center; gap: 8px; }
+.anomaly-icon { font-size: 1.8em; }
+.anomaly-card-header h4 { margin: 0; color: #f39c12; font-size: 0.92em; }
+.anomaly-card-title { font-size: 0.72em; color: #74b9ff; }
+.anomaly-card-desc { font-size: 0.76em; color: #dfe6e9; margin: 0; line-height: 1.3; }
+
+.anomaly-box {
+  padding: 5px 6px;
+  font-size: 0.72em;
+  border-radius: 2px;
+}
+.anomaly-box span { font-weight: bold; display: block; margin-bottom: 2px; }
+.anomaly-box p { margin: 0; }
+.anomaly-box.rule { background: #181924; border: 1px solid #4b6584; }
+.anomaly-box.rule span { color: #74b9ff; }
+.anomaly-box.rule p { color: #f5f6fa; }
+
+.anomaly-box.reward { background: #0e2216; border: 1px solid #2ecc71; }
+.anomaly-box.reward span { color: #2ecc71; }
+.anomaly-box.reward p { color: #dff9fb; }
+
+.anomaly-box.penalty { background: #261013; border: 1px solid #e74c3c; }
+.anomaly-box.penalty span { color: #ff4757; }
+.anomaly-box.penalty p { color: #fecaca; }
+
+.trigger-anomaly-btn {
+  margin-top: auto;
+  background: #e67e22;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.8em;
+  padding: 7px;
+  border: 1px solid #f39c12;
+}
+.trigger-anomaly-btn:hover { background: #d35400; box-shadow: 0 0 8px #e67e22; }
+
+/* Anomaly Badges Footer */
+.anomaly-footer {
+  background: #141620;
+  border: 1px solid #3d4358;
+  padding: 8px 12px;
+}
+.anomaly-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.badge-pill {
+  padding: 4px 9px;
+  border-radius: 3px;
+  font-size: 0.82em;
+  font-weight: bold;
+}
+.badge-pill.unlocked { background: #1b4d3e; color: #a3e635; border: 1px solid #22c55e; }
+.badge-pill.locked { background: #232738; color: #718096; border: 1px solid #374151; }
+
 @media (max-width: 720px) {
-  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid {
+  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid, .anomalies-grid {
     grid-template-columns: 1fr;
   }
 }

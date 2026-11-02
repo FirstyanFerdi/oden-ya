@@ -9,7 +9,7 @@ import {
   SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
   FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
-  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS, STREET_ANOMALIES
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -60,6 +60,7 @@ export default function App() {
   const [syndicateOpen, setSyndicateOpen] = useState(false)
   const [lifeArcOpen, setLifeArcOpen] = useState(false)
   const [pactOpen, setPactOpen] = useState(false)
+  const [anomalyOpen, setAnomalyOpen] = useState(false)
   const [customBrothNameInput, setCustomBrothNameInput] = useState('')
   const [chosenApprentice, setChosenApprentice] = useState('kenji')
   const [showRiddleHint, setShowRiddleHint] = useState(false)
@@ -150,6 +151,7 @@ export default function App() {
     setSyndicateOpen(false)
     setLifeArcOpen(false)
     setPactOpen(false)
+    setAnomalyOpen(false)
   }
 
   return (
@@ -285,6 +287,17 @@ export default function App() {
           </button>
         )}
 
+        {/* Indikator Insiden Darurat Jalanan (Street Anomalies) */}
+        {g.anomalies && (
+          <button
+            className={`btn anomaly-hud-btn ${g.anomalies.activeIncident ? 'anomaly-pulsing' : ''}`}
+            onClick={() => { closeAllModals(); setAnomalyOpen(true) }}
+            title="Insiden Darurat & Peristiwa Acak Showa"
+          >
+            {g.anomalies.activeIncident ? `🚨 ${STREET_ANOMALIES[g.anomalies.activeIncident]?.name.split(' ')[0]}: ${Math.ceil(g.anomalies.incidentTimer)}s` : '🚨 Insiden'}
+          </button>
+        )}
+
         {/* Tombol Aksi Tanggap Bencana & Darurat */}
         {g.isBlackout && (
           <button className="btn candle-btn" onClick={Gm.toggleCandle}>
@@ -311,6 +324,38 @@ export default function App() {
           {isMuted ? '🔇' : '🔊'}
         </button>
       </div>
+
+      {/* Banner Peringatan Darurat Waktu Nyata (Active Street Anomaly Alert) */}
+      {g.anomalies?.activeIncident && (
+        <div className="emergency-alert-bar box">
+          <div className="alert-content">
+            <span className="alert-icon">{STREET_ANOMALIES[g.anomalies.activeIncident]?.icon}</span>
+            <div className="alert-info">
+              <span className="alert-title">{STREET_ANOMALIES[g.anomalies.activeIncident]?.name}</span>
+              <span className="alert-progress">
+                {g.anomalies.activeIncident === 'dekotora_convoy' && `Supir Truk: ${g.anomalies.dekotoraServes}/${g.anomalies.dekotoraTarget}`}
+                {g.anomalies.activeIncident === 'district_blackout' && `Tamu Terlayani: ${g.anomalies.blackoutServes}/${g.anomalies.blackoutTarget} (Mode Audio)`}
+                {g.anomalies.activeIncident === 'film_crew' && `Piring Sinema Kaiseki: ${g.anomalies.filmCrewServes}/${g.anomalies.filmCrewTarget}`}
+                {g.anomalies.activeIncident === 'volcanic_ashfall' && `Cemaran Kaldu: ${g.anomalies.ashContaminations}/${g.anomalies.maxAshAllowed} | ${g.anomalies.isAshGusting ? '⚠️ ANGIN ABU LEBAT!' : 'Angin Tenang'}`}
+              </span>
+            </div>
+            <span className="alert-timer">⏳ {Math.ceil(g.anomalies.incidentTimer)}s</span>
+          </div>
+
+          <div className="alert-actions">
+            {g.anomalies.activeIncident === 'district_blackout' && !g.anomalies.candlesLit && (
+              <button className="btn btn-warning alert-act-btn" onClick={Gm.lightCandleAction}>
+                🕯️ Nyalakan Lilin Darurat
+              </button>
+            )}
+            {g.anomalies.activeIncident === 'volcanic_ashfall' && (
+              <button className={`btn alert-act-btn ${g.anomalies.otoshibutaCovered ? 'btn-success' : 'btn-danger'}`} onClick={Gm.toggleOtoshiButaAction}>
+                {g.anomalies.otoshibutaCovered ? '🪵 Kuali Tertutup (Buka)' : '🪵 Tutup Kuali Otoshi-buta!'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Banner Demo */}
       {g.demo && (
@@ -407,6 +452,9 @@ export default function App() {
           </button>
           <button className="btn pact-btn" onClick={() => { closeAllModals(); setPactOpen(true) }}>
             🔥 Sumpah Senja {g.pacts?.activePact ? '(!)' : ''}
+          </button>
+          <button className="btn anomaly-btn" onClick={() => { closeAllModals(); setAnomalyOpen(true) }}>
+            🚨 Insiden {g.anomalies?.activeIncident ? '(!)' : ''}
           </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
@@ -756,6 +804,24 @@ export default function App() {
                 <div className="pact-summary-delta">
                   <span>Kas: {g.pacts.lastPactResult.moneyDelta >= 0 ? `+¥${g.pacts.lastPactResult.moneyDelta.toLocaleString()}` : `-¥${Math.abs(g.pacts.lastPactResult.moneyDelta).toLocaleString()}`}</span>
                   <span>Reputasi: {g.pacts.lastPactResult.repDelta >= 0 ? `+${g.pacts.lastPactResult.repDelta}` : `${g.pacts.lastPactResult.repDelta}`}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Banner Hasil Insiden Darurat Jalanan */}
+            {g.anomalies?.lastIncidentResult && (
+              <div className={`anomaly-summary-card box ${g.anomalies.lastIncidentResult.success ? 'success' : 'failed'}`}>
+                <div className="anomaly-summary-header">
+                  <span className="anomaly-summary-icon">{g.anomalies.lastIncidentResult.success ? '🏆' : '⚠️'}</span>
+                  <div>
+                    <h4>Hasil Insiden: {g.anomalies.lastIncidentResult.incidentName}</h4>
+                    <span className="anomaly-summary-status">{g.anomalies.lastIncidentResult.success ? 'INSIDEN TERKENDALIKAN!' : 'INSIDEN GAGAL!'}</span>
+                  </div>
+                </div>
+                <p className="anomaly-summary-desc">{g.anomalies.lastIncidentResult.message}</p>
+                <div className="anomaly-summary-delta">
+                  <span>Kas: {g.anomalies.lastIncidentResult.moneyDelta >= 0 ? `+¥${g.anomalies.lastIncidentResult.moneyDelta.toLocaleString()}` : `-¥${Math.abs(g.anomalies.lastIncidentResult.moneyDelta).toLocaleString()}`}</span>
+                  <span>Reputasi: {g.anomalies.lastIncidentResult.repDelta >= 0 ? `+${g.anomalies.lastIncidentResult.repDelta}` : `${g.anomalies.lastIncidentResult.repDelta}`}</span>
                 </div>
               </div>
             )}
@@ -2832,6 +2898,136 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setPactOpen(false)}>Tutup Altar Sumpah</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Insiden Darurat & Peristiwa Acak Showa */}
+      {anomalyOpen && !g.demo && (
+        <div className="modal-overlay" onClick={() => setAnomalyOpen(false)}>
+          <div className="anomaly-modal box" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">🚨 Warta Insiden Darurat & Peristiwa Acak Showa</div>
+            <p className="anomaly-subtitle">
+              Malam kota tua Showa penuh ketidakpastian. Konvoi truk Dekotora, ledakan gardu listrik, kru sinema gerilya, hingga hujan abu vulkanik dapat melanda kedai sewaktu-waktu.
+            </p>
+
+            {/* STATUS INSIDEN BERJALAN SAAT INI */}
+            {g.anomalies?.activeIncident ? (
+              <div className="active-anomaly-banner box">
+                <div className="active-anomaly-header">
+                  <span className="active-anomaly-icon">{STREET_ANOMALIES[g.anomalies.activeIncident]?.icon}</span>
+                  <div>
+                    <h3>{STREET_ANOMALIES[g.anomalies.activeIncident]?.name}</h3>
+                    <span className="active-anomaly-badge">SEDANG BERLANGSUNG!</span>
+                  </div>
+                  <div className="active-anomaly-timer">
+                    ⏳ <strong>{Math.ceil(g.anomalies.incidentTimer)}</strong>s tersisa
+                  </div>
+                </div>
+
+                <div className="anomaly-objective-box">
+                  <strong>🎯 Sasaran & Kriteria:</strong> {STREET_ANOMALIES[g.anomalies.activeIncident]?.rule}
+                </div>
+
+                <div className="anomaly-progress-details">
+                  {g.anomalies.activeIncident === 'dekotora_convoy' && (
+                    <div className="prog-stat">
+                      <span>Supir Truk Terlayani:</span>
+                      <strong>{g.anomalies.dekotoraServes} / {g.anomalies.dekotoraTarget}</strong>
+                    </div>
+                  )}
+                  {g.anomalies.activeIncident === 'district_blackout' && (
+                    <div className="prog-stat">
+                      <span>Tamu Terlayani dalam Gelap (Audio Cooking):</span>
+                      <strong>{g.anomalies.blackoutServes} / {g.anomalies.blackoutTarget}</strong>
+                      <div className="sub-act">
+                        {!g.anomalies.candlesLit ? (
+                          <button className="btn btn-warning" onClick={Gm.lightCandleAction}>🕯️ Nyalakan Lilin Darurat</button>
+                        ) : (
+                          <span className="badge-lit">🕯️ Lilin Menyala</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {g.anomalies.activeIncident === 'film_crew' && (
+                    <div className="prog-stat">
+                      <span>Piring Harmoni Kaiseki Tinggi (≥75):</span>
+                      <strong>{g.anomalies.filmCrewServes} / {g.anomalies.filmCrewTarget}</strong>
+                    </div>
+                  )}
+                  {g.anomalies.activeIncident === 'volcanic_ashfall' && (
+                    <div className="prog-stat">
+                      <span>Tingkat Cemaran Kaldu:</span>
+                      <strong style={{color: g.anomalies.ashContaminations > 1 ? '#ff4757' : '#2ecc71'}}>
+                        {g.anomalies.ashContaminations} / {g.anomalies.maxAshAllowed}
+                      </strong>
+                      <div className="sub-act">
+                        <button className={`btn ${g.anomalies.otoshibutaCovered ? 'btn-success' : 'btn-danger'}`} onClick={Gm.toggleOtoshiButaAction}>
+                          {g.anomalies.otoshibutaCovered ? '🪵 Kuali Tertutup (Klik untuk Buka)' : '🪵 Pasang Tutup Kuali Otoshi-buta!'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="no-anomaly-banner box">
+                <span>🏙️ Situasi jalanan saat ini tenang. Namun, bersiaplah menghadapi peristiwa acak tak terduga setiap malam antara pukul 20:00 - 02:00 subuh!</span>
+              </div>
+            )}
+
+            {/* DAFTAR KATALOG 4 INSIDEN JALANAN */}
+            <h4 className="section-title">📜 Arsip Fenomena & Insiden Distrik Showa</h4>
+            <div className="anomalies-grid">
+              {Object.keys(STREET_ANOMALIES).map(id => {
+                const ano = STREET_ANOMALIES[id]
+                return (
+                  <div key={id} className="anomaly-card box">
+                    <div className="anomaly-card-header">
+                      <span className="anomaly-icon">{ano.icon}</span>
+                      <div>
+                        <h4>{ano.name}</h4>
+                        <span className="anomaly-card-title">{ano.title}</span>
+                      </div>
+                    </div>
+                    <p className="anomaly-card-desc">{ano.desc}</p>
+                    <div className="anomaly-box rule">
+                      <span>🎯 Sasaran:</span> <p>{ano.rule}</p>
+                    </div>
+                    <div className="anomaly-box reward">
+                      <span>🎁 Hadiah:</span> <p>{ano.rewardDesc}</p>
+                    </div>
+                    <div className="anomaly-box penalty">
+                      <span>⚠️ Resiko Gagal:</span> <p>{ano.failDesc}</p>
+                    </div>
+
+                    {!g.anomalies?.activeIncident && (
+                      <button
+                        className="btn trigger-anomaly-btn"
+                        onClick={() => Gm.triggerAnomalyAction(id)}
+                        title="Picukan insiden ini untuk latihan ketangkasan langsung"
+                      >
+                        ⚡ Mulai Latihan Insiden Ini
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* PENCAPAIAN GELAR DARURAT */}
+            <div className="anomaly-footer box">
+              <div className="anomaly-badges">
+                <span className={`badge-pill ${g.anomalies?.unlockedGoldenEar ? 'unlocked' : 'locked'}`}>
+                  {g.anomalies?.unlockedGoldenEar ? '🎧 Koki Telinga Emas (Master Audio Cooking)' : '🔒 Gelar: Koki Telinga Emas'}
+                </span>
+                <span className={`badge-pill ${g.anomalies?.unlockedCinemaPass ? 'unlocked' : 'locked'}`}>
+                  {g.anomalies?.unlockedCinemaPass ? '🎬 Kartu Pers Sinema 35mm (Bintang Layar Lebar)' : '🔒 Gelar: Bintang Sinema 35mm'}
+                </span>
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setAnomalyOpen(false)}>Tutup Warta Insiden</button>
           </div>
         </div>
       )}

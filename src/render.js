@@ -1,7 +1,7 @@
-import {P} from './palette.js'
-import {G, W, H, PX, PY, ITEMS, CONDIMENTS, seats, level} from './game.js'
-import {NORENS, BROTHS} from './decorations.js'
-import {LOCATIONS} from './locations.js'
+import { P } from './palette.js'
+import { G, W, H, PX, PY, ITEMS, CONDIMENTS, seats, level } from './game.js'
+import { NORENS, BROTHS } from './decorations.js'
+import { LOCATIONS } from './locations.js'
 
 const SX = [100, 135, 170, 205, 240, 275]
 
@@ -29,7 +29,7 @@ export function draw(ctx) {
       g.addColorStop(1, `rgba(${P.glow},0)`)
       ctx.fillStyle = g
       ctx.fillRect(x - r, y - r, r * 2, r * 2)
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const fl = (i) => {
@@ -166,17 +166,87 @@ export function draw(ctx) {
     }
   }
 
-  // Efek Gelap Gulita saat Mati Lampu (Blackout Incident)
-  if (G.isBlackout && G.scene === 'in') {
-    if (!G.candleLit) {
-      ctx.fillStyle = 'rgba(5, 7, 24, 0.88)'
+  // Efek Gelap Gulita saat Mati Lampu (District Blackout Incident)
+  const isBlackoutActive = (G.anomalies?.activeIncident === 'district_blackout') || G.isBlackout
+  if (isBlackoutActive && G.scene === 'in') {
+    const isCandle = G.anomalies?.candlesLit || G.candleLit
+    if (!isCandle) {
+      ctx.fillStyle = 'rgba(4, 5, 14, 0.93)'
       ctx.fillRect(0, 0, W, H)
+      // Lingkaran merah redup dari bara api kompor panci
+      glow(PX, 60, 40, 0.45)
     } else {
-      ctx.fillStyle = 'rgba(5, 7, 24, 0.62)'
+      ctx.fillStyle = 'rgba(4, 5, 14, 0.65)'
       ctx.fillRect(0, 0, W, H)
+      glow(PX, 60, 50, 0.5) // Pendar kompor
       glow(140, 62, 70, 0.75) // Pendar lilin hangat
       R(139, 60, 3, 6, '#f39c12')
       R(140, 58, 1, 2, '#fff')
+    }
+  }
+
+  // Efek Lampu Neon & Sorotan Truk Dekotora Showa
+  if (G.anomalies?.activeIncident === 'dekotora_convoy') {
+    const beamSweep = Math.sin(G.t * 3.5) * 55
+    const colors = ['rgba(230, 126, 34, 0.22)', 'rgba(52, 152, 219, 0.22)', 'rgba(231, 76, 60, 0.22)', 'rgba(241, 196, 15, 0.22)']
+    ctx.save()
+    for (let b = 0; b < 4; b++) {
+      const bx = 30 + b * 75 + beamSweep
+      ctx.fillStyle = colors[b % colors.length]
+      ctx.beginPath()
+      ctx.moveTo(bx - 12, 0)
+      ctx.lineTo(bx + 12, 0)
+      ctx.lineTo(bx + 35, H)
+      ctx.lineTo(bx - 35, H)
+      ctx.closePath()
+      ctx.fill()
+    }
+    ctx.restore()
+    // Lampu neon border berkedip
+    const neonBlink = Math.sin(G.t * 8) > 0 ? '#e67e22' : '#f1c40f'
+    R(0, 0, W, 2, neonBlink)
+    R(0, H - 2, W, 2, neonBlink)
+  }
+
+  // Efek Sorotan Blitz Kamera Film 35mm
+  if (G.anomalies?.cameraFlashAlpha > 0) {
+    ctx.fillStyle = `rgba(255, 255, 255, ${G.anomalies.cameraFlashAlpha * 0.85})`
+    ctx.fillRect(0, 0, W, H)
+  }
+
+  // Siluet Kru Film & Kamera Tripod di dekat pintu kedai
+  if (G.anomalies?.activeIncident === 'film_crew' && G.scene === 'in') {
+    // Tripod & Kamera Film di pojok kiri (x=16, y=110)
+    R(15, 110, 2, 22, '#2c3e50')
+    R(25, 110, 2, 22, '#2c3e50')
+    R(12, 104, 16, 9, '#1a252f')
+    // Lensa roll 35mm
+    R(28, 106, 6, 5, '#7f8c8d')
+    R(34, 107, 2, 3, '#3498db')
+    // Rol film atas
+    R(14, 98, 6, 6, '#34495e')
+    R(21, 98, 6, 6, '#34495e')
+    // Kameramen Showa
+    R(6, 102, 6, 6, '#f0c8a0') // Kepala
+    R(5, 100, 8, 3, '#2c3e50') // Topi sutradara
+    R(5, 108, 8, 14, '#d35400') // Jaket
+    // Lampu Studio Kecil
+    glow(20, 95, 16, 0.4)
+  }
+
+  // Efek Hujan Abu Vulkanik Gunung Fuji
+  if (G.anomalies?.activeIncident === 'volcanic_ashfall') {
+    // Partikel Serpihan Abu Melayang
+    for (let a = 0; a < 18; a++) {
+      const ax = ((G.t * 22 + a * 31) % (W + 20)) - 10
+      const ay = ((G.t * 35 + a * 17) % (H + 15)) - 5
+      R(ax, ay, 2, 2, a % 2 === 0 ? '#95a5a6' : '#bdc3c7')
+    }
+    // Kabut hembusan abu lebat jika sedang gusting
+    if (G.anomalies.isAshGusting) {
+      const gustAlpha = 0.2 + 0.1 * Math.sin(G.t * 8)
+      ctx.fillStyle = `rgba(100, 90, 85, ${gustAlpha})`
+      ctx.fillRect(0, 0, W, H)
     }
   }
 
@@ -462,6 +532,19 @@ export function draw(ctx) {
 
     const boilShift = Math.sin(G.t * 8) > 0 ? 1 : 0
     R(PX - 24, 54 + boilShift, 48, 2, '#ffffff44')
+
+    // Tutup Kayu Kuali Otoshi-buta jika dipasang
+    if (G.anomalies?.otoshibutaCovered) {
+      R(PX - 24, 53, 48, 13, '#8e5d32') // Papan kayu utama
+      R(PX - 23, 54, 46, 11, '#a06838')
+      // Garis bilah sambungan kayu
+      R(PX - 12, 54, 1, 11, '#66401f')
+      R(PX, 54, 1, 11, '#66401f')
+      R(PX + 12, 54, 1, 11, '#66401f')
+      // Pegangan kayu tengah
+      R(PX - 6, 57, 12, 4, '#533418')
+      R(PX - 5, 58, 10, 2, '#c1854f')
+    }
 
     // Sub-Stasiun Panggangan Sate Yakitori (Shichirin Grill)
     const gx = 180, gy = 53

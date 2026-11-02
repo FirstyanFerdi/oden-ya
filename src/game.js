@@ -27,6 +27,7 @@ import {createInitialAlchemyState, adjustTasteParam, calculateHarmony, patentCus
 import {SYNDICATE_ITEMS, createInitialSyndicateState, buySyndicateRelic, hideContraband, updateSyndicateHeat} from './syndicate.js'
 import {LIFE_MILESTONES, createInitialLifeArcState, advanceCharacterArc, canTriggerReunion, triggerGrandReunion} from './lifearc.js'
 import {TWILIGHT_PACTS, createInitialPactState, signTwilightPact, cancelTwilightPact, feedGaki, updatePactLoop, resolveDayEndPact} from './pacts.js'
+import {STREET_ANOMALIES, createInitialAnomalyState, triggerRandomIncident, updateIncidentLoop, onIncidentServe, toggleOtoshiButa, lightEmergencyCandle, resolveIncident} from './anomalies.js'
 import * as Audio from './audio.js'
 
 export {
@@ -38,7 +39,7 @@ export {
   adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
   SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion,
-  TWILIGHT_PACTS
+  TWILIGHT_PACTS, STREET_ANOMALIES
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -262,7 +263,9 @@ export function newGame(demo = false) {
     syndicate: createInitialSyndicateState(),
     lifeArc: createInitialLifeArcState(),
     // Fase 9: Sumpah Senja & Perjanjian Roh Kelaparan
-    pacts: createInitialPactState()
+    pacts: createInitialPactState(),
+    // Fase 9: Insiden Darurat & Peristiwa Acak Tak Terduga
+    anomalies: createInitialAnomalyState()
   }
 }
 
@@ -369,6 +372,7 @@ function loadSavedGame() {
     data.syndicate = data.syndicate || createInitialSyndicateState()
     data.lifeArc = data.lifeArc || createInitialLifeArcState()
     data.pacts = data.pacts || createInitialPactState()
+    data.anomalies = data.anomalies || createInitialAnomalyState()
     return data
   } catch (e) {
     return null
@@ -435,7 +439,8 @@ export function saveGame() {
       alchemy: G.alchemy,
       syndicate: G.syndicate,
       lifeArc: G.lifeArc,
-      pacts: G.pacts
+      pacts: G.pacts,
+      anomalies: G.anomalies
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -484,6 +489,14 @@ export const startNewDay = () => {
     if (res && res.success) {
       Audio.playPactRewardChime()
     }
+  }
+  if (G.anomalies && G.anomalies.activeIncident) {
+    resolveIncident(G.anomalies, G)
+  }
+  if (G.anomalies) {
+    G.anomalies.triggeredToday = false
+    G.anomalies.activeIncident = null
+    G.anomalies.status = 'none'
   }
   G.day++
   G.hour = 17
@@ -666,6 +679,10 @@ export function buyStock(itemId, quantity = 5) {
 
 // Masukkan Bahan ke Sekat Panci
 export function addToPot(compIdx, itemId) {
+  if (G.anomalies?.otoshibutaCovered) {
+    G.floats.push({x: 100, y: 70, t: 0, s: '🪵 Kuali tertutup Otoshi-buta! Buka tutup terlebih dahulu!', c: '#f39c12'})
+    return false
+  }
   if ((G.stock[itemId] || 0) <= 0) return false
   const comp = G.potSlots[compIdx]
   if (comp.length >= 6) return false
@@ -685,6 +702,10 @@ export function getSimmerState(seconds) {
 }
 
 export function takeFromPot(compIdx, itemIndex) {
+  if (G.anomalies?.otoshibutaCovered) {
+    G.floats.push({x: 100, y: 70, t: 0, s: '🪵 Kuali tertutup Otoshi-buta! Buka tutup terlebih dahulu!', c: '#f39c12'})
+    return
+  }
   if (!G.target || G.plate.length >= 4) return
   const comp = G.potSlots[compIdx]
   if (!comp || !comp[itemIndex]) return
@@ -1131,6 +1152,9 @@ export function closeDayDirectly() {
       Audio.playPactRewardChime()
     }
   }
+  if (G.anomalies && G.anomalies.activeIncident) {
+    resolveIncident(G.anomalies, G)
+  }
   saveGame()
 }
 
@@ -1561,6 +1585,11 @@ export function serve() {
     G.pacts.firstServeDone = true
   }
 
+  // Update Peristiwa Darurat Jalanan (Street Anomalies)
+  if (G.anomalies) {
+    onIncidentServe(G.anomalies, G, { customer: c, sat, kaisekiScore })
+  }
+
   // Metrik Jiwa Koki (Culinary Soul)
   if (serveSpeed < 6) updateSoulMetrics(G, 'fastServe')
   if (kaisekiScore >= 80) updateSoulMetrics(G, 'highKaiseki')
@@ -1713,6 +1742,22 @@ export function update(dt) {
   // Update Sumpah Senja (The Twilight Pacts)
   if (g.pacts) {
     updatePactLoop(g.pacts, validDt, g)
+  }
+
+  // Update Peristiwa Darurat Jalanan (Street Anomalies)
+  if (g.anomalies) {
+    updateIncidentLoop(g.anomalies, validDt, g)
+
+    // Peluang Pemicu Peristiwa Acak di Malam Hari (20:00 - 02:00)
+    if (!g.demo && !g.dayClosed && !g.anomalies.triggeredToday && !g.anomalies.activeIncident && (g.hour >= 20 || g.hour <= 1)) {
+      g.anomalyCheckTimer = (g.anomalyCheckTimer || 0) + validDt
+      if (g.anomalyCheckTimer > 18) {
+        g.anomalyCheckTimer = 0
+        if (Math.random() < 0.22) {
+          triggerRandomIncident(g.anomalies, g)
+        }
+      }
+    }
   }
 
   // Rebus Bahan di Panci (Dipercepat 2.5x jika Sumpah Kuali Mendidih Neraka aktif)
@@ -2247,4 +2292,26 @@ export function feedGakiAction(itemId) {
     saveGame()
   }
   return res
+}
+
+// --- FASE 9: INSIDEN DARURAT & PERISTIWA ACAK TAK TERDUGA ---
+export function triggerAnomalyAction(specificId) {
+  if (!G.anomalies) G.anomalies = createInitialAnomalyState()
+  const res = triggerRandomIncident(G.anomalies, G, specificId)
+  saveGame()
+  return res
+}
+
+export function toggleOtoshiButaAction() {
+  if (!G.anomalies) G.anomalies = createInitialAnomalyState()
+  const covered = toggleOtoshiButa(G.anomalies, G)
+  saveGame()
+  return covered
+}
+
+export function lightCandleAction() {
+  if (!G.anomalies) G.anomalies = createInitialAnomalyState()
+  const ok = lightEmergencyCandle(G.anomalies, G)
+  saveGame()
+  return ok
 }

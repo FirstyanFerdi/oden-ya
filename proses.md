@@ -483,6 +483,60 @@ Memasuki tahap endgame, pemain membutuhkan tantangan dengan taruhan tinggi (*hig
 - **Ringkasan Hari (Day Summary)**: Banner hasil resolusi sumpah senja menampilkan status keberhasilan, rincian bonus tunai, perubahan reputasi, dan pesan catatan sejarah.
 - **Uji Coba & Verifikasi**: 6 unit test suites berhasil lulus 100% dan bundle produksi Vite terverifikasi bersih tanpa galat.
 
+---
+
+## 13. Tahap 13: Fase 9 (Fitur 2) — Insiden Darurat & Peristiwa Acak Tak Terduga (The Midnight Anomalies & Sudden Street Dramas)
+
+### A. Latar Belakang & Desain Ketegangan Situasional
+Untuk memecahkan repetisi gameplay dan menghadirkan dinamika malam kota tua Showa yang hidup dan mendebarkan, sistem **Insiden Darurat & Peristiwa Acak** menghadirkan 4 skenario darurat unik yang dapat melanda kedai secara acak pada malam hari (pukul 20:00 - 02:00 dini hari). Setiap insiden menuntut adaptasi refleks koki yang berbeda: mulai dari serbuan supir truk, memasak tanpa visual (audio cooking), sorotan blitz kamera film 35mm, hingga penutupan kuali koki dari serpihan abu vulkanik.
+
+### B. Modul Logika Insiden Jalanan (`src/anomalies.js`)
+- **4 Peristiwa Darurat Ekstrem**:
+  1. **Konvoi Truk Dekotora Showa (`dekotora_convoy`)**:
+     - *Kondisi*: Klakson angin ganda menggelegar dan sorotan neon truk tronton menyapu kedai. 3-4 supir truk Dekotora kekar menyerbu kedai secara serentak menuntut porsi jumbo dalam 90 detik.
+     - *Syarat Kemenangan*: Layani minimal 3 supir truk Dekotora sebelum timer 90 detik habis.
+     - *Imbalan Sukses*: Traktiran seisi kedai dari bos supir sebesar $+\yen 12.000$ dan Reputasi $+25$.
+     - *Penalti Gagal*: Supir mengumpat kelaparan karena terlambat (Reputasi $-10$).
+  2. **Ledakan Gardu Trafo Distrik (`district_blackout`)**:
+     - *Kondisi*: Gardu listrik distrik meledak! Lampu kota dan kedai padam total. Seluruh kedai gelap gulita hanya berbekal pendaran redup bara kuali kompor.
+     - *Mekanik Audio Cooking*: Pemain harus memasak mengandalkan isyarat audio (*audio cue*), gelembung kuah, dan desis kematangan dalam gelap. Tombol lilin darurat tersedia untuk sedikit memulihkan visibilitas.
+     - *Syarat Kemenangan*: Layani minimal 2 tamu selama blackout berlangsung (45 detik).
+     - *Imbalan Sukses*: Gelar *"Koki Telinga Emas"* Showa, hadiah tunai $+\yen 8.000$, dan Reputasi $+20$.
+     - *Penalti Gagal*: Tamu tersandung dalam kegelapan (Reputasi $-8$).
+  3. **Kru Film Sinema Menyamar (`film_crew`)**:
+     - *Kondisi*: Sutradara era 1970-an tiba-tiba syuting gerilya di depan kedai dengan kamera tripod antik 35mm dan mikrofon boom.
+     - *Syarat Kemenangan*: Sajikan minimal 2 hidangan berestetika Kaiseki tinggi ($\ge 75$ pts / bintang 3) dalam 60 detik. Setiap sajian memicu kilatan blitz kamera putih 35mm di layar.
+     - *Imbalan Sukses*: Honor syuting film $+\yen 10.000$, Reputasi melonjak $+50$, dan gelar *"Kartu Pers Sinema 35mm"*.
+     - *Penalti Gagal*: Sutradara kecewa "CUT!" (Reputasi $-5$).
+  4. **Hujan Abu Vulkanik Gunung Fuji (`volcanic_ashfall`)**:
+     - *Kondisi*: Butiran abu vulkanik melayang turun dari langit selama 50 detik dengan hembusan angin abu periodik.
+     - *Mekanik Penutup Kuali Otoshi-buta*: Pemain wajib memasang penutup kayu kuali (*Otoshi-buta*) saat angin abu menebal agar kaldu tidak tercemar kotoran busa ($+20\%$ per cemaran). Saat kuali tertutup, bahan tidak bisa diambil/dimasukkan. Pemain harus buka-tutup dengan cermat di sela hembusan angin!
+     - *Syarat Kemenangan*: Bertahan selama 50 detik tanpa membiarkan kaldu tercemar lebih dari 2 kali.
+     - *Imbalan Sukses*: Mineral abu vulkanik langka menyuburkan aroma kaldu (Uang Tunai $+\yen 9.000$ dan Reputasi $+20$).
+     - *Penalti Gagal*: Kaldu tercemar abu, denda kuras $\yen 3.000$ dan Reputasi $-12$.
+
+### C. Efek Visual Canvas Retrostil (`src/render.js`)
+1. **Sorotan Lampu Neon Dekotora**: Sorotan 4 berkas cahaya neon warna-warni (oranye, cyan, merah crimson, emas) berayun sweeping melintasi kedai di tengah hujan dengan border neon berkedip dinamis.
+2. **Kegelapan Total Blackout & Pendar Lilin**: Kanvas digelapkan dengan lapisan `rgba(4, 5, 14, 0.93)`, memancarkan lingkaran merah bara kompor di sekeliling kuali (`PX, PY`) dan cahaya lilin meja hangat jika lilin dinyalakan.
+3. **Kru Film & Kilatan Blitz 35mm**: Siluet juru kamera dan tripod antik 35mm digambar di sisi pintu kedai, disertai kilatan blitz putih terang seketika (`cameraFlashAlpha = 1.0` yang memudar halus) saat hidangan disajikan.
+4. **Hujan Abu & Penutup Kayu Otoshi-buta**: Partikel abu keperakan melayang turun dari langit, kabut hembusan abu vulkanik, serta penutup papan kayu berbilah (*Otoshi-buta*) dengan pegangan kayu yang menutupi sekat panci oden secara presisi.
+
+### D. Audio Synthesizer Web Audio API Baru (`src/audio.js`)
+- `playTruckHorn()`: Klakson angin ganda nada gana F3 & A3 khas truk tronton Showa.
+- `playTransformerExplosion()`: Letupan ledakan listrik trafo berfrekuensi rendah dengan percikan bunga api.
+- `playBlackoutHum()`: Dengung frekuensi rendah listrik padam (55 Hz) yang memudar lambat ke keheningan.
+- `playCameraCrank()`: Bunyi klik putaran rol mekanik kamera film 35mm antik.
+- `playClapperboard()`: Ketukan tajam kayu papan clapperboard sutradara film.
+- `playVolcanicRumble()`: Gemuruh sub-bass vulkanik dalam (42 Hz) bergelombang.
+- `playOtoshiButaWood()`: Hantaman tutup papan kayu pada bibir kuali tembaga oden.
+
+### E. Integrasi Antarmuka UI & Siklus Gameplay (`src/App.jsx`, `src/styles.css`, `src/game.js`)
+- **Top HUD & Emergency Alert Bar**: Bar peringatan darurat merah berdenyut menampilkan nama insiden, timer hitung mundur waktu nyata, progres objektif, serta tombol aksi cepat (Lilin Darurat / Tutup Kuali).
+- **Modal Arsip & Latihan Insiden**: Memuat arsip 4 bencana distrik Showa, monitor insiden aktif, tombol pemicu latihan mandiri, dan lencana pencapaian gelar darurat.
+- **Ringkasan Hari (Day Summary)**: Banner hasil insiden darurat menampilkan rincian audit finansial dan reputasi yang diperoleh saat penutupan hari.
+- **Uji Coba & Verifikasi**: 6 unit test suites terverifikasi lulus 100% dan bundle produksi Vite sukses tanpa kendala.
+
+
 
 
 

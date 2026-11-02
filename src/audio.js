@@ -507,6 +507,63 @@ export function playPactRewardChime() {
   })
 }
 
+// SFX FASE 9: Klakson Angin Truk Dekotora Showa (Truck Horn Fanfare)
+export function playTruckHorn() {
+  if (!ctx || isMuted) return
+  // Nada ganda F3 (174.61Hz) & A3 (220.00Hz)
+  playTone(174.61, 'sawtooth', 0.65, 0.28, -5)
+  playTone(220.00, 'triangle', 0.65, 0.25, -5)
+  setTimeout(() => {
+    playTone(174.61, 'sawtooth', 0.9, 0.3, -8)
+    playTone(220.00, 'triangle', 0.9, 0.26, -8)
+  }, 220)
+}
+
+// SFX FASE 9: Ledakan Gardu Listrik Trafo (Transformer Explosion)
+export function playTransformerExplosion() {
+  if (!ctx || isMuted) return
+  playTone(65, 'sawtooth', 0.5, 0.35, -45)
+  setTimeout(() => playTone(140, 'square', 0.15, 0.2, -80), 40)
+  setTimeout(() => playTone(95, 'sawtooth', 0.25, 0.25, -50), 90)
+}
+
+// SFX FASE 9: Dengung Mati Lampu Listrik Padam (Blackout Hum)
+export function playBlackoutHum() {
+  if (!ctx || isMuted) return
+  playTone(55, 'sine', 1.5, 0.18, -25)
+}
+
+// SFX FASE 9: Mekanik Kamera Film 35mm (Camera Crank)
+export function playCameraCrank() {
+  if (!ctx || isMuted) return
+  for (let c = 0; c < 4; c++) {
+    setTimeout(() => {
+      playTone(450 + c * 40, 'square', 0.03, 0.12, -150)
+    }, c * 60)
+  }
+}
+
+// SFX FASE 9: Ketukan Papan Clapperboard Sutradara (Clapperboard Snap)
+export function playClapperboard() {
+  if (!ctx || isMuted) return
+  playTone(580, 'square', 0.05, 0.28, -350)
+  setTimeout(() => playTone(320, 'triangle', 0.08, 0.18, -180), 25)
+}
+
+// SFX FASE 9: Gemuruh Abu Vulkanik Gunung Fuji (Volcanic Rumble)
+export function playVolcanicRumble() {
+  if (!ctx || isMuted) return
+  playTone(42, 'sine', 1.8, 0.28, 5)
+  setTimeout(() => playTone(48, 'triangle', 1.4, 0.2, -6), 150)
+}
+
+// SFX FASE 9: Hantaman Tutup Kayu Kuali Otoshi-buta (Otoshi-buta Wood Thud)
+export function playOtoshiButaWood() {
+  if (!ctx || isMuted) return
+  playTone(130, 'triangle', 0.12, 0.28, -75)
+  setTimeout(() => playTone(75, 'sine', 0.18, 0.22, -35), 30)
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return
