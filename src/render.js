@@ -564,6 +564,22 @@ export function draw(ctx) {
     const boilShift = Math.sin(G.t * 8) > 0 ? 1 : 0
     R(PX - 24, 54 + boilShift, 48, 2, '#ffffff44')
 
+    // Pendaran Cahaya Kuah Abisal Neon jika ada bahan palung laut di panci
+    const hasAbyssalInPot = G.potSlots?.some(comp => comp.some(obj => {
+      const it = ITEMS.find(x => x.id === obj.id)
+      return it && it.abyssal
+    }))
+    if (hasAbyssalInPot) {
+      const neonGlow = 0.35 + 0.25 * Math.sin(G.t * 6)
+      R(PX - 23, 53, 46, 12, `rgba(0, 210, 211, ${neonGlow * 0.35})`)
+      // Partikel gelembung bioluminesen melayang
+      for (let b = 0; b < 3; b++) {
+        const bx = PX - 18 + ((G.t * 15 + b * 16) % 36)
+        const by = 58 - ((G.t * 12 + b * 10) % 10)
+        R(bx, by, 2, 2, b % 2 === 0 ? '#00d2d3' : '#a29bfe')
+      }
+    }
+
     // Tutup Kayu Kuali Otoshi-buta jika dipasang
     if (G.anomalies?.otoshibutaCovered) {
       R(PX - 24, 53, 48, 13, '#8e5d32') // Papan kayu utama
@@ -897,6 +913,36 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     R(sx - 1, sy - 19, 2, eyeBlink, '#ff7675')
     R(sx + 3, sy - 19, 2, eyeBlink, '#ff7675')
     T('🔥', sx - 4, sy - 34, '#ff7675', 8)
+  }
+
+  // Dermaga Kanal Kapal Selam Riset Shinkai 2000
+  if (G.abyssal) {
+    const subX = 286, subY = 136
+    // Tiang tambat dermaga
+    R(subX - 2, subY - 4, 4, 12, '#2c3e50')
+    R(subX - 3, subY - 5, 6, 2, '#7f8c8d')
+    const exp = G.abyssal.currentExpedition
+    if (exp?.status === 'returned') {
+      // Kapal Selam Shinkai 2000 Berlabuh (Kuning & Putih)
+      R(subX + 2, subY + 2, 22, 7, '#f1c40f') // Lambung kuning
+      R(subX + 5, subY - 1, 10, 3, '#ffffff') // Menara komando putih
+      R(subX + 8, subY - 4, 2, 3, '#2c3e50') // Periskop
+      R(subX + 24, subY + 4, 3, 3, '#e67e22') // Baling-baling
+      // Lampu suar hijau pendar tanda siap bongkar muatan
+      const beaconGlow = Math.sin(G.t * 8) > 0 ? '#2ecc71' : '#27ae60'
+      R(subX + 9, subY - 5, 2, 2, beaconGlow)
+      glow(subX + 10, subY - 4, 8, 0.4)
+      T('⚓ SIAP', subX + 3, subY - 11, '#2ecc71', 5)
+    } else if (exp?.status === 'diving') {
+      // Pelampung Sonar Hidrofon Berdenyut Biru Neon saat Menyelam
+      const buoyBob = Math.sin(G.t * 4) * 2 | 0
+      R(subX + 8, subY + 3 + buoyBob, 6, 5, '#e74c3c')
+      R(subX + 10, subY - 2 + buoyBob, 2, 5, '#bdc3c7')
+      const sonarFlash = Math.sin(G.t * 6) > 0 ? '#00d2d3' : '#0984e3'
+      R(subX + 10, subY - 4 + buoyBob, 2, 2, sonarFlash)
+      glow(subX + 11, subY - 3 + buoyBob, 10, 0.35)
+      T('📡 SELAM', subX + 1, subY - 10, '#00d2d3', 5)
+    }
   }
 
   // Kucing Kuro di luar

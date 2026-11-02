@@ -3722,8 +3722,311 @@ canvas {
 }
 .stat-pill { font-size: 0.82em; display: flex; gap: 6px; align-items: center; color: #dfe6e9; }
 
+/* ========================================================
+   FASE 9: EKSPEDISI KAPAL SELAM PALUNG LAUT (SHINKAI 2000)
+   ======================================================== */
+.abyssal-hud-btn {
+  background: #003747;
+  border-color: #00d2d3;
+  color: #00d2d3;
+  font-weight: bold;
+}
+.abyssal-hud-btn.ready-claim {
+  background: #10ac84;
+  border-color: #2ecc71;
+  color: #fff;
+  animation: pulseClaim 1s infinite alternate;
+}
+@keyframes pulseClaim {
+  from { box-shadow: 0 0 5px #2ecc71; }
+  to { box-shadow: 0 0 15px #2ecc71, 0 0 25px #00d2d3; }
+}
+
+.abyssal-btn {
+  background: #05192d;
+  border-color: #00d2d3;
+  color: #00d2d3;
+}
+
+.abyssal-modal {
+  max-width: 680px;
+  background: #030a14;
+  border: 2px solid #00d2d3;
+  box-shadow: 0 0 30px rgba(0, 210, 211, 0.25);
+}
+.abyssal-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.abyssal-header h2 { color: #00d2d3; margin: 0 0 4px 0; }
+.abyssal-header .subtitle { font-size: 0.82em; color: #74b9ff; }
+
+/* Radar & Telemetri Card */
+.abyssal-radar-card {
+  background: #06162a;
+  border: 1px solid #00a8ff;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.radar-screen {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.radar-circle {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #010710;
+  border: 2px solid #00d2d3;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.radar-sweep {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(0, 210, 211, 0.45) 0deg, transparent 90deg);
+  animation: radarSpin 2.5s linear infinite;
+}
+.radar-sub-blip {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffd700;
+  box-shadow: 0 0 8px #ffd700;
+  top: 24px;
+  left: 40px;
+  animation: blipPulse 1.5s ease-in-out infinite;
+}
+.radar-center-icon {
+  font-size: 1.4em;
+  z-index: 2;
+  filter: drop-shadow(0 0 4px #00d2d3);
+}
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes blipPulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+.radar-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.depth-badge, .status-badge {
+  font-size: 0.85em;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #ced6e0;
+}
+.depth-badge strong { font-size: 1.15em; color: #00d2d3; }
+
+/* Hydrophone logs */
+.hydrophone-logs {
+  background: #020712;
+  border: 1px solid #192a56;
+  border-radius: 3px;
+  padding: 8px 10px;
+  margin-top: 10px;
+}
+.log-title { font-size: 0.75em; color: #74b9ff; font-weight: bold; }
+.log-entries { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; }
+.log-line { font-size: 0.75em; color: #dfe4ea; font-family: monospace; line-height: 1.3; }
+.log-line.empty { color: #7f8c8d; font-style: italic; }
+
+/* Claim Box */
+.claim-box {
+  background: #092c25;
+  border: 2px solid #2ecc71;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.claim-info { display: flex; align-items: center; gap: 10px; }
+.claim-icon { font-size: 1.8em; }
+.claim-info strong { font-size: 0.95em; color: #2ecc71; }
+.claim-info p { margin: 2px 0 0 0; font-size: 0.85em; color: #ecf0f1; }
+.claim-btn {
+  background: #2ecc71;
+  color: #000;
+  font-weight: bold;
+  font-size: 0.95em;
+  padding: 10px;
+  cursor: pointer;
+}
+.claim-btn:hover { background: #27ae60; box-shadow: 0 0 12px #2ecc71; }
+
+/* 4 Abyssal Zones Grid */
+.abyssal-zones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.zone-card {
+  background: #061426;
+  border: 1px solid;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.zone-header {
+  padding: 6px 8px;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.zone-title-row { display: flex; align-items: center; gap: 8px; }
+.zone-icon { font-size: 1.3em; }
+.zone-kanji { display: block; font-size: 0.68em; color: #7f8c8d; }
+.zone-depth-tag {
+  font-size: 0.72em;
+  background: #01060e;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #dfe6e9;
+  font-weight: bold;
+}
+.zone-desc { font-size: 0.75em; color: #b2bec3; margin: 0; line-height: 1.3; }
+
+.target-item-box {
+  background: #020914;
+  border-left: 3px solid;
+  padding: 6px 8px;
+  font-size: 0.75em;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.target-name-row { display: flex; justify-content: space-between; align-items: center; }
+.target-perk-text { color: #a4b0be; }
+.target-value-text { color: #f1c40f; }
+
+.zone-specs {
+  display: flex;
+  justify-content: space-between;
+  background: #01060e;
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-size: 0.72em;
+}
+.spec-pill { display: flex; flex-direction: column; gap: 2px; }
+.launch-btn {
+  color: #000;
+  font-weight: bold;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+.launch-btn:hover:not(:disabled) { filter: brightness(1.15); box-shadow: 0 0 10px rgba(0, 210, 211, 0.4); }
+
+/* The Lost Shokunin Grimoire */
+.grimoire-card {
+  background: #141106;
+  border: 2px solid #f1c40f;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.grimoire-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.grimoire-title { display: flex; align-items: center; gap: 8px; }
+.grimoire-icon { font-size: 1.6em; }
+.grimoire-title strong { color: #ffd700; font-size: 0.95em; }
+.grimoire-sub { display: block; font-size: 0.72em; color: #bdc581; }
+.grimoire-status-badge {
+  font-size: 0.75em;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #2c250d;
+  color: #f1c40f;
+  font-weight: bold;
+}
+.grimoire-status-badge.unlocked {
+  background: #27ae60;
+  color: #fff;
+  box-shadow: 0 0 8px #2ecc71;
+}
+
+.grimoire-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.grimoire-slot {
+  background: #080702;
+  border: 1px solid;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.grimoire-slot.found { background: #130f04; }
+.slot-icon { font-size: 1.4em; }
+.slot-name { font-size: 0.72em; font-weight: bold; }
+.slot-kanji { font-size: 0.65em; color: #7f8c8d; }
+.slot-count { font-size: 0.7em; margin-top: 2px; }
+
+.grimoire-progress-bar-row {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.progress-label { font-size: 0.78em; color: #ffd700; }
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #2c250d;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f1c40f, #ffd700);
+  transition: width 0.3s ease;
+}
+
+/* Abyssal Stats Row */
+.abyssal-stats-row {
+  background: #010710;
+  border: 1px solid #00a8ff;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 720px) {
-  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid, .anomalies-grid, .hanafuda-grid, .chouhan-action-buttons {
+  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid, .anomalies-grid, .hanafuda-grid, .chouhan-action-buttons, .abyssal-zones-grid, .grimoire-slots-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -591,6 +591,61 @@ Untuk melengkapi kedalaman simulasi dengan variabilitas harian (*daily run modif
 - **Modal Interaktif Chou-Han Speakeasy**: Meja tatami gelap dengan siluet bandar Bakuto, mangkuk kocok bambu animasi 3D, sepasang dadu arang bambu, 5 tombol tingkatan taruhan koin, tombol aksi Chou dan Han, papan brankas Jackpot Pool, serta rekaman histori 20 putaran terakhir.
 - **Uji Coba & Verifikasi**: 22 unit test suites diverifikasi lulus 100% dan bundle build produksi Vite sukses tanpa kendala.
 
+---
+
+## 15. Tahap 15: Fase 9 (Fitur 5) — Ekspedisi Kapal Selam Palung Laut & Bahan Legendaris Punah (Deep Abyssal Foraging)
+
+### A. Latar Belakang & Desain Penyelaman Abisal Shinkai 2000
+Untuk memuaskan hasrat penjelajahan para kolektor dan menghadirkan siklus penantian berbobot tinggi (*high-stakes delayed gratification*), Tahap 15 mengintegrasikan armada kapal selam riset samudra era Showa: **Shinkai 2000 (深海2000)**. Pemain dapat membiayai misi eksplorasi bawah laut ke palung terdalam Samudra Pasifik untuk memanen 4 bahan prasejarah yang telah lama punah dari peradaban manusia, merebusnya di kuali oden bercahaya neon, dan membuka Pustaka Mahakarya Terlarang.
+
+### B. Modul Logika Penyelaman Palung Laut (`src/abyssal.js`)
+- **4 Zona Kedalaman Palung Laut**:
+  1. 🦑 **Palung Izu-Ogasawara (Zona Senja Samudra / Twilight Zone: 200m - 1.000m)**:
+     - *Biaya*: $\yen 3.500$ | *Durasi*: 1 Hari (kembali keesokan fajar).
+     - *Target Legendaris*: **Capit Cumi Abisal Neon (`abyssal_squid`)**.
+     - *Efek Masakan*: Kuah kaldu dan mangkuk memancarkan cahaya neon biru. Sajian di malam hari (20:00 - 05:00) melipatgandakan tip $2\times$ lipat ($+100\%$) ditambah bonus flat $+\yen 400$.
+  2. ✨ **Palung Kristal Bintang (Zona Batipelagik: 1.000m - 3.000m)**:
+     - *Biaya*: $\yen 6.000$ | *Durasi*: 2 Hari.
+     - *Target Legendaris*: **Konnyaku Kristal Bintang (`starlight_konnyaku`)**.
+     - *Efek Masakan*: Konnyaku sebening kaca dari lelehan batu meteorit purba yang menyerap $300\%$ sari rasa kaldu, melipatgandakan kepuasan tamu dan mendongkrak omset hidangan sebesar $+50\%$.
+  3. 🎋 **Palung Purba Hutan Yakushima (Zona Abisopelagik: 3.000m - 6.000m)**:
+     - *Biaya*: $\yen 10.000$ | *Durasi*: 2 Hari.
+     - *Target Legendaris*: **Rebung Emas 1.000 Tahun (`millennium_takenoko`)**.
+     - *Efek Masakan*: Mengeluarkan aroma wangi pohon Hinoki purba yang menenangkan seisi kedai; menambah kesabaran seluruh tamu yang sedang menunggu di kedai sebesar $+12$ detik secara pasif!
+  4. 🐉 **Palung Hadal Mariana (Zona Terdalam Bumi: 6.000m - 10.920m+)**:
+     - *Biaya*: $\yen 18.000$ | *Durasi*: 3 Hari.
+     - *Target Legendaris*: **Telur Naga Laut Purba (`ryujin_roe`)**.
+     - *Efek Masakan*: Sajian sakral istana dasar samudra Ryugu-jo! Memberikan tambahan reputasi instan $+15$, bonus tunai kramat $+\yen 1.500$, dan membuka Grimoire Legendaris.
+- **Pustaka Mahakarya Terlarang (*The Lost Shokunin Grimoire*)**:
+  - Menyimpan 4 slot hologram emas bahan abisal. Saat keempat bahan purba berhasil dipanen minimal 1 kali, Grimoire terbuka secara permanen: memberikan reputasi seketika $+50$ dan buff omset kedai permanen **+15%**.
+
+### C. Efek Visual Canvas Retrostil Waktu Nyata (`src/render.js`)
+1. **Kuah Panci Bioluminesen Abisal**: Saat bahan abisal direbus di sekat kompartemen panci oden, kuah memancarkan pendaran cahaya neon cyan berdenyut halus (`rgba(0, 210, 211, alpha)`) dan partikel gelembung gas laut melayang ke atas.
+2. **Dermaga Kapal Selam Shinkai 2000 di Kanal Luar**:
+   - Saat berstatus *Menyelam* (`diving`), pelampung antena radio hidrofon terapung berdenyut memancarkan sinyal sonar biru neon di atas air kanal samping kedai.
+   - Saat *Berlabuh* (`returned`), miniatur lambung kapal selam kuning-putih Shinkai 2000 bersandar di dermaga dengan suar hijau menyala dan teks `⚓ SIAP KLAIM!`.
+
+### D. Audio Synthesizer Prosedural Web Audio API Baru (`src/audio.js`)
+- `playSonarPing()`: Dentingan sonar frekuensi tinggi 1.760 Hz dengan gema akustik harmonik air dalam 3.520 Hz.
+- `playSubmarineEngine()`: Gemuruh baling-baling kapal selam frekuensi rendah (46 Hz - 52 Hz) berguncang.
+- `playBubbleAscend()`: Rantai 5 gelembung udara laut meletup berjenjang naik dari 240 Hz hingga 680 Hz.
+- `playAbyssalDiscovery()`: Arpeggio akord laut dalam mistis prasejarah (C3 - Eb3 - G3 - Bb3 - C4 - G4).
+- `playBioluminescentHum()`: Dengung frekuensi lembut 432 Hz pertanda pendaran senyawa kimia alami laut dalam.
+
+### E. Integrasi Gameplay, Resep Rahasia & UI (`src/App.jsx`, `src/styles.css`, `src/game.js`, `src/recipes.js`)
+- **2 Resep Fusi Rahasia Baru**:
+  - 🌌 *Nebula Samudra Purba* (Capit Cumi Abisal + Konnyaku Kristal Bintang): Bonus harga $+\yen 900$.
+  - 🐉🌊 *Santapan Dewa Naga Ryujin* (Telur Naga Laut Purba + Rebung Emas 1.000 Tahun + Daun Bawang): Bonus harga $+\yen 1.200$.
+- **Top HUD & Navigasi**: Tombol HUD "🌊 Shinkai 2000" dengan indikator status dinamis (*Standby*, *Menyelam*, atau *Klaim Tangkapan*), serta tombol navigasi di bilah bawah.
+- **Modal Interaktif Kapal Selam**:
+  - Layar Radar Sonar berputar memindai dasar laut secara animatif dengan pembacaan kedalaman meteran waktu nyata.
+  - Telemetri log transmisi hidrofon dasar samudra.
+  - Banner klaim tangkapan beriluminasi hijau saat kapal selam berlabuh.
+  - Kartu 4 zona palung laut lengkap dengan spesifikasi kedalaman, risiko, target bahan, dan tombol luncurkan.
+  - Galeri slot The Lost Shokunin Grimoire dengan bilah bar progres koleksi.
+- **Uji Coba & Verifikasi**: Seluruh 35 unit test suites terverifikasi lulus 100% dan bundle build produksi Vite sukses tanpa kendala.
+
+
 
 
 

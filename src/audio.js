@@ -619,6 +619,51 @@ export function playDiceLose() {
   setTimeout(() => playTone(110, 'sine', 0.4, 0.25, -45), 100)
 }
 
+// SFX FASE 9: Denting Sonar Kapal Selam Palung Laut (Submarine Sonar Ping)
+export function playSonarPing() {
+  if (!ctx || isMuted) return
+  playTone(1760, 'sine', 0.9, 0.22, 40)
+  setTimeout(() => playTone(3520, 'sine', 0.5, 0.08), 30)
+}
+
+// SFX FASE 9: Gemuruh Baling-Baling Kapal Selam Bawah Laut (Submarine Engine Rumble)
+export function playSubmarineEngine() {
+  if (!ctx || isMuted) return
+  playTone(52, 'triangle', 1.2, 0.28, -8)
+  playTone(78, 'sawtooth', 0.8, 0.16, -15)
+  setTimeout(() => playTone(46, 'sine', 1.4, 0.24), 80)
+}
+
+// SFX FASE 9: Rantai Gelembung Udara Laut Naik ke Permukaan (Bubbles Ascending)
+export function playBubbleAscend() {
+  if (!ctx || isMuted) return
+  const bubblePitches = [240, 320, 410, 520, 680]
+  bubblePitches.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'sine', 0.09, 0.18, 120)
+    }, idx * 45)
+  })
+}
+
+// SFX FASE 9: Arpeggio Penemuan Bahan Abisal Purba (Abyssal Ancient Discovery)
+export function playAbyssalDiscovery() {
+  if (!ctx || isMuted) return
+  const abyssalNotes = [130.81, 155.56, 196.00, 233.08, 261.63, 392.00] // C3, Eb3, G3, Bb3, C4, G4
+  abyssalNotes.forEach((f, idx) => {
+    setTimeout(() => {
+      playTone(f, 'sine', 1.0, 0.15)
+      playTone(f * 2, 'triangle', 0.7, 0.07)
+    }, idx * 75)
+  })
+}
+
+// SFX FASE 9: Pendaran Cahaya Bioluminesen Lembut (Bioluminescent Hum)
+export function playBioluminescentHum() {
+  if (!ctx || isMuted) return
+  playTone(432, 'sine', 0.6, 0.16, 20)
+  setTimeout(() => playTone(864, 'sine', 0.45, 0.1, -30), 80)
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

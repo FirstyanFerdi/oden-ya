@@ -10,7 +10,7 @@ import {
   FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
   SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS, STREET_ANOMALIES,
-  HANAFUDA_CARDS, DICE_BET_LEVELS
+  HANAFUDA_CARDS, DICE_BET_LEVELS, ABYSSAL_ZONES, ABYSSAL_ITEMS_DATA
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -64,6 +64,7 @@ export default function App() {
   const [anomalyOpen, setAnomalyOpen] = useState(false)
   const [fateOpen, setFateOpen] = useState(false)
   const [speakeasyOpen, setSpeakeasyOpen] = useState(false)
+  const [abyssalOpen, setAbyssalOpen] = useState(false)
   const [emaInput, setEmaInput] = useState('')
   const [diceBet, setDiceBet] = useState(1000)
   const [customBrothNameInput, setCustomBrothNameInput] = useState('')
@@ -159,6 +160,7 @@ export default function App() {
     setAnomalyOpen(false)
     setFateOpen(false)
     setSpeakeasyOpen(false)
+    setAbyssalOpen(false)
   }
 
   return (
@@ -327,6 +329,21 @@ export default function App() {
           </button>
         )}
 
+        {/* Indikator Ekspedisi Kapal Selam Palung Laut Shinkai 2000 */}
+        {g.abyssal && (
+          <button
+            className={`btn abyssal-hud-btn ${g.abyssal.currentExpedition?.status === 'returned' ? 'ready-claim' : ''}`}
+            onClick={() => { closeAllModals(); setAbyssalOpen(true) }}
+            title="Ekspedisi Kapal Selam Palung Laut Shinkai 2000"
+          >
+            {g.abyssal.currentExpedition?.status === 'returned'
+              ? '⚓ Klaim Tangkapan!'
+              : g.abyssal.currentExpedition?.status === 'diving'
+              ? `🌊 Menyelam (${g.abyssal.currentExpedition.daysLeft}h)`
+              : '🌊 Shinkai 2000'}
+          </button>
+        )}
+
         {/* Tombol Aksi Tanggap Bencana & Darurat */}
         {g.isBlackout && (
           <button className="btn candle-btn" onClick={Gm.toggleCandle}>
@@ -490,6 +507,9 @@ export default function App() {
           </button>
           <button className="btn speakeasy-btn" onClick={() => { closeAllModals(); setSpeakeasyOpen(true) }}>
             🎲 Chou-Han {g.speakeasy?.unlockedImperialScroll ? '★' : ''}
+          </button>
+          <button className="btn abyssal-btn" onClick={() => { closeAllModals(); setAbyssalOpen(true) }}>
+            🌊 Kapal Selam {g.abyssal?.currentExpedition?.status === 'returned' ? '(!)' : ''}
           </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
@@ -3287,6 +3307,219 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setSpeakeasyOpen(false)}>Tinggalkan Meja Chou-Han</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EKSPEDISI KAPAL SELAM PALUNG LAUT SHINKAI 2000 */}
+      {abyssalOpen && !g.demo && (
+        <div className="modal-overlay" onClick={() => setAbyssalOpen(false)}>
+          <div className="modal abyssal-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header abyssal-header">
+              <h2>🌊 Ekspedisi Kapal Selam Palung Laut</h2>
+              <span className="subtitle">Shinkai 2000 (深海2000) — Penyelaman Abisal & Bahan Legendaris Punah</span>
+            </div>
+
+            {/* RADAR SONAR & TELEMETRI STATUS */}
+            <div className="abyssal-radar-card box">
+              <div className="radar-screen">
+                <div className="radar-circle">
+                  <div className="radar-sweep"></div>
+                  <div className="radar-sub-blip"></div>
+                  <span className="radar-center-icon">🌊</span>
+                </div>
+                <div className="radar-telemetry">
+                  <div className="depth-badge">
+                    <span>Kedalaman Palung:</span>
+                    <strong>{g.abyssal?.currentExpedition ? g.abyssal.currentExpedition.depthMeter : '0m (Dermaga)'}</strong>
+                  </div>
+                  <div className="status-badge">
+                    <span>Status Shinkai 2000:</span>
+                    <strong style={{
+                      color: g.abyssal?.currentExpedition?.status === 'returned'
+                        ? '#2ecc71'
+                        : g.abyssal?.currentExpedition?.status === 'diving'
+                        ? '#00d2d3'
+                        : '#f1c40f'
+                    }}>
+                      {g.abyssal?.currentExpedition?.status === 'returned'
+                        ? '⚓ BERLABUH DI DERMAGA (SIAP KLAIM)'
+                        : g.abyssal?.currentExpedition?.status === 'diving'
+                        ? `📡 MENYELAM DI DASAR PALUNG (Sisa ${g.abyssal.currentExpedition.daysLeft} Hari)`
+                        : '🟢 STANDBY DI DERMAGA KANAL'}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* LOG HIDROFON RADIO BAWAH LAUT */}
+              <div className="hydrophone-logs">
+                <span className="log-title">📻 Catatan Sonar & Telemetri Hidrofon:</span>
+                <div className="log-entries">
+                  {g.abyssal?.currentExpedition?.logs?.slice(-3).map((l, i) => (
+                    <div key={i} className="log-line">{l}</div>
+                  )) || (
+                    <div className="log-line empty">Kapal selam Shinkai 2000 siap berlayar. Pilih zona palung di bawah untuk meluncurkan misi ekspedisi.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* BANNER HASIL TANGKAPAN SIAP KLAIM */}
+              {g.abyssal?.currentExpedition?.status === 'returned' && g.abyssal.currentExpedition.catchResult && (
+                <div className="claim-box">
+                  <div className="claim-info">
+                    <span className="claim-icon">📦</span>
+                    <div>
+                      <strong>Tangkapan Abisal Berhasil Ditemukan!</strong>
+                      <p>
+                        Spesimen: <strong style={{color: '#00d2d3'}}>+{g.abyssal.currentExpedition.catchResult.quantity}x {g.abyssal.currentExpedition.catchResult.itemName}</strong>
+                        {g.abyssal.currentExpedition.catchResult.hasBonus ? ' (⭐ Termasuk Bonus Ekstra Mineral Palung!)' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="btn claim-btn" onClick={() => Gm.claimCatchAction()}>
+                    ⚓ BONGKAR & KLAIM HASIL TANGKAPAN!
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* KATALOG 4 ZONA KEDALAMAN PALUNG LAUT */}
+            <h3 className="section-title">🗺️ Katalog 4 Zona Kedalaman Palung Samudra Pasifik</h3>
+            <div className="abyssal-zones-grid">
+              {ABYSSAL_ZONES.map(z => {
+                const itemData = ABYSSAL_ITEMS_DATA[z.targetItem]
+                const isDiving = g.abyssal?.currentExpedition !== null
+                return (
+                  <div key={z.id} className="zone-card box" style={{borderColor: z.themeColor}}>
+                    <div className="zone-header" style={{background: `${z.themeColor}22`}}>
+                      <div className="zone-title-row">
+                        <span className="zone-icon">{z.icon}</span>
+                        <div>
+                          <strong style={{color: z.themeColor}}>{z.name}</strong>
+                          <span className="zone-kanji">{z.kanji}</span>
+                        </div>
+                      </div>
+                      <span className="zone-depth-tag">{z.depthMeter}</span>
+                    </div>
+
+                    <p className="zone-desc">{z.desc}</p>
+
+                    {/* TARGET ITEM & PERK */}
+                    <div className="target-item-box" style={{borderLeftColor: z.themeColor}}>
+                      <div className="target-name-row">
+                        <span>Target Legendaris:</span>
+                        <strong style={{color: z.themeColor}}>{itemData.name} ({itemData.icon})</strong>
+                      </div>
+                      <div className="target-perk-text">
+                        ✨ <em>{itemData.perkText}</em>
+                      </div>
+                      <div className="target-value-text">
+                        Nilai Jual Dasar: <strong>¥{itemData.price.toLocaleString()}</strong> per porsi
+                      </div>
+                    </div>
+
+                    {/* SPESIFIKASI MISI */}
+                    <div className="zone-specs">
+                      <div className="spec-pill">
+                        <span>Durasi:</span>
+                        <strong>⏳ {z.durationDays} Hari</strong>
+                      </div>
+                      <div className="spec-pill">
+                        <span>Estimasi Hasil:</span>
+                        <strong>📦 {z.minYield} - {z.maxYield} Porsi</strong>
+                      </div>
+                      <div className="spec-pill">
+                        <span>Biaya Ekspedisi:</span>
+                        <strong style={{color: '#ffd700'}}>¥{z.cost.toLocaleString()}</strong>
+                      </div>
+                    </div>
+
+                    <button
+                      className="btn launch-btn"
+                      style={{background: z.themeColor}}
+                      disabled={isDiving || g.money < z.cost}
+                      onClick={() => Gm.launchExpeditionAction(z.id)}
+                    >
+                      {isDiving
+                        ? '🚫 Kapal Selam Sedang Bertugas'
+                        : g.money < z.cost
+                        ? `Uang Kurang (Butuh ¥${z.cost.toLocaleString()})`
+                        : `🚀 Luncurkan Shinkai 2000 (-¥${z.cost.toLocaleString()})`}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* PUSTAKA MAHAKARYA TERLARANG (THE LOST SHOKUNIN GRIMOIRE) */}
+            <div className="grimoire-card box">
+              <div className="grimoire-header">
+                <div className="grimoire-title">
+                  <span className="grimoire-icon">📜</span>
+                  <div>
+                    <strong>Pustaka Mahakarya Terlarang (The Lost Shokunin Grimoire)</strong>
+                    <span className="grimoire-sub">Koleksi 4 Bahan Samudra Purba demi Membuka Mahakarya Abisal Tertinggi</span>
+                  </div>
+                </div>
+                <div className={`grimoire-status-badge ${g.abyssal?.grimoireUnlocked ? 'unlocked' : ''}`}>
+                  {g.abyssal?.grimoireUnlocked ? '🌟 PUSTAKA TERBUKA (+15% Seluruh Omset)' : '🔒 TERKUNCI (Koleksi 4 Bahan)'}
+                </div>
+              </div>
+
+              <div className="grimoire-slots-grid">
+                {Object.keys(ABYSSAL_ITEMS_DATA).map(key => {
+                  const it = ABYSSAL_ITEMS_DATA[key]
+                  const harvestedCount = g.abyssal?.discoveredItems?.[key] || 0
+                  const isFound = harvestedCount > 0
+                  return (
+                    <div key={key} className={`grimoire-slot ${isFound ? 'found' : 'locked'}`} style={{borderColor: isFound ? it.badgeColor : '#34495e'}}>
+                      <div className="slot-icon">{it.icon}</div>
+                      <div className="slot-name" style={{color: isFound ? it.badgeColor : '#7f8c8d'}}>{it.name}</div>
+                      <div className="slot-kanji">{it.kanji}</div>
+                      <div className="slot-count">
+                        {isFound ? (
+                          <strong style={{color: '#2ecc71'}}>✓ {harvestedCount}x Dipanen</strong>
+                        ) : (
+                          <span style={{color: '#95a5a6'}}>🔒 Belum Ditemukan</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* GRIMOIRE PROGRESS BAR */}
+              <div className="grimoire-progress-bar-row">
+                <span className="progress-label">
+                  Progres Pustaka Samudra: <strong>{Object.values(g.abyssal?.discoveredItems || {}).filter(c => c > 0).length} / 4 Bahan Abisal</strong>
+                </span>
+                <div className="progress-track">
+                  <div
+                    className="progress-fill"
+                    style={{width: `${(Object.values(g.abyssal?.discoveredItems || {}).filter(c => c > 0).length / 4) * 100}%`}}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* STATISTIK PENYELAMAN */}
+            <div className="abyssal-stats-row box">
+              <div className="stat-pill">
+                <span>Total Penyelaman:</span>
+                <strong style={{color: '#00d2d3'}}>🌊 {g.abyssal?.totalDives || 0} Kali Misi</strong>
+              </div>
+              <div className="stat-pill">
+                <span>Total Bahan Abisal Dipanen:</span>
+                <strong style={{color: '#ffd700'}}>📦 {g.abyssal?.totalCatchesCount || 0} Porsi</strong>
+              </div>
+              <div className="stat-pill">
+                <span>Status Dermaga:</span>
+                <strong style={{color: '#2ecc71'}}>⚓ Dok Kanal Showa Siap</strong>
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setAbyssalOpen(false)}>Kembali ke Kedai</button>
           </div>
         </div>
       )}

@@ -30,6 +30,7 @@ import {TWILIGHT_PACTS, createInitialPactState, signTwilightPact, cancelTwilight
 import {STREET_ANOMALIES, createInitialAnomalyState, triggerRandomIncident, updateIncidentLoop, onIncidentServe, toggleOtoshiButa, lightEmergencyCandle, resolveIncident} from './anomalies.js'
 import {HANAFUDA_CARDS, createInitialFateState, drawDailyFateCard, rerollFateCard, hangCelestialEma, getActiveFateCard} from './fate.js'
 import {DICE_BET_LEVELS, createInitialSpeakeasyState, playChouHan} from './speakeasy.js'
+import {ABYSSAL_ZONES, ABYSSAL_ITEMS_DATA, createInitialAbyssalState, launchExpedition, advanceExpeditionDay, claimExpeditionCatch, checkGrimoireProgress} from './abyssal.js'
 import * as Audio from './audio.js'
 
 export {
@@ -41,7 +42,8 @@ export {
   adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
   SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion,
-  TWILIGHT_PACTS, STREET_ANOMALIES, HANAFUDA_CARDS, DICE_BET_LEVELS
+  TWILIGHT_PACTS, STREET_ANOMALIES, HANAFUDA_CARDS, DICE_BET_LEVELS,
+  ABYSSAL_ZONES, ABYSSAL_ITEMS_DATA, checkGrimoireProgress
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -63,13 +65,18 @@ export const ITEMS = [
   {id: 'yuba_silk', n: 'Kembang Tahu Sutra', p: 260, c: '#fffde7', cost: 600, rep: 30, comp: 3},
   {id: 'takenoko_bamboo', n: 'Rebung Rebus Bambu', p: 200, c: '#c8d6e5', cost: 450, rep: 25, comp: 0},
   {id: 'doteyaki_beef', n: 'Doteyaki Urat Miso Manis', p: 340, c: '#d35400', cost: 900, rep: 40, comp: 2},
-  {id: 'mentaiko', n: 'Telur Ikan Mentaiko Pedas', p: 320, c: '#ff6b6b', cost: 850, rep: 35, comp: 1}
+  {id: 'mentaiko', n: 'Telur Ikan Mentaiko Pedas', p: 320, c: '#ff6b6b', cost: 850, rep: 35, comp: 1},
+  // Bahan Legendaris Punah Hasil Ekspedisi Palung Laut Shinkai 2000
+  {id: 'abyssal_squid', n: 'Capit Cumi Abisal Neon', p: 850, c: '#00d2d3', cost: 0, rep: 60, comp: 1, abyssal: true},
+  {id: 'starlight_konnyaku', n: 'Konnyaku Kristal Bintang', p: 950, c: '#a29bfe', cost: 0, rep: 75, comp: 0, abyssal: true},
+  {id: 'millennium_takenoko', n: 'Rebung Emas 1000 Tahun', p: 1100, c: '#ffeaa7', cost: 0, rep: 85, comp: 0, abyssal: true},
+  {id: 'ryujin_roe', n: 'Telur Naga Laut Purba', p: 1500, c: '#ff7675', cost: 0, rep: 100, comp: 1, abyssal: true}
 ]
 
 // 4 Sekat Kompartemen Panci
 export const COMPARTMENTS = [
-  {id: 0, name: 'Sekat Sayur (Lobak, Rebung & Konnyaku)', allowed: ['daikon', 'konnyaku', 'imperial_daikon', 'takenoko_bamboo']},
-  {id: 1, name: 'Sekat Olahan Laut (Chikuwa, Gurita, Kepiting Raja, Mentaiko)', allowed: ['chikuwa', 'tako', 'matsuba_crab', 'king_crab', 'mentaiko']},
+  {id: 0, name: 'Sekat Sayur (Lobak, Rebung, Konnyaku & Abisal)', allowed: ['daikon', 'konnyaku', 'imperial_daikon', 'takenoko_bamboo', 'starlight_konnyaku', 'millennium_takenoko']},
+  {id: 1, name: 'Sekat Olahan Laut (Chikuwa, Gurita, Kepiting, Mentaiko, Cumi Neon & Telur Naga)', allowed: ['chikuwa', 'tako', 'matsuba_crab', 'king_crab', 'mentaiko', 'abyssal_squid', 'ryujin_roe']},
   {id: 2, name: 'Sekat Daging (Urat Sapi & Doteyaki)', allowed: ['gyusuji', 'doteyaki_beef']},
   {id: 3, name: 'Sekat Telur, Mochi & Tahu (Termasuk Yuba & Telur Selai)', allowed: ['egg', 'kinchaku', 'atsuage', 'tamago_selai', 'yuba_silk']}
 ]
@@ -271,7 +278,9 @@ export function newGame(demo = false) {
     // Fase 9: Pohon Takdir Musiman & Horoskop Bintang Showa
     fate: createInitialFateState(),
     // Fase 9: Arena Perjudian Gelap Chou-Han Lorong Belakang
-    speakeasy: createInitialSpeakeasyState()
+    speakeasy: createInitialSpeakeasyState(),
+    // Fase 9: Ekspedisi Kapal Selam Palung Laut Shinkai 2000
+    abyssal: createInitialAbyssalState()
   }
 }
 
@@ -381,6 +390,7 @@ function loadSavedGame() {
     data.anomalies = data.anomalies || createInitialAnomalyState()
     data.fate = data.fate || createInitialFateState()
     data.speakeasy = data.speakeasy || createInitialSpeakeasyState()
+    data.abyssal = data.abyssal || createInitialAbyssalState()
     return data
   } catch (e) {
     return null
@@ -450,7 +460,8 @@ export function saveGame() {
       pacts: G.pacts,
       anomalies: G.anomalies,
       fate: G.fate,
-      speakeasy: G.speakeasy
+      speakeasy: G.speakeasy,
+      abyssal: G.abyssal
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -521,6 +532,10 @@ export const startNewDay = () => {
   // Kocok Kartu Takdir Hanafuda Harian (The Celestial Ema)
   if (!G.fate) G.fate = createInitialFateState()
   drawDailyFateCard(G.fate, G)
+
+  // Kemajuan Ekspedisi Kapal Selam Palung Laut Shinkai 2000
+  if (!G.abyssal) G.abyssal = createInitialAbyssalState()
+  advanceExpeditionDay(G.abyssal, G)
 
   // Reset Status Fase 6
   G.midnightMode = false
@@ -1531,6 +1546,46 @@ export function serve() {
   if (G.weather === 'topan') tip = Math.round(tip * 2.0)
   if (G.isBlackout && G.candleLit) tip = Math.round(tip * 1.35)
 
+  // --- EFEK BAHAN LEGENDARIS ABISAL (DEEP ABYSSAL FORAGING) ---
+  // 1. Capit Cumi Abisal Neon: Pendar Malam (20:00 - 05:00) Tip x2.0 + ¥400
+  if (G.plate.includes('abyssal_squid')) {
+    const isNightSquid = G.hour >= 20 || G.hour <= 4
+    if (isNightSquid) {
+      tip = Math.round(tip * 2.0) + 400
+      Audio.playBioluminescentHum()
+      G.floats.push({x: c.x, y: c.y - 75, t: 0, s: '🦑 NEON ABISAL: Pendar Malam Tip x2.0 (+¥400)!', c: '#00d2d3'})
+    }
+  }
+
+  // 2. Konnyaku Kristal Bintang: Serap Sari Rasa Kaldu 300% (+50% Laba)
+  if (G.plate.includes('starlight_konnyaku')) {
+    gain = Math.round(gain * 1.5)
+    G.floats.push({x: c.x, y: c.y - 85, t: 0, s: '✨ KONNYAKU KRISTAL: Serap Sari Kaldu 300% (+50% Laba)!', c: '#a29bfe'})
+  }
+
+  // 3. Rebung Emas 1000 Tahun: Wangi Hinoki Purba Tambah Kesabaran Seluruh Tamu +12 dtk
+  if (G.plate.includes('millennium_takenoko')) {
+    G.cust?.forEach(other => {
+      if (other !== c && other.pat !== undefined) {
+        other.pat = Math.min(other.max, other.pat + 12)
+      }
+    })
+    G.floats.push({x: c.x, y: c.y - 95, t: 0, s: '🎋 AROMA HINOKI PURBA: Kesabaran Seluruh Tamu +12 dtk!', c: '#ffeaa7'})
+  }
+
+  // 4. Telur Naga Laut Purba: Santapan Kramat Istana Samudra (Reputasi +15 & Bonus +¥1.500)
+  if (G.plate.includes('ryujin_roe')) {
+    G.rep += 15
+    gain += 1500
+    Audio.playPrestigeFanfare()
+    G.floats.push({x: c.x, y: c.y - 105, t: 0, s: '🐉 TELUR NAGA RYUJIN: Reputasi +15 & Bonus +¥1.500!', c: '#ff7675'})
+  }
+
+  // Pustaka Mahakarya Terlarang (The Lost Shokunin Grimoire Buff: +15% Permanen)
+  if (G.abyssal?.grimoireUnlocked) {
+    gain = Math.round(gain * 1.15)
+  }
+
   // Hadiah Tamu Bangsawan Ruang VIP Zashiki (Ginza Flagship)
   if (c.isZashiki && c.zashikiData && sat >= 0.75) {
     gain = Math.round(gain * c.zashikiData.budgetMultiplier)
@@ -2380,6 +2435,21 @@ export function drawFateAction(forcedId = null) {
 export function playChouHanAction(choice, bet) {
   if (!G.speakeasy) G.speakeasy = createInitialSpeakeasyState()
   const res = playChouHan(G.speakeasy, G, choice, bet)
+  saveGame()
+  return res
+}
+
+// --- FASE 9: EKSPEDISI KAPAL SELAM PALUNG LAUT SHINKAI 2000 ---
+export function launchExpeditionAction(zoneId) {
+  if (!G.abyssal) G.abyssal = createInitialAbyssalState()
+  const res = launchExpedition(G.abyssal, G, zoneId)
+  saveGame()
+  return res
+}
+
+export function claimCatchAction() {
+  if (!G.abyssal) G.abyssal = createInitialAbyssalState()
+  const res = claimExpeditionCatch(G.abyssal, G)
   saveGame()
   return res
 }

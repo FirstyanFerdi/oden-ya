@@ -82,6 +82,27 @@ export const FUSION_RECIPES = [
     icon: '⚔️',
     desc: 'Perpaduan manisnya daging kepiting salju dengan kenyal gurihnya urat sapi lembut.',
     lore: 'Hidangan penuh tenaga dan kemewahan yang dinikmati para jenderal di zaman dahulu.'
+  },
+  {
+    id: 'abyssal_nebula',
+    name: 'Nebula Samudra Purba',
+    subtitle: 'Capit Cumi Abisal + Konnyaku Kristal Bintang',
+    items: ['abyssal_squid', 'starlight_konnyaku'],
+    bonusPrice: 900,
+    icon: '🌌',
+    desc: 'Kuah dan piring memancarkan kilau biru keunguan bagai nebula di dasar palung samudra.',
+    lore: 'Dua bahan prasejarah ribuan meter di bawah laut yang bersatu menciptakan harmoni umami antariksa.'
+  },
+  {
+    id: 'ryujin_imperial_feast',
+    name: 'Santapan Dewa Naga Ryujin',
+    subtitle: 'Telur Naga Laut + Rebung Emas 1000 Tahun + Daun Bawang',
+    items: ['ryujin_roe', 'millennium_takenoko'],
+    condiments: ['scallion'],
+    bonusPrice: 1200,
+    icon: '🐉🌊',
+    desc: 'Kelezatan agung istana dasar samudra Ryugu-jo berpadu dengan keharuman pohon Hinoki purba.',
+    lore: 'Hanya itamae penjelajah samudra sejati yang berhak menyajikan warisan sakral Dewa Laut Ryujin.'
   }
 ]
 
