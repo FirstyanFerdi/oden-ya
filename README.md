@@ -281,12 +281,20 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - Pelanggan reguler bertumbuh dan menua seiring perjalanan waktu dalam 3 babak kehidupan (Pak Gimin, Nona Hana, Detektif Kenzo, Nenek Sumi).
 - **Malam Reuni Akbar Showa (The Grand Reunion)**: Terbuka saat minimal 3 karakter mencapai Tahap 2+. Seluruh pelanggan berkumpul bersulang merayakan reuni di kedai Anda (+¥5.000 tunai, +30 reputasi, partikel konfeti perayaan, dan foto kenangan polaroid abadi).
 
+### 43. 🔥 Sistem Sumpah Senja & Perjanjian Roh Kelaparan (The Twilight Pacts & Gaki's Gamble)
+- Sistem kontrak taruhan tinggi (*high-stakes risk-and-reward*) yang dapat diikat saat senja untuk melipatgandakan keuntungan atau menerima penalti berat:
+  - **Sumpah Kuali Mendidih Neraka (`boiling_hell`)**: Panas kompor terkunci 100% dan bahan matang 2.5x lebih cepat. Dilarang ada 1 bahan pun yang melepuh/lembek (>40 dtk) demi pengganda omset **x3.5**, jackpot tunai +¥15.000, dan reputasi +25.
+  - **Sumpah Pelayanan Tanpa Nafas (`silent_storm`)**: Tamu menjadi tidak sabaran (-40% durasi kesabaran) dan kombo tidak boleh terputus setelah melayani tamu pertama demi membuka Bumbu Pusaka legendaris **"Shoyu Hitam Abadi 50 Tahun"** (+50% Tip Permanen).
+  - **Sumpah Kursi Keramat Roh Kelaparan (`cursed_stool`)**: Kursi nomor 1 diduduki oleh entitas Roh Kelaparan (Gaki) yang menuntut sepiring oden setiap 40 detik. Suap Gaki minimal 3 kali sebelum timer laparnya habis demi meraih Koin Emas Roh (*Spiritual Koban*), Peti Pusaka Bayangan (+¥12.000 & relik rahasia), dan reputasi +30.
+- Dilengkapi efek visual partikel bara api merah kuali neraka, vignette petir ungu berkedip, entitas Gaki berpendar di kursi 1 dengan balon pikiran lapar, siluet senja di luar kedai pada jam 17:00, serta audio synthesizer prosedural gong mistis, seruputan roh kelaparan, desisan kuali api, dan jingle kemenangan sumpah.
+
 ---
 
 ## 🎮 Cara Bermain
 
 1. **Persiapan Pagi/Sore**:
    - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
+   - Buka menu **🔥 Sumpah Senja** untuk mengikat kontrak taruhan tinggi mistis sebelum membuka pelayanan sore.
    - Buka menu **🚂 SL Ginga** untuk membeli tiket kereta uap dan berlabuh di provinsi baru (Hokkaido, Kyoto, Osaka, Hakata).
    - Buka menu **⚗️ Kaldu Kustom** untuk meracik 5 parameter rasa dan mendaftarkan formula dashi paten Anda.
    - Buka menu **🐉 Sindikat 03:30** untuk berburu pusaka mistis terlarang atau menyembunyikannya di bawah tatami dari razia Koban.
@@ -317,6 +325,7 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 
 ## 📂 Struktur Berkas
 
+- [src/pacts.js](src/pacts.js) – Logika sistem Sumpah Senja (The Twilight Pacts & Gaki's Gamble), 3 kontrak taruhan tinggi, manajemen Roh Gaki di kursi keramat, resolusi akhir hari, dan bumbu pusaka Shoyu 50 Tahun.
 - [src/soul.js](src/soul.js) – Mesin deteksi gaya bermain dan arketipe jiwa koki (Speed Artisan, Zen Perfectionist, Market Tycoon) beserta aura visual canvas.
 - [src/expedition.js](src/expedition.js) – Sistem ekspedisi kereta uap SL Ginga melintasi 4 provinsi (Hokkaido, Kyoto, Osaka, Hakata) dengan cuaca ekstrem, aturan lokal, dan bahan eksklusif.
 - [src/alchemy.js](src/alchemy.js) – Laboratorium peracikan kaldu kustom 5 parameter rasa alami, kalkulator harmoni, pendaftaran hak paten, dan integrasi panci oden (+35% harga).
@@ -342,12 +351,12 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
 - [src/recipes.js](src/recipes.js) – Daftar resep kombinasi rahasia (*Fusion Dex*), resep mahkota kekaisaran (*Imperial Golden Oden*), deteksi kecocokan piring, dan bonus harga.
 - [src/locations.js](src/locations.js) – Sistem 4 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon, Ginza Flagship) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, peluit kereta SL Ginga, suara lumpang alu kaldu, bisikan mistis sindikat, dan denting lonceng reuni.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, peluit kereta SL Ginga, suara lumpang alu kaldu, bisikan mistis sindikat, denting lonceng reuni, gong mistis senja, tegukan roh gaki, desisan kuali neraka, dan jingle kemenangan sumpah.
 - [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Tamu Bangsawan Zashiki (Menteri Kato, Sutradara Otomo, Taipan Tanaka), Inspektur Michelin, dan Inspektur Sanitasi.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180, partikel musim, pendaran aura jiwa koki, partikel atmosfer provinsi SL Ginga (kabut es Hokkaido, daun bambu Kyoto, neon Osaka, pesisir Hakata), sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 8.
+- [src/game.js](src/game.js) – Logika inti: sumpah senja & perjanjian roh gaki, panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180: efek bara kuali neraka, vignette petir ungu, roh Gaki melayang di kursi 1 dengan balon pikiran oden, siluet senja jam 17:00, partikel musim, aura jiwa koki, atmosfer provinsi kereta SL Ginga, sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Sumpah Senja & Roh Gaki, Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, kartu sumpah senja mistis, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 12.
 

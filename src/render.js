@@ -263,6 +263,26 @@ export function draw(ctx) {
     }
   }
 
+  // Efek Sumpah Kuali Mendidih Neraka (Percikan Api & Gelembung Membara)
+  if (G.pacts?.activePact === 'boiling_hell' && G.pacts?.status === 'active') {
+    const boilPulse = 0.4 + 0.3 * Math.sin(G.t * 12)
+    R(0, 0, W, 2, `rgba(231, 76, 60, ${boilPulse})`)
+    R(0, H - 2, W, 2, `rgba(231, 76, 60, ${boilPulse})`)
+    for (let k = 0; k < 6; k++) {
+      const bx = ((G.t * 35 + k * 52) % (W + 20)) - 10
+      const by = H - 25 - ((G.t * 28 + k * 18) % 35)
+      R(bx, by, 2, 2, k % 2 === 0 ? '#ff4757' : '#ffa502')
+    }
+  }
+
+  // Efek Sumpah Pelayanan Tanpa Nafas (Vignette Ungu Mencekam)
+  if (G.pacts?.activePact === 'silent_storm' && G.pacts?.status === 'active') {
+    const silentPulse = 0.35 + 0.25 * Math.sin(G.t * 5)
+    ctx.strokeStyle = `rgba(155, 89, 182, ${silentPulse})`
+    ctx.lineWidth = 3
+    ctx.strokeRect(1, 1, W - 2, H - 2)
+  }
+
   if (G.scene === 'in' && z > 0.4) {
     ctx.fillStyle = `rgba(0,0,0,${z * 0.35})`
     ctx.fillRect(0, 0, W, H)
@@ -525,6 +545,31 @@ export function draw(ctx) {
       R(SX[i] - 1, 113, 2, 9, '#2a170f')
     }
 
+    // Entitas Roh Kelaparan (Gaki) di Kursi 0 jika Sumpah Kursi Keramat aktif
+    if (G.pacts?.activePact === 'cursed_stool' && G.pacts?.status === 'active') {
+      const gx = SX[0], gy = 94
+      // Tubuh Bayangan Ungu Mistis
+      R(gx - 5, gy - 8, 10, 16, '#2d132c')
+      R(gx - 6, gy - 16, 12, 10, '#3e1b3c')
+      // Mata Berpendar Kuning
+      const eyeBlink = Math.sin(G.t * 6) > 0.8 ? 1 : 2
+      R(gx - 3, gy - 13, 2, eyeBlink, '#f1c40f')
+      R(gx + 2, gy - 13, 2, eyeBlink, '#f1c40f')
+      // Pendaran Kabut Roh di Bawah
+      glow(gx, gy - 6, 14, 0.45)
+      // Gelembung Tuntutan Makanan di Atas Kepala
+      const demItem = ITEMS.find(it => it.id === G.pacts.gakiCurrentDemand)
+      R(gx - 10, gy - 28, 20, 9, '#1a0918')
+      R(gx - 9, gy - 27, 18, 7, '#4a1945')
+      if (demItem) {
+        R(gx - 4, gy - 25, 8, 4, demItem.c)
+      }
+      // Bar Timer Lapar Gaki
+      const tPct = Math.max(0, Math.min(1, G.pacts.gakiTimer / G.pacts.gakiMaxTimer))
+      R(gx - 10, gy - 18, 20, 2, '#2c0c2a')
+      R(gx - 10, gy - 18, (20 * tPct) | 0, 2, tPct < 0.3 ? '#ff4757' : '#a29bfe')
+    }
+
     // Kucing Kuro jika jinak
     if (G.cat.friendship >= 3) {
       drawCat(290, 108, true)
@@ -714,6 +759,18 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     R(bx - 4, 136, 5, 5, '#e67e22') // Bento box kayu
     R(bx - 3, 144, 4, 4, '#7f8c8d') // Roda belakang
     R(bx + 10, 144, 4, 4, '#7f8c8d') // Roda depan
+  }
+
+  // Siluet Roh Pembawa Sumpah Senja (Jam 17:00 Tasogare)
+  if (G.hour === 17) {
+    const sx = 26, sy = 138
+    R(sx - 3, sy - 14, 8, 14, '#1b0b24')
+    R(sx - 4, sy - 22, 10, 8, '#260e33')
+    glow(sx + 1, sy - 14, 14, 0.45)
+    const eyeBlink = Math.sin(G.t * 6) > 0.85 ? 1 : 2
+    R(sx - 1, sy - 19, 2, eyeBlink, '#ff7675')
+    R(sx + 3, sy - 19, 2, eyeBlink, '#ff7675')
+    T('🔥', sx - 4, sy - 34, '#ff7675', 8)
   }
 
   // Kucing Kuro di luar

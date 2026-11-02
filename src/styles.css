@@ -2986,8 +2986,235 @@ canvas {
   box-shadow: 0 0 12px #ffd700;
 }
 
+/* --- FASE 9: SUMPAH SENJA & PERJANJIAN ROH KELAPARAN --- */
+.pact-hud-btn {
+  background: #2b0c16;
+  border-color: #ff4757;
+  color: #ff6b81;
+}
+.pact-hud-btn.pact-active-glow {
+  animation: pactGlowPulse 1.2s infinite alternate;
+}
+@keyframes pactGlowPulse {
+  0% { background: #3d0c1e; border-color: #ff4757; box-shadow: 0 0 6px #ff4757; }
+  100% { background: #63122c; border-color: #ffa502; box-shadow: 0 0 14px #ffa502; }
+}
+
+.pact-btn {
+  background: #2a0815;
+  border-color: #ff4757;
+  color: #fbc531;
+}
+.pact-btn:hover {
+  background: #4d0d24;
+  border-color: #ffa502;
+}
+
+/* Day Summary Pact Card */
+.pact-summary-card {
+  padding: 10px 12px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pact-summary-card.success {
+  background: #142a1d;
+  border: 2px solid #2ecc71;
+}
+.pact-summary-card.failed {
+  background: #2b1115;
+  border: 2px solid #e74c3c;
+}
+.pact-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pact-summary-icon { font-size: 1.5em; }
+.pact-summary-header h4 { margin: 0; color: #f5f6fa; font-size: 0.9em; }
+.pact-summary-status { font-size: 0.75em; font-weight: bold; }
+.pact-summary-card.success .pact-summary-status { color: #2ecc71; }
+.pact-summary-card.failed .pact-summary-status { color: #ff4757; }
+.pact-summary-desc { margin: 0; font-size: 0.78em; color: #dfe6e9; line-height: 1.3; }
+.pact-summary-delta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76em;
+  font-weight: bold;
+  background: rgba(0,0,0,0.3);
+  padding: 4px 6px;
+  margin-top: 2px;
+}
+
+/* Modal Sumpah Senja */
+.pact-modal {
+  width: 90%;
+  max-width: 840px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #170712;
+  border: 3px solid #ff4757;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pact-header h2 { margin: 0; color: #ff4757; font-size: 1.25em; }
+.pact-subtitle { margin: 2px 0 6px 0; font-size: 0.82em; color: #fbc531; line-height: 1.35; }
+
+/* Active Pact Banner */
+.active-pact-banner {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 2px solid #ff4757;
+  background: #280a1a;
+}
+.active-pact-banner.active { border-color: #ffa502; box-shadow: 0 0 10px rgba(255, 165, 2, 0.3); }
+.active-pact-banner.completed { border-color: #2ecc71; background: #0c2618; }
+.active-pact-banner.failed { border-color: #e74c3c; background: #260a0f; }
+
+.active-pact-top { display: flex; align-items: center; gap: 10px; }
+.active-pact-icon { font-size: 2em; }
+.active-pact-title-wrap h3 { margin: 0; color: #ffd700; font-size: 1.05em; }
+.pact-status-badge { font-size: 0.75em; font-weight: bold; color: #ffa502; }
+.active-pact-rule { margin: 0; font-size: 0.82em; color: #f5f6fa; line-height: 1.3; }
+
+.pact-progress-metric {
+  background: #1b0714;
+  border: 1px solid #6b1d3d;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8em;
+  color: #f1f2f6;
+}
+.pact-multiplier-tag { color: #ffd700; font-weight: bold; }
+
+/* Gaki Demand Box */
+.gaki-demand-box {
+  background: #240b24;
+  border: 1px solid #8e44ad;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gaki-demand-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82em;
+  color: #e056fd;
+}
+.gaki-demand-header strong { color: #f1c40f; }
+.gaki-timer-bar {
+  height: 8px;
+  background: #150516;
+  border: 1px solid #8e44ad;
+  overflow: hidden;
+}
+.gaki-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #be2edd, #e056fd);
+  transition: width 0.2s;
+}
+.gaki-actions-row { display: flex; justify-content: flex-end; }
+.feed-gaki-btn {
+  background: #8e44ad;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: bold;
+  padding: 6px 12px;
+}
+.feed-gaki-btn:hover { background: #9b59b6; }
+
+.pact-cancel-row { display: flex; justify-content: flex-end; }
+.cancel-pact-btn {
+  background: #4b151b;
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+  font-size: 0.75em;
+  padding: 4px 8px;
+}
+.cancel-pact-btn:hover { background: #7f1d1d; }
+
+/* Pacts Grid */
+.pacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.pact-card {
+  background: #240b1a;
+  border: 2px solid #571638;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pact-card-header { display: flex; align-items: center; gap: 8px; }
+.pact-icon { font-size: 1.8em; }
+.pact-card-header h4 { margin: 0; color: #ffd700; font-size: 0.92em; }
+.pact-card-title { font-size: 0.72em; color: #ff7675; }
+.pact-card-desc { font-size: 0.76em; color: #dfe6e9; margin: 0; line-height: 1.3; }
+
+.pact-rule-box, .pact-reward-box, .pact-penalty-box {
+  padding: 5px 6px;
+  font-size: 0.72em;
+  border-radius: 2px;
+}
+.pact-section-label { font-weight: bold; display: block; margin-bottom: 2px; }
+.pact-rule-box { background: #190714; border: 1px solid #833471; }
+.pact-rule-box .pact-section-label { color: #fd79a8; }
+.pact-rule-box p { margin: 0; color: #f5f6fa; }
+
+.pact-reward-box { background: #0c2014; border: 1px solid #2ecc71; }
+.pact-reward-box .pact-section-label { color: #2ecc71; }
+.pact-reward-box p { margin: 0; color: #dff9fb; }
+
+.pact-penalty-box { background: #260a0f; border: 1px solid #e74c3c; }
+.pact-penalty-box .pact-section-label { color: #ff4757; }
+.pact-penalty-box p { margin: 0; color: #fecaca; }
+
+.sign-pact-btn {
+  margin-top: auto;
+  background: #b71540;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.82em;
+  padding: 8px;
+  border: 1px solid #ff4757;
+}
+.sign-pact-btn:hover { background: #e84118; box-shadow: 0 0 8px #ff4757; }
+
+/* Relics & Tokens Footer */
+.pact-relics-footer {
+  background: #240c1e;
+  border: 1px solid #6b1b47;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.82em;
+}
+.spiritual-token-counter strong { color: #ffd700; font-size: 1.1em; }
+.pact-unlocked-perks { display: flex; gap: 8px; flex-wrap: wrap; }
+.perk-pill {
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+.perk-pill.unlocked { background: #15803d; color: #fef08a; border: 1px solid #22c55e; }
+.perk-pill.locked { background: #331522; color: #88546b; border: 1px solid #4a1d32; }
+
 @media (max-width: 720px) {
-  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid {
+  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid {
     grid-template-columns: 1fr;
   }
 }

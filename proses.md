@@ -432,6 +432,58 @@ Ekspansi sistem adaptif, petualangan rute provinsi, kustomisasi kimia dashi murn
 - `playSyndicateWhisper()`: Bisikan lorong gelap mistis saat transaksi pasar gelap bawah tanah.
 - `playReunionChime()`: Dentingan lonceng perak bahagia saat Malam Reuni Akbar dimulai.
 
+---
+
+## 12. Tahap 12: Fase 9 (Fitur 1) — Sistem Sumpah Senja & Perjanjian Roh Kelaparan (The Twilight Pacts & Gaki's Gamble)
+
+### A. Latar Belakang & Desain Risk-and-Reward Ekstrem
+Memasuki tahap endgame, pemain membutuhkan tantangan dengan taruhan tinggi (*high-stakes contracts*) yang menguji ketangkasan mental, manajemen kuali berkecepatan tinggi, dan interaksi dengan entitas folklore mistis zaman Showa. Sistem **Sumpah Senja** menghadirkan pilihan kontrak sukarela yang dapat diikat setiap sore hari sebelum fajar tiba, memberikan pengganda imbalan masif atau hukuman penalti berat jika gagal memenuhi kriteria.
+
+### B. Modul Logika Perjanjian (`src/pacts.js`)
+- **3 Kontrak Sumpah Senja Berbahaya**:
+  1. **Sumpah Kuali Mendidih Neraka (`boiling_hell`)**:
+     - *Kondisi*: Suhu kompor terkunci pada panas maksimum ($100\%$) dan bahan di sekat panci matang $2.5\times$ lebih cepat.
+     - *Syarat Kemenangan*: Tidak boleh ada $1$ bahan pun di seluruh sekat yang melepuh / overcooked (`simmer > 40` detik).
+     - *Imbalan Sukses*: Omset kotor penjualan hari itu dikalikan **$\times 3.5$**, jackpot tunai $+\yen 15.000$, dan Reputasi $+25$.
+     - *Penalti Gagal*: Kuali meletup! Denda tunai $\yen 6.000$ dan Reputasi anjlok $-15$.
+  2. **Sumpah Pelayanan Tanpa Nafas (`silent_storm`)**:
+     - *Kondisi*: Tamu kedai menjadi sangat tidak sabaran (pengurangan durasi kesabaran $1.4\times$ lebih deras).
+     - *Syarat Kemenangan*: Rantai kombo pelayanan tidak boleh terputus atau reset kembali ke $0$ setelah menyajikan makanan ke tamu pertama (minimal $3$ tamu terlayani).
+     - *Imbalan Sukses*: Terbukanya bumbu pusaka legendaris **"Shoyu Hitam Abadi 50 Tahun"** (+50% Tip Pelanggan Permanen), uang tunai $+\yen 8.000$, dan Reputasi $+20$.
+     - *Penalti Gagal*: Denda kegagalan mental koki berupa Reputasi $-10$.
+  3. **Sumpah Kursi Keramat Roh Kelaparan (`cursed_stool`)**:
+     - *Kondisi*: Kursi nomor 1 diduduki oleh entitas mistis **Roh Kelaparan (Gaki)** yang menuntut sajian oden spesifik setiap 40 detik. Kursi 1 secara otomatis diisolasi dari tamu manusia normal.
+     - *Syarat Kemenangan*: Menyuap dan memberi makan Gaki minimal $3$ kali sebelum timer laparnya habis.
+     - *Imbalan Sukses*: Dihadiahi $+2$ Koin Emas Roh (*Spiritual Koban*), Peti Pusaka Bayangan ($+\yen 12.000$ & Relik Rahasia), dan Reputasi $+30$.
+     - *Penalti Gagal*: Gaki yang murka menyedot habis seluruh kaldu kuali, menambah kotoran busa kuali master $+40\%$, dan Reputasi $-12$.
+- **Fungsi Logika Utama**:
+  - `createInitialPactState()`: Inisialisasi status kontrak, timer Gaki, token spiritual, serta pembukaan pusaka Shoyu 50 tahun.
+  - `signTwilightPact(pactState, pactId, g)`: Mengikat kontrak harian, mengatur panas kompor, dan membangkitkan Gaki jika memilih `cursed_stool`.
+  - `cancelTwilightPact(pactState, g)`: Pembatalan darurat kontrak dengan penalti biaya tebusan $\yen 1.000$.
+  - `feedGaki(pactState, itemId, g)`: Menyuapkan bahan yang diminta dari stok gudang atau comotan sekat panci ke Roh Gaki.
+  - `updatePactLoop(pactState, dt, g)`: Loop pemantau hitung mundur kelaparan Gaki dan pemicu amarahnya.
+  - `resolveDayEndPact(pactState, g)`: Resolusi akhir hari di kasir, menghitung pengali omset x3.5, penalti denda, pencatatan histori perjanjian, serta pemberian pusaka permanen.
+
+### C. Efek Visual Canvas Retrostil Waktu Nyata (`src/render.js`)
+1. **Atmosfer Kuali Mendidih Neraka**: Pendaran api membara merah crimson di sekeliling pinggiran kuali tembaga dan partikel letupan bara api melayang secara dinamis.
+2. **Badai Petir Violet Hening**: Efek vignette berkedip ungu mistis di keempat sudut layar selama Sumpah Pelayanan Tanpa Nafas berlangsung.
+3. **Entitas Roh Gaki di Kursi 0**: Render sosok makhluk gaib berpendar ungu di Kursi nomor 1 dengan balon pikiran (*thought bubble*) menampilkan ikon bahan yang sedang ia tuntut, serta bilah bar meteran lapar waktu nyata.
+4. **Siluet Sosok Senja**: Siluet bayangan mistis berdiri mengawasi di luar jendela kedai tepat pada jam 17:00 senja Showa.
+
+### D. Audio Synthesizer Prosedural Web Audio API (`src/audio.js`)
+- `playTwilightGong()`: Resonansi gong senja mistis frekuensi rendah (75 Hz $\to$ 40 Hz) dengan modulasi overtone misterius saat sumpah ditandatangani.
+- `playDemonGulp()`: Suara glek menelan lahap berdenting oktaf berat saat Roh Gaki menerima sajian suap oden.
+- `playHellBoilSizzle()`: Desisan kuah meletup panas bergemuruh ketika bahan rebusan melepuh atau gosong di kuali neraka.
+- `playPactRewardChime()`: Rangkaian akord perak keemasan arpeggio 4 nada (D5 $\to$ F#5 $\to$ A5 $\to$ D6) saat pemain berhasil menuntaskan sumpah senja di akhir hari.
+
+### E. Integrasi Gameplay & Antarmuka UI (`src/game.js`, `src/App.jsx`, `src/styles.css`)
+- **Pusaka Bumbu Shoyu Hitam Abadi 50 Tahun**: Terbuka secara permanen di state permainan, menambahkan bonus $+50\%$ tip pada fungsi `serve()`.
+- **Top HUD & Navigasi**: Tombol HUD "🔥 Sumpah Senja" berkedip di atas layar dan tombol navigasi di bilah menu bawah.
+- **Modal Interaktif Sumpah Senja**: Menampilkan katalog 3 kartu sumpah, status sumpah berjalan hari ini, tombol interaktif suap Gaki langsung dari modal, tombol batalkan sumpah, dan tampilan koleksi Koin Emas Roh.
+- **Ringkasan Hari (Day Summary)**: Banner hasil resolusi sumpah senja menampilkan status keberhasilan, rincian bonus tunai, perubahan reputasi, dan pesan catatan sejarah.
+- **Uji Coba & Verifikasi**: 6 unit test suites berhasil lulus 100% dan bundle produksi Vite terverifikasi bersih tanpa galat.
+
+
 
 
 

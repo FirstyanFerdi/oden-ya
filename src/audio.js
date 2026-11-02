@@ -472,6 +472,41 @@ export function playReunionChime() {
   })
 }
 
+// SFX FASE 9: Gong Senja Mistis Sumpah Koki (Twilight Gong)
+export function playTwilightGong() {
+  if (!ctx || isMuted) return
+  playTone(82.41, 'sine', 2.5, 0.35, -15) // Nada E2 mistis
+  setTimeout(() => playTone(123.47, 'triangle', 2.0, 0.22, -10), 40)
+  setTimeout(() => playTone(164.81, 'sawtooth', 1.6, 0.12, 10), 90)
+}
+
+// SFX FASE 9: Hisapan Roh Kelaparan (Demon Gulp)
+export function playDemonGulp() {
+  if (!ctx || isMuted) return
+  playTone(220, 'sawtooth', 0.25, 0.22, -140)
+  setTimeout(() => playTone(110, 'sine', 0.35, 0.28, -60), 80)
+}
+
+// SFX FASE 9: Desis Menggelegak Kuali Mendidih Neraka (Hell Boil Sizzle)
+export function playHellBoilSizzle() {
+  if (!ctx || isMuted) return
+  playTone(280, 'sawtooth', 0.4, 0.25, 80)
+  setTimeout(() => playTone(340, 'triangle', 0.35, 0.2, -50), 60)
+  setTimeout(() => playTone(180, 'sawtooth', 0.45, 0.22, -30), 120)
+}
+
+// SFX FASE 9: Fanfare Kemenangan Sumpah Senja (Pact Reward Chime)
+export function playPactRewardChime() {
+  if (!ctx || isMuted) return
+  const notes = [329.63, 415.30, 493.88, 659.25, 830.61] // Tangga nada E mayor berkilau
+  notes.forEach((freq, idx) => {
+    setTimeout(() => {
+      playTone(freq, 'triangle', 1.6, 0.2, 5)
+      playTone(freq * 0.5, 'sine', 1.8, 0.15)
+    }, idx * 110)
+  })
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

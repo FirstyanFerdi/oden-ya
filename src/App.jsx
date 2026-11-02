@@ -9,7 +9,7 @@ import {
   SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
   FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
-  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -59,6 +59,7 @@ export default function App() {
   const [alchemyOpen, setAlchemyOpen] = useState(false)
   const [syndicateOpen, setSyndicateOpen] = useState(false)
   const [lifeArcOpen, setLifeArcOpen] = useState(false)
+  const [pactOpen, setPactOpen] = useState(false)
   const [customBrothNameInput, setCustomBrothNameInput] = useState('')
   const [chosenApprentice, setChosenApprentice] = useState('kenji')
   const [showRiddleHint, setShowRiddleHint] = useState(false)
@@ -148,6 +149,7 @@ export default function App() {
     setAlchemyOpen(false)
     setSyndicateOpen(false)
     setLifeArcOpen(false)
+    setPactOpen(false)
   }
 
   return (
@@ -272,6 +274,17 @@ export default function App() {
           </button>
         )}
 
+        {/* Indikator Sumpah Senja (Twilight Pacts) */}
+        {g.pacts && (
+          <button
+            className={`btn pact-hud-btn ${g.pacts.activePact ? 'pact-active-glow' : ''}`}
+            onClick={() => { closeAllModals(); setPactOpen(true) }}
+            title="Sumpah Senja & Perjanjian Roh Kelaparan"
+          >
+            {g.pacts.activePact ? `🔥 Sumpah: ${TWILIGHT_PACTS[g.pacts.activePact]?.name.split(' ')[1]}` : '🔥 Sumpah Senja'}
+          </button>
+        )}
+
         {/* Tombol Aksi Tanggap Bencana & Darurat */}
         {g.isBlackout && (
           <button className="btn candle-btn" onClick={Gm.toggleCandle}>
@@ -391,6 +404,9 @@ export default function App() {
           </button>
           <button className="btn reunion-btn" onClick={() => { closeAllModals(); setLifeArcOpen(true) }}>
             📖 Jejak Reuni {canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld ? '(!)' : ''}
+          </button>
+          <button className="btn pact-btn" onClick={() => { closeAllModals(); setPactOpen(true) }}>
+            🔥 Sumpah Senja {g.pacts?.activePact ? '(!)' : ''}
           </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
@@ -725,6 +741,25 @@ export default function App() {
                 <div className="stat-lbl">Total Kas Sekarang</div>
               </div>
             </div>
+
+            {/* Banner Hasil Sumpah Senja */}
+            {g.pacts?.lastPactResult && (
+              <div className={`pact-summary-card box ${g.pacts.lastPactResult.success ? 'success' : 'failed'}`}>
+                <div className="pact-summary-header">
+                  <span className="pact-summary-icon">{g.pacts.lastPactResult.success ? '🎉' : '💀'}</span>
+                  <div>
+                    <h4>Hasil Sumpah: {g.pacts.lastPactResult.pactName}</h4>
+                    <span className="pact-summary-status">{g.pacts.lastPactResult.success ? 'BERHASIL TERPENUHI!' : 'PERJANJIAN GAGAL!'}</span>
+                  </div>
+                </div>
+                <p className="pact-summary-desc">{g.pacts.lastPactResult.specialBonus}</p>
+                <div className="pact-summary-delta">
+                  <span>Kas: {g.pacts.lastPactResult.moneyDelta >= 0 ? `+¥${g.pacts.lastPactResult.moneyDelta.toLocaleString()}` : `-¥${Math.abs(g.pacts.lastPactResult.moneyDelta).toLocaleString()}`}</span>
+                  <span>Reputasi: {g.pacts.lastPactResult.repDelta >= 0 ? `+${g.pacts.lastPactResult.repDelta}` : `${g.pacts.lastPactResult.repDelta}`}</span>
+                </div>
+              </div>
+            )}
+
             <button className="btn next-day-btn" onClick={Gm.startNewDay}>
               ☀️ Mulai Hari ke-{g.day + 1}
             </button>
@@ -2669,6 +2704,134 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setLifeArcOpen(false)}>Tutup Buku Jejak Hidup</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SUMPAH SENJA & PERJANJIAN ROH KELAPARAN */}
+      {pactOpen && (
+        <div className="modal-overlay" onClick={() => setPactOpen(false)}>
+          <div className="pact-modal box" onClick={e => e.stopPropagation()}>
+            <div className="pact-header">
+              <h2>🔥 Sumpah Senja & Perjanjian Roh Kelaparan</h2>
+              <p className="pact-subtitle">
+                Saat batas fana dan arwah menipis di kala senja (17:00 Tasogare), jalin perjanjian mistis berisiko tinggi demi pengganda rezeki masif atau pusaka abadi!
+              </p>
+            </div>
+
+            {/* KARTU STATUS SUMPAH AKTIF SAAT INI */}
+            {g.pacts?.activePact && (
+              <div className={`active-pact-banner box ${g.pacts.status}`}>
+                <div className="active-pact-top">
+                  <span className="active-pact-icon">{TWILIGHT_PACTS[g.pacts.activePact]?.icon}</span>
+                  <div className="active-pact-title-wrap">
+                    <h3>{TWILIGHT_PACTS[g.pacts.activePact]?.name}</h3>
+                    <span className="pact-status-badge">
+                      {g.pacts.status === 'active' ? '⚡ SEDANG BERJALAN' : g.pacts.status === 'completed' ? '✅ TERPENUHI' : '💀 PERJANJIAN GAGAL'}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="active-pact-rule">{TWILIGHT_PACTS[g.pacts.activePact]?.rule}</p>
+
+                {/* INDIKATOR KHUSUS MASING-MASING SUMPAH */}
+                {g.pacts.activePact === 'boiling_hell' && (
+                  <div className="pact-progress-metric">
+                    <span>Status Bahan Lembek/Gosong: <strong>{g.pacts.boilingOvercookedCount} kali</strong> (Batas Maksimal: 0)</span>
+                    <span className="pact-multiplier-tag">Pengganda Akhir: x3.5 Pendapatan & +¥15.000!</span>
+                  </div>
+                )}
+
+                {g.pacts.activePact === 'silent_storm' && (
+                  <div className="pact-progress-metric">
+                    <span>Status Kombo Beruntun: <strong>{g.pacts.silentComboBroken ? '💔 Putus' : '🔥 Terjaga!'}</strong></span>
+                    <span className="pact-multiplier-tag">Hadiah: Shoyu Hitam 50 Tahun (+50% Tip Permanen)</span>
+                  </div>
+                )}
+
+                {g.pacts.activePact === 'cursed_stool' && (
+                  <div className="gaki-demand-box box">
+                    <div className="gaki-demand-header">
+                      <span>👻 Tuntutan Makanan Gaki: <strong>{ITEMS.find(it => it.id === g.pacts.gakiCurrentDemand)?.n || g.pacts.gakiCurrentDemand}</strong></span>
+                      <span>Sisa Waktu: <strong>{Math.ceil(g.pacts.gakiTimer)}s</strong></span>
+                    </div>
+                    <div className="gaki-timer-bar">
+                      <div className="gaki-timer-fill" style={{ width: `${Math.max(0, (g.pacts.gakiTimer / g.pacts.gakiMaxTimer) * 100)}%` }} />
+                    </div>
+                    <div className="gaki-actions-row">
+                      <button
+                        className="btn feed-gaki-btn"
+                        onClick={() => Gm.feedGakiAction(g.pacts.gakiCurrentDemand)}
+                      >
+                        🍲 Suap Gaki dengan "{ITEMS.find(it => it.id === g.pacts.gakiCurrentDemand)?.n}" ({g.pacts.gakiDemandsMet}/{g.pacts.gakiDemandsTarget})
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pact-cancel-row">
+                  <button className="btn cancel-pact-btn" onClick={() => Gm.cancelPactAction()}>
+                    Batalkan Sumpah (Denda Penalti ¥1.000)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* DAFTAR PILIHAN SUMPAH (JIKA BELUM ADA YANG AKTIF) */}
+            {!g.pacts?.activePact && (
+              <div className="pacts-grid">
+                {Object.keys(TWILIGHT_PACTS).map(pactId => {
+                  const pact = TWILIGHT_PACTS[pactId]
+                  return (
+                    <div key={pactId} className="pact-card box">
+                      <div className="pact-card-header">
+                        <span className="pact-icon">{pact.icon}</span>
+                        <div>
+                          <h4>{pact.name}</h4>
+                          <span className="pact-card-title">{pact.title}</span>
+                        </div>
+                      </div>
+                      <p className="pact-card-desc">{pact.desc}</p>
+                      <div className="pact-rule-box">
+                        <span className="pact-section-label">📜 Syarat Perjanjian:</span>
+                        <p>{pact.rule}</p>
+                      </div>
+                      <div className="pact-reward-box">
+                        <span className="pact-section-label">🎁 Hadiah Sukses:</span>
+                        <p>{pact.rewardDesc}</p>
+                      </div>
+                      <div className="pact-penalty-box">
+                        <span className="pact-section-label">⚠️ Konsekuensi Gagal:</span>
+                        <p>{pact.failPenaltyDesc}</p>
+                      </div>
+                      <button
+                        className="btn sign-pact-btn"
+                        onClick={() => Gm.signPactAction(pactId)}
+                      >
+                        ✍️ Ikat Perjanjian Senja Ini!
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* SEKSI PUSAKA & KOIN ROH TERKUMPUL */}
+            <div className="pact-relics-footer box">
+              <div className="spiritual-token-counter">
+                🪙 Koin Emas Roh (Spiritual Koban): <strong>{g.pacts?.spiritualTokens || 0}</strong>
+              </div>
+              <div className="pact-unlocked-perks">
+                <span className={`perk-pill ${g.pacts?.unlockedShoyu50yr ? 'unlocked' : 'locked'}`}>
+                  {g.pacts?.unlockedShoyu50yr ? '🍶 Shoyu Hitam 50 Tahun (+50% Tip)' : '🔒 Shoyu Hitam 50 Tahun'}
+                </span>
+                <span className={`perk-pill ${g.pacts?.unlockedShadowRelic ? 'unlocked' : 'locked'}`}>
+                  {g.pacts?.unlockedShadowRelic ? '📦 Peti Pusaka Bayangan (Terbuka)' : '🔒 Peti Pusaka Bayangan'}
+                </span>
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setPactOpen(false)}>Tutup Altar Sumpah</button>
           </div>
         </div>
       )}

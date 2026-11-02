@@ -26,6 +26,7 @@ import {TRAIN_ROUTES, createInitialExpeditionState, travelToRoute, getCurrentRou
 import {createInitialAlchemyState, adjustTasteParam, calculateHarmony, patentCustomBroth, toggleActiveInPot} from './alchemy.js'
 import {SYNDICATE_ITEMS, createInitialSyndicateState, buySyndicateRelic, hideContraband, updateSyndicateHeat} from './syndicate.js'
 import {LIFE_MILESTONES, createInitialLifeArcState, advanceCharacterArc, canTriggerReunion, triggerGrandReunion} from './lifearc.js'
+import {TWILIGHT_PACTS, createInitialPactState, signTwilightPact, cancelTwilightPact, feedGaki, updatePactLoop, resolveDayEndPact} from './pacts.js'
 import * as Audio from './audio.js'
 
 export {
@@ -36,7 +37,8 @@ export {
   ZASHIKI_VIP_GUESTS, FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige,
   adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
-  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion,
+  TWILIGHT_PACTS
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -258,7 +260,9 @@ export function newGame(demo = false) {
     expedition: createInitialExpeditionState(),
     alchemy: createInitialAlchemyState(),
     syndicate: createInitialSyndicateState(),
-    lifeArc: createInitialLifeArcState()
+    lifeArc: createInitialLifeArcState(),
+    // Fase 9: Sumpah Senja & Perjanjian Roh Kelaparan
+    pacts: createInitialPactState()
   }
 }
 
@@ -364,6 +368,7 @@ function loadSavedGame() {
     data.alchemy = data.alchemy || createInitialAlchemyState()
     data.syndicate = data.syndicate || createInitialSyndicateState()
     data.lifeArc = data.lifeArc || createInitialLifeArcState()
+    data.pacts = data.pacts || createInitialPactState()
     return data
   } catch (e) {
     return null
@@ -429,7 +434,8 @@ export function saveGame() {
       expedition: G.expedition,
       alchemy: G.alchemy,
       syndicate: G.syndicate,
-      lifeArc: G.lifeArc
+      lifeArc: G.lifeArc,
+      pacts: G.pacts
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -473,6 +479,12 @@ export const leaveShop = () => {
 
 // Mulai Hari Baru
 export const startNewDay = () => {
+  if (G.pacts && G.pacts.activePact) {
+    const res = resolveDayEndPact(G.pacts, G)
+    if (res && res.success) {
+      Audio.playPactRewardChime()
+    }
+  }
   G.day++
   G.hour = 17
   G.minute = 0
@@ -1113,6 +1125,12 @@ export function closeDayDirectly() {
   G.shinyaPrompt = false
   G.midnightMode = false
   G.dayClosed = true
+  if (G.pacts && G.pacts.activePact) {
+    const res = resolveDayEndPact(G.pacts, G)
+    if (res && res.success) {
+      Audio.playPactRewardChime()
+    }
+  }
   saveGame()
 }
 
@@ -1192,6 +1210,10 @@ export function stokeStove() {
 function spawn() {
   if (G.dayClosed) return
   const used = G.cust.map(c => c.seat)
+  // Kursi 0 dikuasai oleh Roh Kelaparan (Gaki) jika Sumpah Kursi Keramat aktif
+  if (G.pacts?.activePact === 'cursed_stool' && G.pacts?.status === 'active') {
+    used.push(0)
+  }
   const free = [...Array(seats()).keys()].filter(i => !used.includes(i))
   if (!free.length) return
 
@@ -1432,6 +1454,11 @@ export function serve() {
     tip = Math.round(tip * 1.25)
   }
 
+  // Pusaka Sumpah Senja: Shoyu Hitam Abadi 50 Tahun (+50% Tip Permanen)
+  if (G.pacts?.unlockedShoyu50yr) {
+    tip = Math.round(tip * 1.5)
+  }
+
   // Evaluasi Harmoni Makanan & Sake (Food-Sake Pairing Matrix)
   if (c.servedSake) {
     const pairRes = evaluateSakePairing(G.plate, c.servedSake)
@@ -1528,6 +1555,11 @@ export function serve() {
   G.dayStats.served++
   G.dayStats.revenue += gain
   G.dayStats.tips += tip
+
+  // Sumpah Pelayanan Tanpa Nafas: Tandai pelayanan pertama telah dimulai
+  if (G.pacts?.activePact === 'silent_storm') {
+    G.pacts.firstServeDone = true
+  }
 
   // Metrik Jiwa Koki (Culinary Soul)
   if (serveSpeed < 6) updateSoulMetrics(G, 'fastServe')
@@ -1678,12 +1710,62 @@ export function update(dt) {
     }
   }
 
-  // Rebus Bahan di Panci
+  // Update Sumpah Senja (The Twilight Pacts)
+  if (g.pacts) {
+    updatePactLoop(g.pacts, validDt, g)
+  }
+
+  // Rebus Bahan di Panci (Dipercepat 2.5x jika Sumpah Kuali Mendidih Neraka aktif)
+  const isBoilingHell = g.pacts?.activePact === 'boiling_hell' && g.pacts?.status === 'active'
+  const simmerSpeedMult = isBoilingHell ? 2.5 : 1.0
+  if (isBoilingHell) {
+    g.stoveHeat = 1.0
+  }
   g.potSlots.forEach(comp => {
     comp.forEach(item => {
-      item.simmer = (Number.isFinite(item.simmer) ? item.simmer : 0) + validDt
+      item.simmer = (Number.isFinite(item.simmer) ? item.simmer : 0) + validDt * simmerSpeedMult
     })
   })
+
+  // Pantau Kegagalan Sumpah Kuali Mendidih Neraka jika ada bahan yang 'lembek' (simmer > 40)
+  if (isBoilingHell) {
+    let hasOvercooked = false
+    g.potSlots.forEach(comp => {
+      comp.forEach(item => {
+        if (item.simmer > 40 && !item.pactOvercookedMarked) {
+          item.pactOvercookedMarked = true
+          hasOvercooked = true
+        }
+      })
+    })
+    if (hasOvercooked) {
+      g.pacts.boilingOvercookedCount++
+      g.pacts.status = 'failed'
+      Audio.playHellBoilSizzle()
+      g.floats.push({
+        x: 160,
+        y: 60,
+        t: 0.01,
+        s: '🔥 KUALI NERAKA MELETUP! Bahan Terlalu Matang/Lembek!',
+        c: '#e74c3c'
+      })
+    }
+  }
+
+  // Pantau Kegagalan Sumpah Pelayanan Tanpa Nafas jika kombo reset
+  if (g.pacts?.activePact === 'silent_storm' && g.pacts?.status === 'active') {
+    if (g.pacts.firstServeDone && g.combo === 0 && !g.pacts.silentComboBroken) {
+      g.pacts.silentComboBroken = true
+      g.pacts.status = 'failed'
+      g.floats.push({
+        x: 160,
+        y: 60,
+        t: 0.01,
+        s: '💔 SUMPAH HANCUR! Rantai Kombo Terputus!',
+        c: '#9b59b6'
+      })
+    }
+  }
 
   // Gelembung Kuah
   g.bubbleTimer = (Number.isFinite(g.bubbleTimer) ? g.bubbleTimer : 0) + validDt
@@ -1962,7 +2044,8 @@ export function update(dt) {
         if (g.arashi?.active) {
           rushDecay = g.arashi.zenActive ? 0.45 : 1.25
         }
-        c.pat -= validDt * decayRate * rushDecay
+        const pactPatienceDrain = (g.pacts?.activePact === 'silent_storm' && g.pacts?.status === 'active') ? 1.4 : 1.0
+        c.pat -= validDt * decayRate * rushDecay * pactPatienceDrain
       }
       if (c.pat <= 0) {
         c.st = 'leave'
@@ -2133,4 +2216,35 @@ export function triggerReunionAction() {
     saveGame()
   }
   return ok
+}
+
+// --- FASE 9: SUMPAH SENJA & PERJANJIAN ROH KELAPARAN ---
+export function signPactAction(pactId) {
+  if (!G.pacts) G.pacts = createInitialPactState()
+  const res = signTwilightPact(G.pacts, pactId, G)
+  if (res.success) {
+    Audio.playTwilightGong()
+    saveGame()
+  }
+  return res
+}
+
+export function cancelPactAction() {
+  if (!G.pacts) return false
+  const ok = cancelTwilightPact(G.pacts, G)
+  if (ok) {
+    Audio.playSyndicateWhisper()
+    saveGame()
+  }
+  return ok
+}
+
+export function feedGakiAction(itemId) {
+  if (!G.pacts) return { success: false, msg: 'Sumpah tidak aktif' }
+  const res = feedGaki(G.pacts, itemId, G)
+  if (res.success) {
+    Audio.playDemonGulp()
+    saveGame()
+  }
+  return res
 }
