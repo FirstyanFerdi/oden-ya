@@ -653,3 +653,37 @@ Untuk memuaskan hasrat penjelajahan para kolektor dan menghadirkan siklus penant
 
 
 
+
+
+---
+
+## 10. Full-Project Audit & Deep System Debugging (Audit Menyeluruh & Penstabilan Sistem)
+
+### A. Ruang Lingkup Audit & Pemetaan Sistem
+Pemeriksaan end-to-end dilakukan terhadap seluruh 38 file script, dependensi modular, siklus rendering canvas, engine sintesis audio prosedural Web Audio API, serta loop simpan/muat data (`localStorage`).
+
+### B. Daftar Isu Kritis yang Ditemukan & Diperbaiki
+1. **Inkonsistensi Tipe Data `G.pop` & `G.storiesUnlocked`**:
+   - *Akar Masalah*: Pada inisialisasi awal atau migrasi file save lama, `pop` dapat terisi sebagai integer/angka (`1`), menyebabkan kegagalan fatal `TypeError: Cannot create property on number '1'` saat mengeksekusi `G.pop[i] = (G.pop[i] || 0) + 1`. Selain itu, `storiesUnlocked` yang tersimpan sebagai array akan kehilangan properti key-string saat di-serialize dengan `JSON.stringify()`.
+   - *Solusi*: Normalisasi di `newGame()` dan safe sanitization fallback di `loadSavedGame()` memastikan tipe data selalu berupa dictionary object `{}`.
+2. **Kehilangan Bahan Oden & Sate Secara Diam-diam (Inventory Destruction Bug)**:
+   - *Akar Masalah*: Pemain yang mengambil bahan dari panci ke piring (`takeFromPot`) atau sate bakar ke piring (`plateSate`), lalu menutup dialog pesanan (`closeOrder`) atau tamu pergi karena kehabisan kesabaran (`leaveShop`), mengalami penghapusan total bahan di `G.plate` tanpa dikembalikan ke stok inventaris (`G.stock` / `G.sateStock`).
+   - *Solusi*: Menambahkan loop pengembalian refund stok otomatis di `closeOrder()`, `leaveShop()`, dan `undoPlate()` sebelum array piring dikosongkan.
+3. **Bahan Abisal Tidak Muncul di Tombol Masak Panci Oden**:
+   - *Akar Masalah*: Saat hasil ekspedisi kapal selam diklaim di `claimExpeditionCatch()`, bahan hanya ditambahkan ke `g.stock` tanpa dipasangkan ke `g.owned`. Filter tombol di UI `App.jsx` mengabaikan bahan yang belum ada di `g.owned`.
+   - *Solusi*: Menambahkan `g.owned.push(itemId)` saat klaim panen, serta menyempurnakan filter di `App.jsx` agar memeriksa kepemilikan maupun stok positif (`g.owned.includes(aid) || (g.stock[aid] || 0) > 0`).
+4. **Race Condition & Spamming Taruhan Dadu Chou-Han**:
+   - *Akar Masalah*: Flag `speakeasyState.rolling` dinonaktifkan secara sinkron langsung pada frame yang sama dengan penekanan tombol, menyebabkan dialog animasi dealer terlewati dan memungkinkan spam klik taruhan berulang kali saat audio guncangan dadu masih berputar.
+   - *Solusi*: Mengaktifkan guard penolakan taruhan ganda saat dadu berguncang, menonaktifkan tombol di UI `App.jsx` saat `g.speakeasy?.rolling`, dan menyetel reset flag menggunakan `setTimeout(..., 450)`.
+5. **Potensi Kesalahan Pembagian dengan Nol (`NaN`) pada Kalkulasi Kepuasan Tamu**:
+   - *Akar Masalah*: Ekspresi `(m / c.order.length)` dan `(c.pat / c.max)` pada fungsi `serve()` dapat menghasilkan `NaN` apabila pesanan tamu kosong atau nilai `c.max` bernilai nol.
+   - *Solusi*: Ditambahkan fallback guard `orderLen = c.order?.length || 1` dan `maxPat = c.max || 100`, serta penanganan fallback harga bahan tak terdaftar `ITEMS.find(...)?.p || 100`.
+6. **Kebocoran Interval Pemutar Musik Kaset Web Audio API**:
+   - *Akar Masalah*: Pemanggilan `startCassetteMusic()` berulang kali tidak membersihkan `musicInterval` sebelumnya, menyebabkan tumpukan interval nada yang mengonsumsi memori dan mengacaukan tempo musik.
+   - *Solusi*: Ditambahkan pembersihan `clearInterval(musicInterval)` sebelum instans interval baru dibentuk.
+7. **Penyempurnaan 20 Selektor CSS yang Belum Terdefinisi di `src/styles.css`**:
+   - *Solusi*: Melengkapi definisi styling untuk komponen UI modal, kartu resep, arena pertandingan duel koki Yamada-ya, piala Grand Prix, dan panel bumbu pelengkap.
+
+### C. Hasil Uji Verifikasi Otomatis
+- **Vite Production Build**: Berhasil dikompilasi sempurna tanpa peringatan atau error (`67 modules transformed`, 0 error).
+- **Audit Test Suite (`test_audit_suite.mjs`)**: 7 skenario uji integrasi kritis lulus 100%.

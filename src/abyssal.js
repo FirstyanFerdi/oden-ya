@@ -261,8 +261,12 @@ export function claimExpeditionCatch(abyssalState, g) {
   const itemId = catchRes.itemId
   const qty = catchRes.quantity
 
-  // Masukkan bahan ke inventaris stok kedai
+  // Masukkan bahan ke inventaris stok kedai & buka di daftar owned
   g.stock[itemId] = (g.stock[itemId] || 0) + qty
+  g.owned = g.owned || []
+  if (!g.owned.includes(itemId)) {
+    g.owned.push(itemId)
+  }
 
   // Catat penemuan di arsip
   abyssalState.discoveredItems[itemId] = (abyssalState.discoveredItems[itemId] || 0) + qty

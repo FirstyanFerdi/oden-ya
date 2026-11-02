@@ -667,6 +667,10 @@ export function playBioluminescentHum() {
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return
+  if (musicInterval) {
+    clearInterval(musicInterval)
+    musicInterval = null
+  }
 
   // Genre 1: Rainy Night Jazz (Piano Akord Melankolis)
   const jazzChords = [

@@ -28,6 +28,9 @@ export function createInitialSpeakeasyState() {
 
 export function playChouHan(speakeasyState, g, choice, betAmount) {
   if (!speakeasyState) return { success: false, msg: 'State Speakeasy tidak valid.' }
+  if (speakeasyState.rolling) {
+    return { success: false, msg: 'Dadu sedang diguncang di bawah mangkuk bambu!' }
+  }
   if (choice !== 'chou' && choice !== 'han') {
     return { success: false, msg: 'Pilihlah Chou (Genap) atau Han (Ganjil)!' }
   }
@@ -127,7 +130,9 @@ export function playChouHan(speakeasyState, g, choice, betAmount) {
     })
   }
 
-  speakeasyState.rolling = false
+  setTimeout(() => {
+    speakeasyState.rolling = false
+  }, 450)
   speakeasyState.lastWinAmount = winAmount
   speakeasyState.lastOutcome = outcome
   speakeasyState.history.unshift({

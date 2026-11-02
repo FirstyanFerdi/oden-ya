@@ -703,7 +703,7 @@ export default function App() {
                     {!itemsInComp.length && <span className="empty-comp">Sekat ini kosong</span>}
                   </div>
                   <div className="restock-row">
-                    {comp.allowed.filter(aid => g.owned.includes(aid)).map(aid => (
+                    {comp.allowed.filter(aid => g.owned.includes(aid) || (g.stock[aid] || 0) > 0).map(aid => (
                       <button
                         key={aid}
                         className="btn micro-btn"
@@ -3274,7 +3274,7 @@ export default function App() {
                 <button
                   className="btn chou-btn"
                   onClick={() => Gm.playChouHanAction('chou', diceBet)}
-                  disabled={g.money < diceBet}
+                  disabled={g.money < diceBet || g.speakeasy?.rolling}
                 >
                   <span className="btn-main-text">🔴 CHOU (GENAP)</span>
                   <span className="btn-sub-text">Pengganda x2.0</span>
@@ -3282,7 +3282,7 @@ export default function App() {
                 <button
                   className="btn han-btn"
                   onClick={() => Gm.playChouHanAction('han', diceBet)}
-                  disabled={g.money < diceBet}
+                  disabled={g.money < diceBet || g.speakeasy?.rolling}
                 >
                   <span className="btn-main-text">🔵 HAN (GANJIL)</span>
                   <span className="btn-sub-text">Pengganda x2.0</span>
@@ -3314,9 +3314,9 @@ export default function App() {
       {/* MODAL EKSPEDISI KAPAL SELAM PALUNG LAUT SHINKAI 2000 */}
       {abyssalOpen && !g.demo && (
         <div className="modal-overlay" onClick={() => setAbyssalOpen(false)}>
-          <div className="modal abyssal-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header abyssal-header">
-              <h2>🌊 Ekspedisi Kapal Selam Palung Laut</h2>
+          <div className="abyssal-modal box" onClick={e => e.stopPropagation()}>
+            <div className="abyssal-header">
+              <div className="modal-title">🌊 Ekspedisi Kapal Selam Palung Laut</div>
               <span className="subtitle">Shinkai 2000 (深海2000) — Penyelaman Abisal & Bahan Legendaris Punah</span>
             </div>
 

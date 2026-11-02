@@ -338,6 +338,13 @@ function loadSavedGame() {
     if (!data.potSlots || !data.potSlots.length) data.potSlots = createInitialPot()
     if (!data.stock) data.stock = {daikon: 10, egg: 10, konnyaku: 10, chikuwa: 10, gyusuji: 0, kinchaku: 0, atsuage: 0, tako: 0}
     if (!data.marketPrices) data.marketPrices = generateMarketPrices()
+    data.pop = (typeof data.pop === 'object' && data.pop !== null && !Array.isArray(data.pop)) ? data.pop : {}
+    data.storiesUnlocked = (typeof data.storiesUnlocked === 'object' && data.storiesUnlocked !== null && !Array.isArray(data.storiesUnlocked)) ? data.storiesUnlocked : {}
+    data.charAffinity = (typeof data.charAffinity === 'object' && data.charAffinity !== null && !Array.isArray(data.charAffinity)) ? data.charAffinity : {}
+    data.owned = Array.isArray(data.owned) ? data.owned : ['daikon', 'egg', 'konnyaku', 'chikuwa']
+    data.ownedNorens = Array.isArray(data.ownedNorens) ? data.ownedNorens : ['merah']
+    data.ownedBowls = Array.isArray(data.ownedBowls) ? data.ownedBowls : ['tanah']
+    data.ownedOrnaments = Array.isArray(data.ownedOrnaments) ? data.ownedOrnaments : ['none']
     if (!data.cat) data.cat = {friendship: 0, fedToday: false, meowT: 0}
     if (!data.unlockedRecipes) data.unlockedRecipes = []
     if (!data.currentLocation) data.currentLocation = 'stasiun'
@@ -494,6 +501,18 @@ export const enter = () => {
 
 export const leaveShop = () => {
   Audio.resumeAudio()
+  if (G.plate && G.plate.length) {
+    G.plate.forEach(id => {
+      G.stock[id] = (G.stock[id] || 0) + 1
+    })
+  }
+  if (G.plateSate && G.plateSate.length) {
+    G.plateSate.forEach(s => {
+      if (s && s.id) {
+        G.sateStock[s.id] = (G.sateStock[s.id] || 0) + 1
+      }
+    })
+  }
   G.scene = 'out'
   G.cust = []
   G.zt = 0
@@ -501,6 +520,8 @@ export const leaveShop = () => {
   G.plate = []
   G.plateItemsSimmer = []
   G.plateCondiments = []
+  G.plateSate = []
+  saveGame()
 }
 
 // Mulai Hari Baru
@@ -1364,20 +1385,41 @@ export function openOrder(c) {
 }
 
 export const closeOrder = () => {
+  if (G.plate && G.plate.length) {
+    G.plate.forEach(id => {
+      G.stock[id] = (G.stock[id] || 0) + 1
+    })
+  }
+  if (G.plateSate && G.plateSate.length) {
+    G.plateSate.forEach(s => {
+      if (s && s.id) {
+        G.sateStock[s.id] = (G.sateStock[s.id] || 0) + 1
+      }
+    })
+  }
   G.target = null
   G.zt = 0
   G.plate = []
   G.plateItemsSimmer = []
   G.plateCondiments = []
   G.plateSate = []
+  saveGame()
 }
 
 export const undoPlate = () => {
-  if (G.plate.length) {
+  if (G.plate && G.plate.length) {
     const removedId = G.plate.pop()
     G.plateItemsSimmer.pop()
     G.stock[removedId] = (G.stock[removedId] || 0) + 1
     Audio.playPlopSound()
+    saveGame()
+  } else if (G.plateSate && G.plateSate.length) {
+    const s = G.plateSate.pop()
+    if (s && s.id) {
+      G.sateStock[s.id] = (G.sateStock[s.id] || 0) + 1
+      Audio.playPlopSound()
+      saveGame()
+    }
   }
 }
 
@@ -1456,13 +1498,15 @@ export function serve() {
     }
   }
 
-  const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus + (G.season?.bonusSat || 0)
+  const orderLen = c.order?.length || 1
+  const maxPat = c.max || 100
+  const baseSat = (m / orderLen) - (ex * 0.12) + (((c.pat || 0) / maxPat) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus + (G.season?.bonusSat || 0)
   const sat = Math.max(0, Math.min(1, baseSat * avgSimmerMult))
 
   // Pengali Lokasi
   const locData = LOCATIONS.find(l => l.id === G.currentLocation) || LOCATIONS[0]
   const basePrice = G.plate.reduce((a, i) => {
-    let p = ITEMS.find(x => x.id === i).p
+    let p = ITEMS.find(x => x.id === i)?.p || 100
     if (i === 'tako') p = Math.round(p * takoMult)
     if (i === 'gyusuji') p = Math.round(p * wagyuMult)
     return a + p
@@ -2136,7 +2180,7 @@ export function update(dt) {
   // Update Tamu
   g.cust.forEach(c => {
     c.w += validDt * 8
-    const sx = SX[c.seat], sp = 42 * validDt
+    const sx = (c.seat !== undefined && SX[c.seat] !== undefined) ? SX[c.seat] : (SX[0] || 90), sp = 42 * validDt
 
     if (c.st === 'walk') {
       if (Math.abs(c.x - sx) > 1 && c.y >= 139) {
