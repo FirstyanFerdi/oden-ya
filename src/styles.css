@@ -3440,8 +3440,290 @@ canvas {
 .badge-pill.unlocked { background: #1b4d3e; color: #a3e635; border: 1px solid #22c55e; }
 .badge-pill.locked { background: #232738; color: #718096; border: 1px solid #374151; }
 
+/* --- FASE 9 FITUR 3: POHON TAKDIR HANAFUDA & HOROSKOP EMA --- */
+.fate-hud-btn {
+  background: #142a1f;
+  border-color: #27ae60;
+  color: #2ecc71;
+  font-weight: bold;
+}
+.fate-btn {
+  background: #12241b;
+  border-color: #2ecc71;
+  color: #2ecc71;
+}
+.fate-btn:hover { background: #27ae60; color: #fff; }
+
+.fate-modal {
+  width: 95%;
+  max-width: 820px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #111e17;
+  border: 2px solid #27ae60;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fate-subtitle { font-size: 0.82em; color: #a8e6cf; margin: 0; line-height: 1.4; }
+
+.active-fate-card {
+  background: #162a20;
+  border: 2px solid #2ecc71;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+.fate-card-badge {
+  font-size: 0.7em;
+  background: #27ae60;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: bold;
+  align-self: flex-start;
+}
+.active-fate-content { display: flex; align-items: center; gap: 14px; }
+.fate-large-icon { font-size: 3em; }
+.fate-card-details h3 { margin: 0 0 4px 0; color: #ffd700; font-size: 1.1em; }
+.fate-tags { display: flex; gap: 6px; margin-bottom: 6px; }
+.fate-tag { background: #0c1812; border: 1px solid #2ecc71; font-size: 0.72em; padding: 2px 6px; color: #a8e6cf; border-radius: 2px; }
+.fate-blessing { font-style: italic; color: #ced6e0; font-size: 0.8em; margin: 0 0 6px 0; }
+.fate-perks-box { background: #0a140f; border-left: 3px solid #ffd700; padding: 6px 10px; font-size: 0.82em; color: #f5f6fa; }
+
+.fate-card-actions { display: flex; justify-content: flex-end; }
+.fate-reroll-btn { background: #2980b9; border-color: #3498db; color: #fff; font-size: 0.82em; padding: 6px 12px; }
+.fate-reroll-btn:hover { background: #3498db; }
+
+/* Ema Shrine Box */
+.ema-shrine-box {
+  background: #1d251d;
+  border: 2px solid #8e5d32;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ema-header h4 { margin: 0 0 2px 0; color: #ffd700; font-size: 0.95em; }
+.ema-subtitle { font-size: 0.76em; color: #d2b48c; }
+.ema-input-row { display: flex; gap: 8px; }
+.ema-input {
+  flex: 1;
+  background: #0f140f;
+  border: 1px solid #8e5d32;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 0.85em;
+}
+.hang-ema-btn { background: #b87333; border-color: #d48a4c; color: #fff; font-size: 0.82em; padding: 6px 12px; }
+.hang-ema-btn:hover { background: #d48a4c; }
+
+.ema-wishes-list { display: flex; flex-direction: column; gap: 4px; background: #131a13; padding: 6px 10px; border-radius: 2px; }
+.ema-item { font-size: 0.78em; color: #f1f2f6; }
+.ema-wood-icon { color: #f39c12; font-weight: bold; margin-right: 6px; }
+
+/* Hanafuda Grid */
+.hanafuda-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.hanafuda-card {
+  background: #16241c;
+  border: 2px solid #2d4534;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hanafuda-card.active { box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
+.hanafuda-card-header { display: flex; align-items: center; gap: 8px; }
+.hanafuda-icon { font-size: 1.6em; }
+.hanafuda-card-header h4 { margin: 0; font-size: 0.88em; color: #ffd700; }
+.hanafuda-sub { font-size: 0.68em; color: #a8e6cf; display: block; }
+.active-pill { margin-left: auto; background: #2ecc71; color: #000; font-size: 0.65em; font-weight: bold; padding: 2px 5px; border-radius: 2px; }
+.hanafuda-desc { font-size: 0.75em; color: #dfe6e9; margin: 0; line-height: 1.3; }
+.hanafuda-blessing { font-size: 0.7em; font-style: italic; color: #81ecec; }
+
+
+/* --- FASE 9 FITUR 4: ARENA PERJUDIAN GELAP CHOU-HAN SPEAKEASY --- */
+.speakeasy-hud-btn {
+  background: #340c17;
+  border-color: #c0392b;
+  color: #ff7675;
+  font-weight: bold;
+}
+.speakeasy-btn {
+  background: #2b0b14;
+  border-color: #e74c3c;
+  color: #ff7675;
+}
+.speakeasy-btn:hover { background: #c0392b; color: #fff; }
+
+.speakeasy-modal {
+  width: 95%;
+  max-width: 780px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #18090f;
+  border: 2px solid #c0392b;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.speakeasy-subtitle { font-size: 0.82em; color: #f8a5c2; margin: 0; line-height: 1.4; }
+
+/* Jackpot Banner */
+.jackpot-banner {
+  background: linear-gradient(90deg, #380a18, #5a1024, #380a18);
+  border: 2px solid #f1c40f;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.jackpot-info { display: flex; align-items: center; gap: 10px; }
+.jackpot-icon { font-size: 2.2em; }
+.jackpot-info h4 { margin: 0; color: #ffd700; font-size: 0.95em; letter-spacing: 1px; }
+.jackpot-info p { margin: 2px 0 0 0; font-size: 0.78em; color: #ffeaa7; }
+.scroll-badge {
+  font-size: 0.78em;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.scroll-badge.unlocked { background: #166534; color: #fef08a; border: 1px solid #22c55e; }
+.scroll-badge.locked { background: #3b141e; color: #88546b; border: 1px solid #571625; }
+
+/* Chou-Han Table */
+.chouhan-table {
+  background: #270f17;
+  border: 2px solid #782835;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dealer-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a080f;
+  padding: 8px 12px;
+  border-radius: 2px;
+  border-left: 3px solid #c0392b;
+}
+.dealer-avatar { font-size: 1.8em; }
+.dealer-dialogue { font-size: 0.85em; font-style: italic; color: #f5cd79; }
+
+/* Dice Display Area */
+.dice-display-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 0;
+}
+.bamboo-cup { font-size: 2.8em; }
+.dice-pair { display: flex; align-items: center; gap: 10px; }
+.dice-box {
+  width: 44px;
+  height: 44px;
+  background: #111;
+  border: 2px solid #e74c3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  box-shadow: inset 0 0 8px #ff4757;
+}
+.dice-num { font-size: 1.6em; font-weight: bold; color: #fff; }
+.plus, .equals { font-size: 1.3em; color: #e74c3c; font-weight: bold; }
+.dice-sum-box {
+  padding: 6px 12px;
+  border-radius: 3px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.dice-sum-box strong { font-size: 1.4em; }
+.dice-sum-box.chou { background: #380d15; border: 2px solid #e74c3c; color: #ff7675; }
+.dice-sum-box.han { background: #0c1b33; border: 2px solid #3498db; color: #74b9ff; }
+.result-type { font-size: 0.65em; font-weight: bold; }
+
+/* Bet Selector Row */
+.bet-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bet-label { font-size: 0.85em; color: #ced6e0; font-weight: bold; }
+.bet-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+.bet-btn {
+  background: #240c14;
+  border-color: #631b27;
+  color: #fff;
+  font-size: 0.8em;
+  padding: 5px 10px;
+}
+.bet-btn.active {
+  background: #c0392b;
+  border-color: #ffd700;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Chou-Han Action Buttons */
+.chouhan-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.chou-btn, .han-btn {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.chou-btn {
+  background: #8e1b29;
+  border: 2px solid #e74c3c;
+  color: #fff;
+}
+.chou-btn:hover:not(:disabled) { background: #c0392b; box-shadow: 0 0 10px #e74c3c; }
+.han-btn {
+  background: #1b4978;
+  border: 2px solid #3498db;
+  color: #fff;
+}
+.han-btn:hover:not(:disabled) { background: #2980b9; box-shadow: 0 0 10px #3498db; }
+.btn-main-text { font-size: 1.05em; }
+.btn-sub-text { font-size: 0.72em; opacity: 0.85; }
+
+/* Speakeasy Stats Row */
+.speakeasy-stats-row {
+  background: #15060b;
+  border: 1px solid #4a1520;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stat-pill { font-size: 0.82em; display: flex; gap: 6px; align-items: center; color: #dfe6e9; }
+
 @media (max-width: 720px) {
-  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid, .anomalies-grid {
+  .shop-grid, .stats-grid, .broth-selector-grid, .stock-market-grid, .decor-grid, .pot-compartments-grid, .recipe-grid, .grill-slots-grid, .auction-status-bar, .dashi-ingredients-grid, .tech-selection-grid, .heirlooms-grid, .greeting-btn-grid, .seasons-grid, .mastery-grid, .polaroid-grid, .dynasty-status-grid, .vats-grid, .factions-grid, .expedition-grid, .alchemy-sliders-grid, .syndicate-grid, .lifearc-grid, .pacts-grid, .anomalies-grid, .hanafuda-grid, .chouhan-action-buttons {
     grid-template-columns: 1fr;
   }
 }

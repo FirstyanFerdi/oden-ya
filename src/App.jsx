@@ -9,7 +9,8 @@ import {
   SEASONS, MARKET_HEADLINES, MIDNIGHT_GUESTS, MASTERY_SKILLS, POLAROID_ALBUM, calculateKaisekiScore,
   FERMENTATION_RECIPES, FACTION_INFO, FACTION_DILEMMAS, canPrestige, ZASHIKI_VIP_GUESTS,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
-  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS, STREET_ANOMALIES
+  SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion, TWILIGHT_PACTS, STREET_ANOMALIES,
+  HANAFUDA_CARDS, DICE_BET_LEVELS
 } from './game.js'
 import {CHARACTERS} from './characters.js'
 import {BROTHS, NORENS, BOWLS, ORNAMENTS} from './decorations.js'
@@ -61,6 +62,10 @@ export default function App() {
   const [lifeArcOpen, setLifeArcOpen] = useState(false)
   const [pactOpen, setPactOpen] = useState(false)
   const [anomalyOpen, setAnomalyOpen] = useState(false)
+  const [fateOpen, setFateOpen] = useState(false)
+  const [speakeasyOpen, setSpeakeasyOpen] = useState(false)
+  const [emaInput, setEmaInput] = useState('')
+  const [diceBet, setDiceBet] = useState(1000)
   const [customBrothNameInput, setCustomBrothNameInput] = useState('')
   const [chosenApprentice, setChosenApprentice] = useState('kenji')
   const [showRiddleHint, setShowRiddleHint] = useState(false)
@@ -152,6 +157,8 @@ export default function App() {
     setLifeArcOpen(false)
     setPactOpen(false)
     setAnomalyOpen(false)
+    setFateOpen(false)
+    setSpeakeasyOpen(false)
   }
 
   return (
@@ -295,6 +302,28 @@ export default function App() {
             title="Insiden Darurat & Peristiwa Acak Showa"
           >
             {g.anomalies.activeIncident ? `🚨 ${STREET_ANOMALIES[g.anomalies.activeIncident]?.name.split(' ')[0]}: ${Math.ceil(g.anomalies.incidentTimer)}s` : '🚨 Insiden'}
+          </button>
+        )}
+
+        {/* Indikator Pohon Takdir Musiman Hanafuda */}
+        {g.fate && (
+          <button
+            className="btn fate-hud-btn"
+            onClick={() => { closeAllModals(); setFateOpen(true) }}
+            title={`Pengubah Takdir Hari Ini: ${HANAFUDA_CARDS[g.fate.activeCard]?.name}`}
+          >
+            🎴 {HANAFUDA_CARDS[g.fate.activeCard]?.name.split(' ')[0]}
+          </button>
+        )}
+
+        {/* Pintu Chou-Han Speakeasy Dini Hari */}
+        {g.speakeasy && (g.hour >= 23 || g.hour <= 4) && (
+          <button
+            className="btn speakeasy-hud-btn"
+            onClick={() => { closeAllModals(); setSpeakeasyOpen(true) }}
+            title="Arena Perjudian Gelap Chou-Han Lorong Belakang"
+          >
+            🎲 Chou-Han {g.speakeasy.winStreak > 0 ? `(🔥x${g.speakeasy.winStreak})` : ''}
           </button>
         )}
 
@@ -455,6 +484,12 @@ export default function App() {
           </button>
           <button className="btn anomaly-btn" onClick={() => { closeAllModals(); setAnomalyOpen(true) }}>
             🚨 Insiden {g.anomalies?.activeIncident ? '(!)' : ''}
+          </button>
+          <button className="btn fate-btn" onClick={() => { closeAllModals(); setFateOpen(true) }}>
+            🎴 Takdir
+          </button>
+          <button className="btn speakeasy-btn" onClick={() => { closeAllModals(); setSpeakeasyOpen(true) }}>
+            🎲 Chou-Han {g.speakeasy?.unlockedImperialScroll ? '★' : ''}
           </button>
           <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
@@ -3028,6 +3063,230 @@ export default function App() {
             </div>
 
             <button className="btn close-btn" onClick={() => setAnomalyOpen(false)}>Tutup Warta Insiden</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pohon Takdir Musiman & Horoskop Bintang Showa */}
+      {fateOpen && !g.demo && (
+        <div className="modal-overlay" onClick={() => setFateOpen(false)}>
+          <div className="fate-modal box" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">🎴 Pohon Takdir Hanafuda & Horoskop Bintang Showa</div>
+            <p className="fate-subtitle">
+              Setiap fajar berganti, alam semesta dan dek 12 kartu Hanafuda memancarkan pengubah takdir yang mempengaruhi perilaku tamu, berkah cuaca, dan nilai sajian oden.
+            </p>
+
+            {/* KARTU TAKDIR AKTIF HARI INI */}
+            {g.fate && (
+              <div className="active-fate-card box" style={{borderColor: HANAFUDA_CARDS[g.fate.activeCard]?.badgeColor}}>
+                <div className="fate-card-badge">KARTU TAKDIR HARI INI (HARI KE-{g.day})</div>
+                <div className="active-fate-content">
+                  <div className="fate-large-icon">{HANAFUDA_CARDS[g.fate.activeCard]?.icon}</div>
+                  <div className="fate-card-details">
+                    <h3>{HANAFUDA_CARDS[g.fate.activeCard]?.name}</h3>
+                    <div className="fate-tags">
+                      <span className="fate-tag">{HANAFUDA_CARDS[g.fate.activeCard]?.month}</span>
+                      <span className="fate-tag">{HANAFUDA_CARDS[g.fate.activeCard]?.element}</span>
+                    </div>
+                    <p className="fate-blessing">"{HANAFUDA_CARDS[g.fate.activeCard]?.blessing}"</p>
+                    <div className="fate-perks-box">
+                      <strong>✨ Berkah Pengubah Takdir:</strong> {HANAFUDA_CARDS[g.fate.activeCard]?.desc}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="fate-card-actions">
+                  <button
+                    className="btn fate-reroll-btn"
+                    onClick={() => Gm.rerollFateAction()}
+                    title="Kocok ulang takdir hari ini dengan biaya ritual ¥1.500"
+                  >
+                    🎲 Kocok Ulang Takdir (¥1.500)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PAPAN GANTUNGAN DOA KAYU EMA */}
+            <div className="ema-shrine-box box">
+              <div className="ema-header">
+                <h4>🎋 Altar Gantungan Papan Ema Bintang Showa</h4>
+                <span className="ema-subtitle">Gantungkan permohonan doa koki untuk meraih ketentraman batin (Biaya Kayu Ema ¥2.000, Reputasi +15).</span>
+              </div>
+              <div className="ema-input-row">
+                <input
+                  type="text"
+                  placeholder="Tuliskan harapan/doa kedai Anda hari ini..."
+                  value={emaInput}
+                  onChange={e => setEmaInput(e.target.value)}
+                  maxLength={60}
+                  className="ema-input"
+                />
+                <button
+                  className="btn hang-ema-btn"
+                  onClick={() => {
+                    if (Gm.hangEmaAction(emaInput)) setEmaInput('')
+                  }}
+                >
+                  🎋 Gantung Ema (¥2.000)
+                </button>
+              </div>
+
+              {g.fate?.emaWishes?.length > 0 && (
+                <div className="ema-wishes-list">
+                  {g.fate.emaWishes.slice(-3).map((w, idx) => (
+                    <div key={idx} className="ema-item">
+                      <span className="ema-wood-icon">🎋 Hari {w.day}:</span>
+                      <span className="ema-text">"{w.text}"</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* DEK LENGKAP 6 KARTU TAKDIR HANAFUDA */}
+            <h4 className="section-title">🎴 Ensiklopedia 6 Kartu Terang Hanafuda Showa</h4>
+            <div className="hanafuda-grid">
+              {Object.keys(HANAFUDA_CARDS).map(k => {
+                const c = HANAFUDA_CARDS[k]
+                const isActive = g.fate?.activeCard === k
+                return (
+                  <div key={k} className={`hanafuda-card box ${isActive ? 'active' : ''}`} style={{borderColor: isActive ? c.badgeColor : '#34495e'}}>
+                    <div className="hanafuda-card-header">
+                      <span className="hanafuda-icon">{c.icon}</span>
+                      <div>
+                        <h4>{c.name}</h4>
+                        <span className="hanafuda-sub">{c.month} • {c.element}</span>
+                      </div>
+                      {isActive && <span className="active-pill">AKTIF</span>}
+                    </div>
+                    <p className="hanafuda-desc">{c.desc}</p>
+                    <span className="hanafuda-blessing">"{c.blessing}"</span>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button className="btn close-btn" onClick={() => setFateOpen(false)}>Tutup Altar Takdir</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Arena Perjudian Gelap Chou-Han Lorong Belakang */}
+      {speakeasyOpen && !g.demo && (
+        <div className="modal-overlay" onClick={() => setSpeakeasyOpen(false)}>
+          <div className="speakeasy-modal box" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">🎲 Arena Perjudian Gelap: "Chou-Han Lorong Belakang"</div>
+            <p className="speakeasy-subtitle">
+              Di balik pintu geser lorong gelap era Showa, bandar bertato mengocok 2 dadu arang dalam mangkuk bambu anyaman. Tebak CHOU (Genap) atau HAN (Ganjil).
+            </p>
+
+            {/* BRANKAS JACKPOT NAGA KEMBAR */}
+            <div className="jackpot-banner box">
+              <div className="jackpot-info">
+                <span className="jackpot-icon">🐉</span>
+                <div>
+                  <h4>BRANKAS JACKPOT NAGA KEMBAR</h4>
+                  <p>Dadu Kembar 1-1 ("Mata Ular Hitam") atau 6-6 ("Naga Emas"): Bawa pulang <strong>¥{g.speakeasy?.jackpotPool?.toLocaleString() || '25.000'}</strong> & Resep Dashi Kaisar!</p>
+                </div>
+              </div>
+              <div className="scroll-status">
+                <span className={`scroll-badge ${g.speakeasy?.unlockedImperialScroll ? 'unlocked' : 'locked'}`}>
+                  {g.speakeasy?.unlockedImperialScroll ? '📜 Gulungan Dashi Kaisar (+20% Kaldu Aktif)' : '🔒 Gulungan Rahasia Kaisar'}
+                </span>
+              </div>
+            </div>
+
+            {/* MEJA JUDI TATAMI CHOU-HAN */}
+            <div className="chouhan-table box">
+              <div className="dealer-area">
+                <div className="dealer-avatar">🎴🥋</div>
+                <div className="dealer-dialogue">
+                  {g.speakeasy?.rolling
+                    ? 'Bandar mengocok mangkuk bambu dengan ritme cepat... "SAAA, HARISEME! PASANG TARUHANMU!"'
+                    : g.speakeasy?.lastOutcome === 'jackpot'
+                    ? 'Bandar terpana membungkuk hormat! "NAGA KEMBAR KERAMAT! SEISI BRANKAS MILIKMU!"'
+                    : g.speakeasy?.lastOutcome === 'win'
+                    ? 'Bandar tersenyum tipis mendorong segepok uang. "Tebakan yang tajam, Koki."'
+                    : g.speakeasy?.lastOutcome === 'lose'
+                    ? 'Bandar menyapu keping koin ke dalam peti. "Meja milik rumah malam ini."'
+                    : '"Silakan pasang taruhanmu, Tuan Koki. Genap atau Ganjil?"'}
+                </div>
+              </div>
+
+              {/* DADU & MANGKUK BAMBU */}
+              <div className="dice-display-area">
+                <div className="bamboo-cup">🎋</div>
+                <div className="dice-pair">
+                  <div className="dice-box">
+                    <span className="dice-num">{g.speakeasy?.lastDice?.[0] || 1}</span>
+                  </div>
+                  <span className="plus">+</span>
+                  <div className="dice-box">
+                    <span className="dice-num">{g.speakeasy?.lastDice?.[1] || 2}</span>
+                  </div>
+                  <span className="equals">=</span>
+                  <div className={`dice-sum-box ${g.speakeasy?.lastResult}`}>
+                    <strong>{g.speakeasy?.lastSum || 3}</strong>
+                    <span className="result-type">{g.speakeasy?.lastResult === 'chou' ? 'CHOU (GENAP)' : 'HAN (GANJIL)'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* PENGATUR JUMLAH TARUHAN */}
+              <div className="bet-selector-row">
+                <span className="bet-label">Jumlah Taruhan:</span>
+                <div className="bet-buttons">
+                  {DICE_BET_LEVELS.map(lvl => (
+                    <button
+                      key={lvl}
+                      className={`btn bet-btn ${diceBet === lvl ? 'active' : ''}`}
+                      onClick={() => setDiceBet(lvl)}
+                    >
+                      ¥{lvl.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* TOMBOL TARUHAN CHOU ATAU HAN */}
+              <div className="chouhan-action-buttons">
+                <button
+                  className="btn chou-btn"
+                  onClick={() => Gm.playChouHanAction('chou', diceBet)}
+                  disabled={g.money < diceBet}
+                >
+                  <span className="btn-main-text">🔴 CHOU (GENAP)</span>
+                  <span className="btn-sub-text">Pengganda x2.0</span>
+                </button>
+                <button
+                  className="btn han-btn"
+                  onClick={() => Gm.playChouHanAction('han', diceBet)}
+                  disabled={g.money < diceBet}
+                >
+                  <span className="btn-main-text">🔵 HAN (GANJIL)</span>
+                  <span className="btn-sub-text">Pengganda x2.0</span>
+                </button>
+              </div>
+            </div>
+
+            {/* STATISTIK & HISTORI DADU */}
+            <div className="speakeasy-stats-row box">
+              <div className="stat-pill">
+                <span>Streak Menang:</span>
+                <strong style={{color: '#ffd700'}}>🔥 x{g.speakeasy?.winStreak || 0} (Rekor: x{g.speakeasy?.bestStreak || 0})</strong>
+              </div>
+              <div className="stat-pill">
+                <span>Total Menang:</span>
+                <strong style={{color: '#2ecc71'}}>¥{(g.speakeasy?.totalWon || 0).toLocaleString()}</strong>
+              </div>
+              <div className="stat-pill">
+                <span>Total Kalah:</span>
+                <strong style={{color: '#ff7675'}}>¥{(g.speakeasy?.totalLost || 0).toLocaleString()}</strong>
+              </div>
+            </div>
+
+            <button className="btn close-btn" onClick={() => setSpeakeasyOpen(false)}>Tinggalkan Meja Chou-Han</button>
           </div>
         </div>
       )}

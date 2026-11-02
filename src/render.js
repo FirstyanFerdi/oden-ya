@@ -250,6 +250,37 @@ export function draw(ctx) {
     }
   }
 
+  // Atmosfer Visual Pengubah Takdir Hanafuda (Fate Matrix Atmosphere)
+  if (G.fate?.activeCard) {
+    const cardId = G.fate.activeCard
+    if (cardId === 'sakura') {
+      // Kelopak Bunga Sakura Berguguran
+      for (let s = 0; s < 10; s++) {
+        const sx = ((G.t * 16 + s * 34) % (W + 20)) - 10
+        const sy = ((G.t * 22 + s * 24) % (H + 15)) - 5
+        R(sx, sy, 3, 2, s % 2 === 0 ? '#fd79a8' : '#ffb8b8')
+      }
+    } else if (cardId === 'momiji') {
+      // Dedaunan Maple Merah Keemasan Melayang
+      for (let m = 0; m < 10; m++) {
+        const mx = ((G.t * 18 + m * 33) % (W + 20)) - 10
+        const my = ((G.t * 26 + m * 25) % (H + 15)) - 5
+        R(mx, my, 3, 3, m % 2 === 0 ? '#e67e22' : '#d35400')
+      }
+    } else if (cardId === 'matsu') {
+      // Partikel Keberuntungan Emas Melayang
+      for (let g = 0; g < 8; g++) {
+        const gx = ((G.t * 12 + g * 42) % (W + 20)) - 10
+        const gy = ((G.t * 15 + g * 30) % (H + 15)) - 5
+        R(gx, gy, 2, 2, '#f1c40f')
+      }
+    } else if (cardId === 'tsuki' && G.scene === 'out') {
+      // Bulan Merah Darah Mistis di Langit Malam Luar
+      R(260, 18, 14, 14, '#c0392b')
+      glow(267, 25, 24, 0.45)
+    }
+  }
+
   // Atmosfer Kedai Tengah Malam (Shinya Shokudo Mode 02:00 - 05:00)
   if (G.midnightMode && G.scene === 'in') {
     ctx.fillStyle = 'rgba(24, 15, 38, 0.38)'
@@ -821,6 +852,18 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     R(35, 123, 6, 6, '#f0c8a0')
     R(33, 121, 9, 3, '#34495e')
     R(42, 133, 5, 8, '#d35400') // Gitar kayu
+  }
+
+  // Pintu Rahasia Lorong Belakang: Chou-Han Speakeasy
+  const isNight = G.hour >= 23 || G.hour <= 4
+  if (isNight) {
+    const spX = 12, spY = 104
+    R(spX, spY, 14, 22, '#15151b')
+    R(spX + 1, spY + 1, 12, 20, '#241a24')
+    // Simbol dadu merah tersembunyi
+    R(spX + 4, spY + 8, 6, 6, '#e74c3c')
+    R(spX + 6, spY + 10, 2, 2, '#ffffff')
+    glow(spX + 7, spY + 11, 12, 0.3)
   }
 
   // Gerobak Saingan Yamada-ya di Seberang Jalan

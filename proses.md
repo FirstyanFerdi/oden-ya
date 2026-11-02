@@ -536,6 +536,62 @@ Untuk memecahkan repetisi gameplay dan menghadirkan dinamika malam kota tua Show
 - **Ringkasan Hari (Day Summary)**: Banner hasil insiden darurat menampilkan rincian audit finansial dan reputasi yang diperoleh saat penutupan hari.
 - **Uji Coba & Verifikasi**: 6 unit test suites terverifikasi lulus 100% dan bundle produksi Vite sukses tanpa kendala.
 
+---
+
+## 14. Tahap 14: Fase 9 (Fitur 3 & 4) — Pohon Takdir Musiman Hanafuda & Arena Perjudian Gelap Chou-Han (The Celestial Ema & Midnight Speakeasy)
+
+### A. Latar Belakang & Desain Permainan
+Untuk melengkapi kedalaman simulasi dengan variabilitas harian (*daily run modifiers*) dan sensasi pertaruhan bawah tanah (*underground risk-and-reward*), Tahap 14 mengintegrasikan dua pilar mekanik baru:
+1. **Pohon Takdir Musiman & Horoskop Bintang Showa (*The Celestial Ema & Hanafuda Fate Matrix*)**: Setiap fajar baru, kartu cahaya Hanafuda legendaris ditarik secara otomatis untuk menentukan feng-shui dan pengubah ekonomi kedai sepanjang hari. Pemain juga dapat menggantung papan doa kayu Ema di pelataran kedai.
+2. **Arena Perjudian Gelap: "Chou-Han Lorong Belakang" (*The Midnight Speakeasy & Bakuto Dice Den*)**: Pada larut malam (pukul 23:00 - 05:00), pintu geser kayu tersembunyi dengan simbol dadu merah menyala di lorong samping kedai. Pemain dapat memasuki sarang judi dadu arang bambu tradisional Jepang era Showa untuk melipatgandakan modal kas dengan bertaruh pada Chou (Genap) atau Han (Ganjil), serta memburu Jackpot Naga Kembar.
+
+### B. Modul Logika Takdir Hanafuda (`src/fate.js`)
+- **6 Kartu Cahaya Legendaris (*Hikari Cards*)**:
+  1. 🌲🕊️ **Matsu ni Tsuru (Pinus & Bangau)**: *Keberuntungan Kaisar*. Anggaran belanja tamu bertambah $+60\%$ dan peluang tamu bangsawan Zashiki VIP melonjak $+50\%$.
+  2. 🌸🍶 **Sakura ni Maku (Bunga Sakura & Tirai Pesta)**: *Mabuk Musim Semi*. Tamu memesan sake $2\times$ lebih sering, kesabaran berkurang $50\%$ lebih lambat, dan tip pasangan sake (*pairing*) berlipat ganda ($+100\%$).
+  3. 🌕🌾 **Tsuki ni Susuki (Bulan Merah & Ilalang)**: *Gerhana Bulan Darah*. Seluruh bahan oden yang mencapai tingkat rebusan Emas (*Golden Simmer*) bernilai jual $+50\%$, dan fusi resep baru memberikan bonus tunai $+\yen 1.000$.
+  4. 🌧️🐸 **Ame ni Ono no Michikaze (Pujangga Hujan & Katak)**: *Malam Pujangga Hujan*. Dialog curhat tamu memberikan imbalan uang $3\times$ lipat ($+\yen 600$) dan peluang kedatangan kakek pengembara meningkat $+35\%$.
+  5. 🌼🏆 **Kiku ni Sakazuki (Krisan & Cawan Arak Emas)**: *Jamuan Panjang Umur*. Setiap piring dengan harmoni Kaiseki $\ge 80$ poin memberikan tambahan reputasi $+5$, serta pengali omset FEVER MODE melonjak menjadi $4.0\times$.
+  6. 🍁🦌 **Momiji ni Shika (Maple Musim Gugur & Rusa)**: *Angin Niaga Keemasan*. Diskon belanja bahan di pasar grosir pagi sebesar $35\%$ dan penjualan sate bakar Yakitori berlipat ganda ($2.0\times$).
+- **Mekanik Kocok Ulang Takdir (*Fate Reroll*)**: Pemain dapat membayar mahar $\yen 1.500$ untuk mengocok ulang kartu takdir harian jika menginginkan pengubah yang lebih selaras dengan strategi bisnisnya.
+- **Papan Doa Kayu Ema (*Celestial Ema Altar*)**: Pemain dapat menuliskan doa harapan di papan kayu Ema dengan biaya sumbangan $\yen 2.000$ untuk memperoleh reputasi instan $+15$ dan mengaktifkan restu bintang surgawi.
+
+### C. Modul Logika Arena Perjudian Chou-Han (`src/speakeasy.js`)
+- **Aturan Dadu Tradisional Bakuto**:
+  - Bandar bertato menaruh 2 dadu arang bambu di dalam mangkuk anyaman bambu (*Chawan*), mengocoknya dengan ritme khas, lalu menghentakkannya terbalik ke atas meja tatami.
+  - Pemain memilih tebakan: **Chou (Genap)** atau **Han (Ganjil)**.
+  - 5 Tingkatan Taruhan Fleksibel: $\yen 500$, $\yen 1.000$, $\yen 2.500$, $\yen 5.000$, dan $\yen 10.000$.
+  - Tebakan Benar: Menang imbalan $2.0\times$ nilai taruhan ($+100\%$ laba bersih) dan menaikkan rantai kemenangan (*Win Streak*).
+  - Tebakan Salah: Bandar menyapu uang taruhan di atas meja, rantai kemenangan reset ke 0, dan $25\%$ uang kekalahan dialirkan ke dalam brankas Jackpot Pool kumulatif.
+- **Jackpot Naga Kembar (*Double Dragon Jackpot*)**:
+  - Terjadi saat kedua dadu menunjukkan angka kembar sakral: **1-1 ("Mata Ular Hitam")** atau **6-6 ("Naga Emas")** (~$5.5\%$ probabilitas).
+  - Pemain memenangkan seluruh isi brankas jackpot kumulatif (minimal $+\yen 25.000$) ditambah $2\times$ taruhan dasar!
+  - Membuka secara permanen pusaka terlarang: **"Gulungan Resep Dashi Kaisar yang Hilang"** (*The Emperor's Lost Dashi Scroll*), yang memberikan buff permanen $+20\%$ pada seluruh harga jual kuah kaldu kedai!
+
+### D. Audio Synthesizer Prosedural Web Audio API Baru (`src/audio.js`)
+1. `playHanafudaSnap()`: Hantaman kartu Hanafuda berdensitas tebal pada permukaan tikar tatami.
+2. `playFateShine()`: Kilauan mistis resonansi frekuensi tinggi melambangkan restu bintang keberuntungan Showa.
+3. `playDiceShake()`: Gemeretak perputaran 2 dadu arang bambu di dalam ruang mangkuk anyaman bambu.
+4. `playCupSlam()`: Hantaman mantap mangkuk bambu terbalik ke atas meja kayu dengan redaman bantalan kain.
+5. `playDiceWin()`: Rangkaian nada kemenangan pentatonik ceria saat tebakan Chou-Han berhasil.
+6. `playDiceLose()`: Resonansi nada minor meluncur turun pertanda bandar menyapu koin taruhan.
+
+### E. Integrasi Efek Visual Canvas Retrostil (`src/render.js`)
+- **Partikel Atmosfer Takdir Hanafuda**:
+  - `cherry_petals`: Kelopak bunga sakura merah muda melayang berputar tertiup angin musim semi saat kartu *Sakura ni Maku* aktif.
+  - `maple_leaves`: Daun maple merah oranye gugur meliuk-liuk saat kartu *Momiji ni Shika* aktif.
+  - `gold_leaves` & `golden_sparkles`: Pendaran debu emas melayang ke udara saat kartu *Matsu ni Tsuru* atau *Kiku ni Sakazuki* aktif.
+  - `blood_moon`: Pendaran bulan purnama merah tua mistis saat kartu *Tsuki ni Susuki* aktif.
+- **Pintu Geser Rahasia Speakeasy**:
+  - Pada jam 23:00 hingga 04:59 subuh, pintu geser kayu misterius dengan simbol dadu merah menyala dan lampion lentera merah remang-remang muncul di dinding lorong samping kedai luar (`outside` scene).
+
+### F. Integrasi Antarmuka UI & Siklus Gameplay (`src/App.jsx`, `src/styles.css`, `src/game.js`)
+- **Top HUD & Navigasi**: Tombol HUD "🎴 Takdir" dan "🎲 Chou-Han" bersinar di bilah atas layar, serta tombol akses cepat di bilah navigasi bawah.
+- **Modal Interaktif Pohon Takdir**: Kartu Hanafuda aktif ditampilkan dengan bingkai artistik, deskripsi efek terapan, tombol kocok ulang takdir, altar persembahan Ema lengkap dengan input doa, serta ensiklopedia 6 kartu takdir.
+- **Modal Interaktif Chou-Han Speakeasy**: Meja tatami gelap dengan siluet bandar Bakuto, mangkuk kocok bambu animasi 3D, sepasang dadu arang bambu, 5 tombol tingkatan taruhan koin, tombol aksi Chou dan Han, papan brankas Jackpot Pool, serta rekaman histori 20 putaran terakhir.
+- **Uji Coba & Verifikasi**: 22 unit test suites diverifikasi lulus 100% dan bundle build produksi Vite sukses tanpa kendala.
+
+
 
 
 

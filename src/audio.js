@@ -564,6 +564,61 @@ export function playOtoshiButaWood() {
   setTimeout(() => playTone(75, 'sine', 0.18, 0.22, -35), 30)
 }
 
+// SFX FASE 9: Tebasan Kartu Hanafuda Kuno (Hanafuda Snap)
+export function playHanafudaSnap() {
+  if (!ctx || isMuted) return
+  playTone(520, 'square', 0.04, 0.25, -280)
+  setTimeout(() => playTone(240, 'triangle', 0.06, 0.2, -90), 20)
+}
+
+// SFX FASE 9: Pendar Kilau Takdir Langit (Celestial Fate Shine)
+export function playFateShine() {
+  if (!ctx || isMuted) return
+  const freqs = [440, 554.37, 659.25, 880, 1108.73] // Skala pentatonik cerah
+  freqs.forEach((f, idx) => {
+    setTimeout(() => {
+      playTone(f, 'sine', 0.8, 0.14, 5)
+    }, idx * 60)
+  })
+}
+
+// SFX FASE 9: Kocokan Dadu Mangkuk Bambu Chou-Han (Dice Shake)
+export function playDiceShake() {
+  if (!ctx || isMuted) return
+  for (let k = 0; k < 6; k++) {
+    setTimeout(() => {
+      playTone(280 + Math.random() * 160, 'square', 0.03, 0.15, -120)
+    }, k * 45)
+  }
+}
+
+// SFX FASE 9: Hantaman Mangkuk Bambu ke Meja Tatami (Cup Slam)
+export function playCupSlam() {
+  if (!ctx || isMuted) return
+  playTone(90, 'triangle', 0.18, 0.35, -50)
+  playTone(160, 'sawtooth', 0.08, 0.22, -90)
+  setTimeout(() => playTone(55, 'sine', 0.25, 0.3, -20), 40)
+}
+
+// SFX FASE 9: Gemerincing Kemenangan Dadu (Dice Win)
+export function playDiceWin() {
+  if (!ctx || isMuted) return
+  const winNotes = [523.25, 659.25, 783.99, 1046.50]
+  winNotes.forEach((f, idx) => {
+    setTimeout(() => {
+      playTone(f, 'triangle', 0.4, 0.2)
+      playTone(f * 2, 'sine', 0.3, 0.1)
+    }, idx * 70)
+  })
+}
+
+// SFX FASE 9: Sapuan Bandar Kalah Taruhan (Dice Lose)
+export function playDiceLose() {
+  if (!ctx || isMuted) return
+  playTone(180, 'sawtooth', 0.3, 0.2, -90)
+  setTimeout(() => playTone(110, 'sine', 0.4, 0.25, -45), 100)
+}
+
 // Musik Kaset Prosedural Beragam Genre
 function startCassetteMusic() {
   if (!ctx) return

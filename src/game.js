@@ -28,6 +28,8 @@ import {SYNDICATE_ITEMS, createInitialSyndicateState, buySyndicateRelic, hideCon
 import {LIFE_MILESTONES, createInitialLifeArcState, advanceCharacterArc, canTriggerReunion, triggerGrandReunion} from './lifearc.js'
 import {TWILIGHT_PACTS, createInitialPactState, signTwilightPact, cancelTwilightPact, feedGaki, updatePactLoop, resolveDayEndPact} from './pacts.js'
 import {STREET_ANOMALIES, createInitialAnomalyState, triggerRandomIncident, updateIncidentLoop, onIncidentServe, toggleOtoshiButa, lightEmergencyCandle, resolveIncident} from './anomalies.js'
+import {HANAFUDA_CARDS, createInitialFateState, drawDailyFateCard, rerollFateCard, hangCelestialEma, getActiveFateCard} from './fate.js'
+import {DICE_BET_LEVELS, createInitialSpeakeasyState, playChouHan} from './speakeasy.js'
 import * as Audio from './audio.js'
 
 export {
@@ -39,7 +41,7 @@ export {
   adjustDashiRatio, submitDashiTasting, addPlatingItem, clickGrandPrixStir,
   SOUL_ARCHETYPES, getSoulPerks, TRAIN_ROUTES, getCurrentRouteInfo,
   SYNDICATE_ITEMS, LIFE_MILESTONES, canTriggerReunion,
-  TWILIGHT_PACTS, STREET_ANOMALIES
+  TWILIGHT_PACTS, STREET_ANOMALIES, HANAFUDA_CARDS, DICE_BET_LEVELS
 }
 
 export const W = 320, H = 180, PX = 60, PY = 62
@@ -265,7 +267,11 @@ export function newGame(demo = false) {
     // Fase 9: Sumpah Senja & Perjanjian Roh Kelaparan
     pacts: createInitialPactState(),
     // Fase 9: Insiden Darurat & Peristiwa Acak Tak Terduga
-    anomalies: createInitialAnomalyState()
+    anomalies: createInitialAnomalyState(),
+    // Fase 9: Pohon Takdir Musiman & Horoskop Bintang Showa
+    fate: createInitialFateState(),
+    // Fase 9: Arena Perjudian Gelap Chou-Han Lorong Belakang
+    speakeasy: createInitialSpeakeasyState()
   }
 }
 
@@ -373,6 +379,8 @@ function loadSavedGame() {
     data.lifeArc = data.lifeArc || createInitialLifeArcState()
     data.pacts = data.pacts || createInitialPactState()
     data.anomalies = data.anomalies || createInitialAnomalyState()
+    data.fate = data.fate || createInitialFateState()
+    data.speakeasy = data.speakeasy || createInitialSpeakeasyState()
     return data
   } catch (e) {
     return null
@@ -440,7 +448,9 @@ export function saveGame() {
       syndicate: G.syndicate,
       lifeArc: G.lifeArc,
       pacts: G.pacts,
-      anomalies: G.anomalies
+      anomalies: G.anomalies,
+      fate: G.fate,
+      speakeasy: G.speakeasy
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave))
   } catch (e) {}
@@ -507,6 +517,10 @@ export const startNewDay = () => {
   G.season = getSeasonForDay(G.day)
   G.marketNews = generateDailyMarketNews(G.day)
   G.marketPrices = generateMarketPrices(G.day)
+
+  // Kocok Kartu Takdir Hanafuda Harian (The Celestial Ema)
+  if (!G.fate) G.fate = createInitialFateState()
+  drawDailyFateCard(G.fate, G)
 
   // Reset Status Fase 6
   G.midnightMode = false
@@ -666,6 +680,7 @@ export function buyStock(itemId, quantity = 5) {
   const pricePerUnit = G.marketPrices[itemId] || 40
   let discountMult = G.heirlooms?.includes('vintage_coin') ? 0.85 : 1.0
   if (G.soul?.archetype === 'tycoon') discountMult *= 0.75
+  if (G.fate?.activeCard === 'momiji') discountMult *= 0.65 // Diskon Takdir Niaga Maple 35%
   const totalCost = Math.round(pricePerUnit * quantity * discountMult)
   if (G.money >= totalCost) {
     G.money -= totalCost
@@ -1420,6 +1435,10 @@ export function serve() {
   const kaisekiMultiplier = kaisekiScore >= 80 ? 1.25 : 1.0
   if (kaisekiScore >= 80) {
     G.floats.push({x: c.x, y: c.y - 65, t: 0, s: `🍱 Kaiseki ${kaisekiScore} Pts! (+25% Nilai)`, c: '#ffd700'})
+    if (G.fate?.activeCard === 'kiku') {
+      G.rep += 5
+      G.floats.push({x: c.x, y: c.y - 85, t: 0, s: '🌼 Takdir Krisan: Reputasi +5!', c: '#f1c40f'})
+    }
   }
 
   const baseSat = (m / c.order.length) - (ex * 0.12) + ((c.pat / c.max) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus + (G.season?.bonusSat || 0)
@@ -1465,7 +1484,17 @@ export function serve() {
   // Pusaka Terkutuk Sindikat: Pisau Masamune
   const masamuneMultiplier = G.syndicate?.ownedRelics?.includes('masamune_blade') ? 1.5 : 1.0
 
-  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier * dynastyMultiplier * routePriceMult * alchemyMultiplier * masamuneMultiplier)
+  // Pusaka Gulungan Dashi Kaisar Speakeasy Chou-Han (+20% Buff Harga Kaldu)
+  const imperialScrollMult = G.speakeasy?.unlockedImperialScroll ? 1.2 : 1.0
+
+  // Pengubah Takdir Hanafuda: Matsu ni Tsuru (+60% Anggaran Belanja Tamu)
+  const matsuBudgetMult = G.fate?.activeCard === 'matsu' ? 1.6 : 1.0
+
+  // Pengubah Takdir Hanafuda: Tsuki ni Susuki (+50% Rebusan Emas)
+  const hasGoldenSimmer = G.plateItemsSimmer?.some(s => s.state === 'emas')
+  const tsukiGoldenMult = (G.fate?.activeCard === 'tsuki' && hasGoldenSimmer) ? 1.5 : 1.0
+
+  let gain = Math.round(totalPrice * (0.6 + 0.6 * sat) * (1 + 0.1 * G.pot) * manekiBonus * feverMultiplier * michelinMultiplier * vatPriceMult * catharsisMultiplier * sanitationMultiplier * winterMultiplier * kaisekiMultiplier * dynastyMultiplier * routePriceMult * alchemyMultiplier * masamuneMultiplier * imperialScrollMult * matsuBudgetMult * tsukiGoldenMult)
   let tip = sat > 0.85 ? Math.round(gain * 0.25 * locData.tipMultiplier * routeTipMult) : 0
 
   // Efek Arashi Rush Hour (Tip Multiplier x3.5)
@@ -1487,7 +1516,12 @@ export function serve() {
   if (c.servedSake) {
     const pairRes = evaluateSakePairing(G.plate, c.servedSake)
     if (pairRes.match) {
-      tip = Math.round(tip * pairRes.tipMultiplier)
+      let sakeTipMult = pairRes.tipMultiplier
+      // Pengubah Takdir Hanafuda: Sakura ni Maku (Tip Pairing Berlipat Ganda)
+      if (G.fate?.activeCard === 'sakura') {
+        sakeTipMult *= 2.0
+      }
+      tip = Math.round(tip * sakeTipMult)
       Audio.playEuphoriaChime()
       G.floats.push({x: c.x, y: c.y - 80, t: 0, s: `✨ GOURMET EUPHORIA! ${pairRes.note}`, c: '#ffd700'})
     }
@@ -1637,7 +1671,11 @@ export function serve() {
         chosen: null
       }
       G.storiesUnlocked[c.charId] = (G.storiesUnlocked[c.charId] || 0) + 1
-      const storyMoney = G.heirlooms.includes('poet_pen') ? 200 : 0
+      let storyMoney = G.heirlooms.includes('poet_pen') ? 200 : 0
+      if (G.fate?.activeCard === 'ame') {
+        storyMoney += 600
+        G.floats.push({x: c.x, y: c.y - 85, t: 0, s: '🌧️ Kisah Pujangga Hujan: +¥600!', c: '#3498db'})
+      }
       G.money += storyMoney
       G.rep += 3
       if (storyMoney > 0) {
@@ -2314,4 +2352,34 @@ export function lightCandleAction() {
   const ok = lightEmergencyCandle(G.anomalies, G)
   saveGame()
   return ok
+}
+
+// --- FASE 9: POHON TAKDIR MUSIMAN & HOROSKOP BINTANG SHOWA ---
+export function rerollFateAction() {
+  if (!G.fate) G.fate = createInitialFateState()
+  const res = rerollFateCard(G.fate, G)
+  saveGame()
+  return res
+}
+
+export function hangEmaAction(text) {
+  if (!G.fate) G.fate = createInitialFateState()
+  const ok = hangCelestialEma(G.fate, G, text)
+  saveGame()
+  return ok
+}
+
+export function drawFateAction(forcedId = null) {
+  if (!G.fate) G.fate = createInitialFateState()
+  const card = drawDailyFateCard(G.fate, G, forcedId)
+  saveGame()
+  return card
+}
+
+// --- FASE 9: ARENA PERJUDIAN GELAP CHOU-HAN LORONG BELAKANG ---
+export function playChouHanAction(choice, bet) {
+  if (!G.speakeasy) G.speakeasy = createInitialSpeakeasyState()
+  const res = playChouHan(G.speakeasy, G, choice, bet)
+  saveGame()
+  return res
 }

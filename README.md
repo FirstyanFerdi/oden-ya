@@ -296,11 +296,33 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
   - **Hujan Abu Vulkanik Gunung Fuji (`volcanic_ashfall`)**: Serpihan abu keperakan melayang turun dari langit. Koki harus memasang penutup kayu kuali (*Otoshi-buta*) saat hembusan abu menebal agar kaldu tidak tercemar kotoran busa, sambil membuka-tutup kuali di sela melayani tamu demi mineral kaldu aromatik (+¥9.000 & reputasi +20).
 - Dilengkapi bar peringatan darurat HUD waktu nyata dengan timer hitung mundur, tombol aksi tanggap darurat (Lilin Darurat & Tutup Otoshi-buta), efek visual sorotan neon, kegelapan blackout, kilat blitz 35mm, serta 7 audio synthesizer prosedural (klakson truk, ledakan trafo, dengung mati lampu, rol kamera 35mm, clapperboard, gemuruh vulkanik, dan hantaman tutup kayu kuali).
 
+### 45. 🎴 Pohon Takdir Musiman & Horoskop Bintang Showa (The Celestial Ema & Hanafuda Fate Matrix)
+- Modifikator perjalanan harian (*daily run modifiers*) yang ditarik secara otomatis setiap fajar baru melalui 6 Kartu Cahaya Hanafuda (*Hikari Cards*):
+  - 🌲🕊️ **Matsu ni Tsuru (Pinus & Bangau)**: Tamu membawa anggaran belanja +60% lebih tinggi dan peluang tamu Zashiki VIP melonjak +50%.
+  - 🌸🍶 **Sakura ni Maku (Bunga Sakura & Tirai Pesta)**: Pesanan sake 2x lebih sering, kesabaran berkurang 50% lebih lambat, dan tip pasangan sake (*pairing*) berlipat ganda (+100%).
+  - 🌕🌾 **Tsuki ni Susuki (Bulan Merah & Ilalang)**: Seluruh rebusan oden tingkat Emas (*Golden Simmer*) bernilai jual +50% dan fusi resep baru berhadiah bonus ¥1.000.
+  - 🌧️🐸 **Ame ni Ono no Michikaze (Pujangga Hujan & Katak)**: Hadiah uang cerita curhat tamu 3x lipat (+¥600) dan peluang kakek pengembara naik +35%.
+  - 🌼🏆 **Kiku ni Sakazuki (Krisan & Cawan Arak Emas)**: Piring harmoni Kaiseki ≥80 poin memberi bonus reputasi +5 dan FEVER MODE melipatgandakan omset x4.0.
+  - 🍁🦌 **Momiji ni Shika (Maple Musim Gugur & Rusa)**: Diskon belanja pasar grosir pagi 35% dan penjualan sate bakar Yakitori berlipat ganda (x2.0).
+- **Kocok Ulang Takdir & Papan Doa Kayu Ema**:
+  - Bayar ritual ¥1.500 untuk mengocok ulang kartu takdir harian jika menginginkan sinergi bisnis yang berbeda.
+  - Gantungkan doa kayu Ema di pelataran altar kedai (¥2.000) untuk memohon restu spiritual dan meningkatkan reputasi kedai sebesar +15 secara instan.
+- Dilengkapi efek atmosfer visual kanvas (kelopak sakura berputar, daun maple merah berjatuhan, pendaran emas pinus, dan bulan merah darah) serta audio synthesizer hantaman kartu Hanafuda tatami dan dengung kilau takdir.
+
+### 46. 🎲 Arena Perjudian Gelap: "Chou-Han Lorong Belakang" (The Midnight Speakeasy & Bakuto Dice Den)
+- Pintu geser kayu rahasia dengan simbol dadu merah menyala muncul di lorong samping kedai pada tengah malam (pukul 23:00 - 05:00 subuh):
+  - **Permainan Dadu Tradisional Bakuto**: Bandar mengocok 2 dadu arang bambu dalam mangkuk anyaman bambu terbalik. Tebak **Chou (Genap)** atau **Han (Ganjil)** dengan 5 tingkatan taruhan: ¥500, ¥1.000, ¥2.500, ¥5.000, hingga ¥10.000.
+  - **Pengali Kemenangan 2.0x**: Tebakan tepat menghasilkan 2.0x nilai taruhan (+100% laba bersih) dan menaikkan rantai kemenangan (*Win Streak*).
+  - **Brankas Jackpot Kumulatif**: Setiap kekalahan pemain menyisihkan 25% uang taruhan ke dalam brankas jackpot pool (minimal ¥25.000).
+  - **Jackpot Naga Kembar (*Double Dragon*)**: Jika kedua dadu menunjukkan angka kembar sakral **1-1 ("Mata Ular Hitam")** atau **6-6 ("Naga Emas")**, pemain memenangkan seluruh isi brankas jackpot kumulatif dan membuka pusaka legendaris permanen: **"Gulungan Resep Dashi Kaisar yang Hilang"** (+20% harga jual seluruh kuah kaldu oden permanen!).
+- Dilengkapi efek audio synthesizer prosedural kocokan dadu arang bambu, hantaman mangkuk tatami, jingle kemenangan pentatonik, dan dengung kekalahan minor.
+
 ---
 
 ## 🎮 Cara Bermain
 
 1. **Persiapan Pagi/Sore**:
+   - Periksa kartu takdir harian aktif di bilah atas atau menu **🎴 Takdir**. Lakukan kocok ulang (¥1.500) atau gantung papan doa kayu Ema (¥2.000, +15 reputasi).
    - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
    - Buka menu **🔥 Sumpah Senja** untuk mengikat kontrak taruhan tinggi mistis sebelum membuka pelayanan sore.
    - Buka menu **🚨 Insiden** untuk memeriksa arsip peristiwa acak jalanan dan menguji kesiapan darurat koki.
@@ -324,16 +346,20 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
    - Jika tamu ingin diramal, klik **🎴 Ramalkan Nasib (Omikuji)**.
    - Klik **🍲 Sajikan ke Tamu!**.
    - Layani tamu berturut-turut untuk memicu **⚡ ARASHI RUSH x3.5** dan **🧘 ZEN FOCUS (Bullet-Time)**!
-5. **Turnamen Akbar & Duel**:
+5. **Aktivitas Malam & Subuh (23:00 - 05:00)**:
+   - Ketuk pintu rahasia bertanda dadu di lorong samping kedai atau klik tombol **🎲 Chou-Han** untuk bermain judi dadu arang bambu Showa, memenangkan 2.0x taruhan, dan memburu Jackpot Naga Kembar berhadiah ¥25.000 + Gulungan Dashi Kaisar (+20% harga kaldu).
+6. **Turnamen Akbar & Duel**:
    - Buka menu **🏆 Grand Prix** untuk menantang Master Ryuji dalam turnamen 3 babak knockout demi memperebutkan Piala Bergilir Kaisar.
    - Buka menu **🔥 Duel Yamada** untuk menantang gerobak saingan Yamada-ya demi memenangkan monopoli distrik 3 hari.
-6. **Ekspansi Dinasti**: Setelah mencapai Michelin 3-Star atau modal ¥60.000, buka menu **🏛️ Dinasti** untuk mengangkat murid kepala dan mendirikan Restoran Flagship Ginza.
-7. **Jam 02:00 Dini Hari**: Pilih **Tutup & Tidur** atau **Buka Shinya Shokudo** untuk melayani tamu teka-teki nokturnal hingga jam 05:00 subuh!
+7. **Ekspansi Dinasti**: Setelah mencapai Michelin 3-Star atau modal ¥60.000, buka menu **🏛️ Dinasti** untuk mengangkat murid kepala dan mendirikan Restoran Flagship Ginza.
+8. **Jam 02:00 Dini Hari**: Pilih **Tutup & Tidur** atau **Buka Shinya Shokudo** untuk melayani tamu teka-teki nokturnal hingga jam 05:00 subuh!
 
 ---
 
 ## 📂 Struktur Berkas
 
+- [src/fate.js](src/fate.js) – Logika sistem Pohon Takdir Musiman & Horoskop Bintang Showa (The Celestial Ema & Hanafuda Fate Matrix), 6 kartu cahaya Hanafuda legendaris, pengubah atmosfer canvas, ritual kocok ulang takdir, dan altar papan doa kayu Ema.
+- [src/speakeasy.js](src/speakeasy.js) – Logika arena perjudian dadu arang bambu Chou-Han lorong belakang (The Midnight Speakeasy & Bakuto Dice Den), taruhan Chou/Han 2.0x, streak kemenangan, brankas akumulasi jackpot, dan pusaka Gulungan Resep Dashi Kaisar yang Hilang.
 - [src/anomalies.js](src/anomalies.js) – Logika sistem Insiden Darurat & Peristiwa Acak Showa (The Midnight Anomalies & Sudden Street Dramas), 4 skenario darurat (Truk Dekotora, Blackout Audio Cooking, Kru Film 35mm, Hujan Abu Vulkanik & Otoshi-buta), dan gelar pencapaian darurat.
 - [src/pacts.js](src/pacts.js) – Logika sistem Sumpah Senja (The Twilight Pacts & Gaki's Gamble), 3 kontrak taruhan tinggi, manajemen Roh Gaki di kursi keramat, resolusi akhir hari, dan bumbu pusaka Shoyu 50 Tahun.
 - [src/soul.js](src/soul.js) – Mesin deteksi gaya bermain dan arketipe jiwa koki (Speed Artisan, Zen Perfectionist, Market Tycoon) beserta aura visual canvas.
@@ -361,12 +387,13 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/fortune.js](src/fortune.js) – Sistem ramalan nasib pelanggan Showa (Omikuji Daikichi, Chukichi, Kyo).
 - [src/recipes.js](src/recipes.js) – Daftar resep kombinasi rahasia (*Fusion Dex*), resep mahkota kekaisaran (*Imperial Golden Oden*), deteksi kecocokan piring, dan bonus harga.
 - [src/locations.js](src/locations.js) – Sistem 4 distrik peta kota (Stasiun, Meguro Sakura, Shinjuku Neon, Ginza Flagship) beserta pengali harga dan tip.
-- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, peluit kereta SL Ginga, suara lumpang alu kaldu, bisikan mistis sindikat, denting lonceng reuni, gong mistis senja, tegukan roh gaki, desisan kuali neraka, jingle kemenangan sumpah, klakson truk Dekotora, ledakan trafo, dengung blackout, kamera 35mm, clapperboard, gemuruh vulkanik, dan tutup kayu Otoshi-buta.
+- [src/audio.js](src/audio.js) – Mesin synthesizer Web Audio API dengan 4 genre kaset radio, jingle FEVER MODE, kombo berjenjang, peluit kereta SL Ginga, suara lumpang alu kaldu, bisikan mistis sindikat, denting lonceng reuni, gong mistis senja, tegukan roh gaki, desisan kuali neraka, jingle kemenangan sumpah, klakson truk Dekotora, ledakan trafo, dengung blackout, kamera 35mm, clapperboard, gemuruh vulkanik, tutup kayu Otoshi-buta, hantaman kartu Hanafuda tatami, kilau takdir surgawi, kocokan dadu arang bambu, hantaman mangkuk bambu, dan jingle menang-kalah Chou-Han.
 - [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Tamu Bangsawan Zashiki (Menteri Kato, Sutradara Otomo, Taipan Tanaka), Inspektur Michelin, dan Inspektur Sanitasi.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
-- [src/game.js](src/game.js) – Logika inti: peristiwa insiden darurat jalanan, sumpah senja & perjanjian roh gaki, panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180: sorotan neon Dekotora, kegelapan total blackout dengan pendar lilin hangat, kilatan blitz kamera 35mm, hujan abu vulkanik, penutup kayu kuali Otoshi-buta, efek bara kuali neraka, vignette petir ungu, roh Gaki melayang di kursi 1, siluet senja jam 17:00, partikel musim, aura jiwa koki, atmosfer provinsi kereta SL Ginga, sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan bar peringatan darurat waktu nyata, modal Warta Insiden Darurat Showa, modal Sumpah Senja & Roh Gaki, Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, bar peringatan darurat merah berdenyut, kartu insiden distrik Showa, kartu sumpah senja mistis, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
-- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 13.
+- [src/game.js](src/game.js) – Logika inti: kartu takdir hanafuda & doa kayu ema, judi dadu chou-han lorong belakang, peristiwa insiden darurat jalanan, sumpah senja & perjanjian roh gaki, panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180: partikel atmosfer Hanafuda (sakura, maple, kilau emas, blood moon), pintu geser rahasia Chou-Han bernyala lampion dadu merah, sorotan neon Dekotora, kegelapan blackout dengan pendar lilin hangat, kilatan blitz kamera 35mm, hujan abu vulkanik, penutup kayu kuali Otoshi-buta, efek bara kuali neraka, vignette petir ungu, roh Gaki melayang di kursi 1, siluet senja jam 17:00, partikel musim, aura jiwa koki, atmosfer provinsi kereta SL Ginga, sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan modal Pohon Takdir Hanafuda & Altar Ema, modal Arena Judi Dadu Chou-Han Bakuto, bar peringatan darurat waktu nyata, modal Warta Insiden Darurat Showa, modal Sumpah Senja & Roh Gaki, Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, meja judi Chou-Han tatami, dadu arang bambu 3D, kartu Hanafuda berbingkai emas, altar kayu Ema, bar peringatan darurat merah berdenyut, kartu insiden distrik Showa, kartu sumpah senja mistis, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
+- [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 14.
+
 
