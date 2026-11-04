@@ -687,3 +687,32 @@ Pemeriksaan end-to-end dilakukan terhadap seluruh 38 file script, dependensi mod
 ### C. Hasil Uji Verifikasi Otomatis
 - **Vite Production Build**: Berhasil dikompilasi sempurna tanpa peringatan atau error (`67 modules transformed`, 0 error).
 - **Audit Test Suite (`test_audit_suite.mjs`)**: 7 skenario uji integrasi kritis lulus 100%.
+
+
+---
+
+## 11. Redesain Antarmuka Menu: Top HUD Ringkas, Quick-Bar & Sidebar Drawer Showa
+
+### A. Latar Belakang & Masalah Tampilan
+Seiring penambahan fitur dari Fase 1 hingga Fase 9 (mencapai 31 modul fitur interaktif), penempatan tombol secara langsung pada layar menghasilkan:
+- **Top HUD Bertumpuk**: Lebih dari 20 chip/tombol membungkus menjadi 2 baris yang menutupi bagian atas layar.
+- **Bottom Navigation Penuh Sesak**: Sebanyak 29 tombol membungkus menjadi 4 baris tebal yang menutupi separuh bawah kanvas grafis retro kedai oden.
+
+### B. Solusi Arsitektur UI Baru
+1. **Top HUD Status Bar (1 Baris Bersih & Terorganisir)**:
+   - *Sisi Kiri*: Metrik utama (Kas $\yen$, Waktu & Hari, Cuaca/Festival, Lokasi Distrik, Kaldu Aktif).
+   - *Sisi Tengah*: Tombol aksi darurat dan status yang hanya muncul saat sedang aktif (Lilin Pemadaman, Kencangkan Terpal, Arang Salju, Bento Telepon Masuk, Fever Mode, Zen Focus, Arashi Rush).
+   - *Sisi Kanan*: Reputasi bintang kedai, tombol bisu/nyala audio, dan tombol utama `[ ☰ MENU KEDAI ]` beraksen neon emas dengan indikator titik berkedip `(!)` jika ada alert yang membutuhkan perhatian.
+2. **Bottom Quick-Bar (1 Baris Ringkas Akses Pokok)**:
+   - Menyederhanakan 29 tombol menjadi 7 tombol esensial aktivitas kedai: `🚪 Keluar`, `🛒 Pasar`, `📖 Resep`, `🍢 Sate`, `🍲 Kuali Master`, `🏪 Toko & Staf`, `🐱 Kuro`, serta tombol pintas `☰ Manajemen & Fitur (30+)`.
+3. **Sidebar Drawer Manajemen Kedai (`SidebarDrawer`)**:
+   - Ditambahkan laci navigasi samping (*slide-over drawer*) retro yang meluncur halus dari sisi kanan layar saat tombol menu ditekan atau melalui pintasan keyboard `M` / `Escape`.
+   - Mengelompokkan seluruh 30+ fitur ke dalam 5 Tab Kategori Tematik:
+     - 🍲 **Dapur & Masak**: Kuali Master, Pisau Koki, Panggangan Sate, Kaldu Kustom, Gudang Fermentasi, Buku Resep.
+     - 🏪 **Pasar & Usaha**: Pasar Tradisional, Lelang Tsukiji, Toko & Staf, Dekorasi Kedai, Peta Lokasi, Bento Antar, Pusaka Leluhur.
+     - 🏆 **Duel & Musim**: Duel Yamada-ya, Grand Prix Showa, Restoran Dinasti, Siklus 4 Musim, Faksi Distrik, Kereta SL Ginga.
+     - 🌙 **Lorong Malam**: Sindikat 03:30, Judi Chou-Han, Shinkai 2000, Sumpah Senja, Warta Insiden, Altar Takdir.
+     - 📜 **Arsip & Profil**: Jurnal Cerita, Jejak Reuni, Pohon Keahlian, Album Polaroid, Kucing Kuro, Kaset Radio.
+   - Setiap kartu menu dilengkapi ikon, nama, status dinamis (misal: "Deep Dive 2h", "Paten Aktif", "Bento Masuk!"), dan lencana notifikasi `(!)` / `★`.
+4. **Tab Mengambang Sisi Kanan (`Floating Tab`)**:
+   - Tab vertikal elegan `[ ☰ MENU KEDAI ]` di pinggir kanan layar canvas untuk membuka drawer kapan saja dengan 1 klik.

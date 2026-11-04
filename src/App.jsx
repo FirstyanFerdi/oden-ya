@@ -65,6 +65,8 @@ export default function App() {
   const [fateOpen, setFateOpen] = useState(false)
   const [speakeasyOpen, setSpeakeasyOpen] = useState(false)
   const [abyssalOpen, setAbyssalOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarTab, setSidebarTab] = useState('dapur') // 'dapur', 'bisnis', 'kompetisi', 'malam', 'arsip'
   const [emaInput, setEmaInput] = useState('')
   const [diceBet, setDiceBet] = useState(1000)
   const [customBrothNameInput, setCustomBrothNameInput] = useState('')
@@ -73,6 +75,19 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(Audio.getMuteState())
   const [shopTab, setShopTab] = useState('items') // 'items', 'eq', 'staff'
   const [sakePouring, setSakePouring] = useState(false)
+
+  useEffect(() => {
+    const onKey = e => {
+      if (e.key === 'Escape') {
+        closeAllModals()
+        setSidebarOpen(false)
+      } else if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) {
+        setSidebarOpen(s => !s)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   useEffect(() => {
     const ctx = cv.current.getContext('2d')
@@ -130,6 +145,7 @@ export default function App() {
   }[g.weather] || '🌧️ Hujan'
 
   const closeAllModals = () => {
+    setSidebarOpen(false)
     setShopOpen(false)
     setJournalOpen(false)
     setCatOpen(false)
@@ -163,212 +179,171 @@ export default function App() {
     setAbyssalOpen(false)
   }
 
+  const hasAnyAlert = !!(
+    g.activePhoneOrder ||
+    g.abyssal?.currentExpedition?.status === 'returned' ||
+    g.anomalies?.activeIncident ||
+    g.pacts?.activePact ||
+    g.syndicate?.raidAlert ||
+    g.factions?.activeDilemma ||
+    canPrestige(g) ||
+    (canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld)
+  )
+
+  const MENU_CATEGORIES = [
+    {
+      id: 'dapur',
+      label: 'Dapur & Masak',
+      icon: '🍲',
+      items: [
+        { id: 'dashi', name: 'Kuali Master', icon: '🍲', desc: `Biang Pusaka (${g.masterVat?.ageDays || 1} Hari)`, badge: null, action: () => setDashiOpen(true) },
+        { id: 'knife', name: 'Pisau Koki', icon: '🔪', desc: 'Presisi & Masterwork Bahan', badge: null, action: () => setKnifeOpen(true) },
+        { id: 'grill', name: 'Panggangan Sate', icon: '🍢', desc: `${g.grillSlots ? g.grillSlots.filter(s => s.id).length : 0}/3 Slot Dipanggang`, badge: null, action: () => setGrillOpen(true) },
+        { id: 'alchemy', name: 'Kaldu Kustom', icon: '⚗️', desc: g.alchemy?.patented ? `Paten: ${g.alchemy.brothName || 'Kaldu'}` : 'Eksperimen Rasa', badge: g.alchemy?.patented ? '★' : null, action: () => setAlchemyOpen(true) },
+        { id: 'cellar', name: 'Gudang Fermentasi', icon: '🍶', desc: 'Koshu Vintage 1975 & Dashi', badge: null, action: () => setCellarOpen(true) },
+        { id: 'recipe', name: 'Buku Resep Fusi', icon: '📖', desc: `${g.unlockedRecipes.length}/${FUSION_RECIPES.length} Resep Terbuka`, badge: null, action: () => setRecipeOpen(true) }
+      ]
+    },
+    {
+      id: 'bisnis',
+      label: 'Pasar & Usaha',
+      icon: '🏪',
+      items: [
+        { id: 'market', name: 'Pasar Tradisional', icon: '🛒', desc: 'Belanja Bahan Oden Harian', badge: null, action: () => setMarketOpen(true) },
+        { id: 'auction', name: 'Lelang Tsukiji', icon: '🐟', desc: 'Bahan Mewah S-Tier', badge: g.auctionSession ? 'LIVE' : null, action: () => { setAuctionOpen(true); if (!g.auctionSession) Gm.startAuction(); } },
+        { id: 'shop', name: 'Toko & Staf', icon: '🏪', desc: 'Asisten Kenji & Aoi', badge: null, action: () => setShopOpen(true) },
+        { id: 'decor', name: 'Dekorasi Kedai', icon: '🏮', desc: 'Noren, Mangkuk & Maskot', badge: null, action: () => setDecorOpen(true) },
+        { id: 'map', name: 'Peta Lokasi Kedai', icon: '🗺️', desc: `Lokasi: ${currentLocationData.name}`, badge: null, action: () => setMapOpen(true) },
+        { id: 'delivery', name: 'Bento Antar', icon: '☎️', desc: g.activePhoneOrder ? 'Pesanan Telepon Masuk!' : 'Layanan Antar Sepeda', badge: g.activePhoneOrder ? '(!)' : null, alert: !!g.activePhoneOrder, action: () => setDeliveryOpen(true) },
+        { id: 'heirloom', name: 'Pusaka Leluhur', icon: '🏺', desc: `${g.heirlooms ? g.heirlooms.length : 0}/4 Pusaka Aktif`, badge: null, action: () => setHeirloomOpen(true) }
+      ]
+    },
+    {
+      id: 'kompetisi',
+      label: 'Duel & Musim',
+      icon: '🏆',
+      items: [
+        { id: 'cookoff', name: 'Duel Yamada-ya', icon: '🔥', desc: 'Pertarungan Gerobak Seberang Jalan', badge: g.cookOffSession ? 'DUEL' : null, action: () => { setCookOffOpen(true); if (!g.cookOffSession) Gm.startCookOff(); } },
+        { id: 'grandprix', name: 'Grand Prix Showa', icon: '🏆', desc: g.grandPrixTrophy ? 'Juara Bertahan Kanto vs Kansai' : 'Turnamen Akbar 3 Ronde', badge: g.grandPrixTrophy ? '★' : null, action: () => { setGrandPrixOpen(true); if (!g.grandPrixSession) Gm.startGrandPrix(); } },
+        { id: 'dynasty', name: 'Restoran Dinasti', icon: '🏛️', desc: canPrestige(g) ? 'Siap Buka Flagship Ginza!' : 'Warisan Dinasti Showa', badge: canPrestige(g) ? '(!)' : null, alert: canPrestige(g), action: () => setDynastyOpen(true) },
+        { id: 'season', name: 'Siklus 4 Musim', icon: '🍂', desc: `Musim: ${g.season?.name || 'Musim'} (${g.season?.icon || '🌸'})`, badge: null, action: () => setSeasonOpen(true) },
+        { id: 'factions', name: 'Faksi Distrik', icon: '⚖️', desc: g.factions?.activeDilemma ? 'Dilema Konflik Distrik!' : 'Pengaruh Yakuza, Polisi & Sipil', badge: g.factions?.activeDilemma ? '(!)' : null, alert: !!g.factions?.activeDilemma, action: () => setFactionsOpen(true) },
+        { id: 'expedition', name: 'Kereta SL Ginga', icon: '🚂', desc: `Rute: ${getCurrentRouteInfo(g.expedition)?.name || 'Tokyo'}`, badge: null, action: () => setExpeditionOpen(true) }
+      ]
+    },
+    {
+      id: 'malam',
+      label: 'Lorong Malam',
+      icon: '🌙',
+      items: [
+        { id: 'syndicate', name: 'Sindikat 03:30', icon: '🐉', desc: g.syndicate?.raidAlert ? 'PERINGATAN RAZIA KOBAN!' : `Pasar Gelap (Heat: ${Math.floor(g.syndicate?.heatLevel || 0)}%)`, badge: g.syndicate?.raidAlert ? '(!)' : null, alert: !!g.syndicate?.raidAlert, action: () => setSyndicateOpen(true) },
+        { id: 'speakeasy', name: 'Judi Chou-Han', icon: '🎲', desc: g.speakeasy?.unlockedImperialScroll ? 'Gulungan Kaisar Aktif' : 'Taruhan Dadu Lorong Belakang', badge: g.speakeasy?.winStreak > 0 ? `Streak x${g.speakeasy.winStreak}` : null, action: () => setSpeakeasyOpen(true) },
+        { id: 'abyssal', name: 'Shinkai 2000', icon: '🌊', desc: g.abyssal?.currentExpedition?.status === 'returned' ? 'KAPAL BERLABUH (SIAP KLAIM)!' : g.abyssal?.currentExpedition?.status === 'diving' ? `Menyelam (${g.abyssal.currentExpedition.daysLeft} Hari)` : 'Kapal Selam Palung Laut', badge: g.abyssal?.currentExpedition?.status === 'returned' ? '(!)' : null, alert: g.abyssal?.currentExpedition?.status === 'returned', action: () => setAbyssalOpen(true) },
+        { id: 'pact', name: 'Sumpah Senja', icon: '🔥', desc: g.pacts?.activePact ? `Perjanjian: ${TWILIGHT_PACTS[g.pacts.activePact]?.name}` : 'Perjanjian Roh Kelaparan Gaki', badge: g.pacts?.activePact ? 'AKTIF' : null, action: () => setPactOpen(true) },
+        { id: 'anomaly', name: 'Warta Insiden', icon: '🚨', desc: g.anomalies?.activeIncident ? `Darurat: ${STREET_ANOMALIES[g.anomalies.activeIncident]?.name}` : 'Insiden Spontan Jalanan', badge: g.anomalies?.activeIncident ? '(!)' : null, alert: !!g.anomalies?.activeIncident, action: () => setAnomalyOpen(true) },
+        { id: 'fate', name: 'Altar Takdir', icon: '🎴', desc: `Kartu Hari Ini: ${HANAFUDA_CARDS[g.fate?.activeCard]?.name || 'Hanafuda'}`, badge: null, action: () => setFateOpen(true) }
+      ]
+    },
+    {
+      id: 'arsip',
+      label: 'Arsip & Kenangan',
+      icon: '📜',
+      items: [
+        { id: 'journal', name: 'Jurnal Cerita', icon: '📓', desc: 'Kisah Hati Pelanggan Berteduh', badge: null, action: () => setJournalOpen(true) },
+        { id: 'lifearc', name: 'Jejak Reuni', icon: '📖', desc: canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld ? 'REUNI AKBAR SIAP DIPICU!' : 'Arsip Kenangan Kehidupan Tamu', badge: canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld ? '(!)' : null, alert: canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld, action: () => setLifeArcOpen(true) },
+        { id: 'mastery', name: 'Pohon Keahlian', icon: '📜', desc: `${g.masteryPoints || 0} Poin Keahlian Tersedia`, badge: (g.masteryPoints > 0) ? `${g.masteryPoints} Pts` : null, action: () => setMasteryOpen(true) },
+        { id: 'polaroid', name: 'Album Polaroid', icon: '📷', desc: `${g.polaroids ? g.polaroids.length : 0} Koleksi Foto Kenangan Showa`, badge: null, action: () => setPolaroidOpen(true) },
+        { id: 'cat', name: 'Kucing Kuro', icon: '🐱', desc: g.cat.friendship > 0 ? `Kehangatan Persahabatan: ♥${g.cat.friendship}` : 'Kucing Liar Berteduh di Atap', badge: null, action: () => setCatOpen(true) },
+        { id: 'radio', name: 'Kaset Radio', icon: '📻', desc: `Genre Musik: ${g.cassette.toUpperCase()}`, badge: null, action: () => setRadioOpen(true) }
+      ]
+    }
+  ]
+
+  const activeCategory = MENU_CATEGORIES.find(c => c.id === sidebarTab) || MENU_CATEGORIES[0]
+
   return (
     <div className="stage" onClick={() => Audio.resumeAudio()}>
       <canvas ref={cv} width={W} height={H} onClick={onClickCanvas} />
 
-      {/* Top HUD */}
+      {/* Top HUD (Single Row Status Bar) */}
       <div className="hud">
-        <div className="box highlight">¥{g.money.toLocaleString()}</div>
-        <div className="box">
-          Hari {g.day} • {g.hour.toString().padStart(2, '0')}:{Math.floor(g.minute).toString().padStart(2, '0')}
+        <div className="hud-left">
+          <div className="box highlight">¥{g.money.toLocaleString()}</div>
+          <div className="box">
+            Hari {g.day} • {g.hour.toString().padStart(2, '0')}:{Math.floor(g.minute).toString().padStart(2, '0')}
+          </div>
+          <div className="box">{g.isFestival ? '🎆 Malam Festival!' : weatherLabel}</div>
+          <div className="box" title={`Lokasi Kedai: ${currentLocationData.name}`}>
+            {currentLocationData.icon} {currentLocationData.name.split(' ')[0]}
+          </div>
+          <div className="box" title={`Kaldu Aktif: ${currentBroth?.name}`}>
+            {currentBroth?.icon} {currentBroth?.name.split(' ')[0]}
+          </div>
         </div>
-        <div className="box">{g.isFestival ? '🎆 Malam Festival!' : weatherLabel}</div>
-        <div className="box" title={`Lokasi Kedai: ${currentLocationData.name}`}>
-          {currentLocationData.icon} {currentLocationData.name.split(' ')[0]}
+
+        {/* Center: Aksi Darurat & Status Khusus Waktu Nyata */}
+        <div className="hud-center">
+          {g.isBlackout && (
+            <button className="btn candle-btn" onClick={Gm.toggleCandle}>
+              {g.candleLit ? '🕯️ Tiup Lilin' : '🕯️ Nyalakan Lilin Meja'}
+            </button>
+          )}
+          {g.tarpLoose && (
+            <button className="btn tarp-btn" onClick={Gm.fixTarp}>
+              🛠️ Kencangkan Terpal!
+            </button>
+          )}
+          {g.weather === 'salju' && g.stoveHeat < 0.5 && (
+            <button className="btn stove-btn" onClick={Gm.stokeStove}>
+              🔥 Tambah Arang Kompor
+            </button>
+          )}
+          {g.activePhoneOrder && (
+            <button className="btn phone-hud-btn" onClick={() => { closeAllModals(); setDeliveryOpen(true) }}>
+              ☎️ Bento Masuk!
+            </button>
+          )}
+          {g.feverActive && (
+            <div className="box fever-badge">
+              ⚡ FEVER (3x)! {Math.ceil(g.feverTimer)}s
+            </div>
+          )}
+          {!g.feverActive && g.combo > 1 && (
+            <div className="box combo-badge">
+              🔥 COMBO x{g.combo}!
+            </div>
+          )}
+          {g.arashi?.zenActive && (
+            <div className="box zen-badge">
+              🧘 ZEN ({Math.ceil(g.arashi.zenTimer)}s)
+            </div>
+          )}
+          {g.arashi?.active && !g.arashi?.zenActive && (
+            <div className="box arashi-badge">
+              ⚡ ARASHI x3.5 ({Math.ceil(g.arashi.duration)}s)
+            </div>
+          )}
+          {g.michelinStars > 0 && (
+            <div className="box michelin-badge" title="Bintang Michelin">
+              🏆 {'★'.repeat(g.michelinStars)}
+            </div>
+          )}
         </div>
-        <div className="box" title={`Kaldu Aktif: ${currentBroth?.name}`}>
-          {currentBroth?.icon} {currentBroth?.name.split(' ')[0]}
+
+        {/* Right: Reputasi, Audio & Tombol Menu Sidebar */}
+        <div className="hud-right">
+          <div className="box rep-box">Reputasi ★{Math.floor(g.rep)}{next ? `/${next}` : ''} ({LV[lv]})</div>
+          <button className="btn sound-btn" onClick={toggleSound} title="Bisu / Nyalakan Suara">
+            {isMuted ? '🔇' : '🔊'}
+          </button>
+          <button
+            className={`btn hud-menu-btn ${hasAnyAlert ? 'has-alert' : ''}`}
+            onClick={() => setSidebarOpen(true)}
+            title="Buka Menu Manajemen Kedai & Seluruh Fitur (Tekan M)"
+          >
+            ☰ MENU KEDAI {hasAnyAlert && <span className="alert-dot-pulse">!</span>}
+          </button>
         </div>
-
-        {/* Bintang Michelin */}
-        {g.michelinStars > 0 && (
-          <div className="box michelin-badge" title="Sertifikasi Bintang Michelin">
-            🏆 Michelin {'★'.repeat(g.michelinStars)}
-          </div>
-        )}
-
-        {/* Sertifikat Higienis Sanitasi */}
-        {g.sanitationCertified && (
-          <div className="box sanitation-badge" title="Sertifikat Higienis Hokenjo Bintang 5: Bebas Pajak (+15%)">
-            📋 Higienis ★5
-          </div>
-        )}
-
-        {/* Musim 4 Rupa Showa */}
-        {g.season && (
-          <button className="btn season-hud-btn" onClick={() => { closeAllModals(); setSeasonOpen(true) }} title={`Musim: ${g.season.name}`}>
-            {g.season.icon} {g.season.name.split(' ')[0]}
-          </button>
-        )}
-
-        {/* Shinya Shokudo Active Badge */}
-        {g.midnightMode && (
-          <div className="box midnight-badge" title="Shinya Shokudo: Buka Khusus Tengah Malam (02:00 - 05:00)">
-            🏮 Shinya Shokudo ({g.hour}:00)
-          </div>
-        )}
-
-        {/* Monopoli Distrik Turf War */}
-        {g.districtMonopoly > 0 && (
-          <div className="box monopoly-badge" title="Monopoli Distrik: Pelanggan Bertambah 100%">
-            👑 Monopoli ({g.districtMonopoly}h)
-          </div>
-        )}
-
-        {/* Biang Kaldu Master HUD Pill */}
-        {g.masterVat && (
-          <button className="btn vat-hud-btn" onClick={() => { closeAllModals(); setDashiOpen(true) }} title="Biang Kaldu Induk">
-            🍲 {getVatTier(g.masterVat.ageDays, g.masterVat.scumLevel).name.split(' ')[0]} ({g.masterVat.ageDays}h)
-          </button>
-        )}
-
-        {/* Alert Pesanan Telepon Masuk */}
-        {g.activePhoneOrder && (
-          <button className="btn phone-hud-btn" onClick={() => { closeAllModals(); setDeliveryOpen(true) }}>
-            ☎️ Bento Antar!
-          </button>
-        )}
-
-        {/* Indikator Kombo & FEVER MODE */}
-        {g.feverActive && (
-          <div className="box fever-badge">
-            ⚡ FEVER MODE (3x Uang)! {Math.ceil(g.feverTimer)}s
-          </div>
-        )}
-        {!g.feverActive && g.combo > 1 && (
-          <div className="box combo-badge">
-            🔥 COMBO x{g.combo}!
-          </div>
-        )}
-
-        {/* Indikator Arashi Rush & Zen Focus */}
-        {g.arashi?.zenActive && (
-          <div className="box zen-badge" title="Mata Batin Zen Focus: Waktu Melambat & Presisi Koki!">
-            🧘 ZEN FOCUS ({Math.ceil(g.arashi.zenTimer)}s)
-          </div>
-        )}
-        {g.arashi?.active && !g.arashi?.zenActive && (
-          <div className="box arashi-badge" title="Arashi Rush Hour: Pesanan Badai & Tips x3.5!">
-            ⚡ ARASHI RUSH x3.5 ({Math.ceil(g.arashi.duration)}s)
-          </div>
-        )}
-        {!g.arashi?.active && g.arashi?.meter > 20 && (
-          <div className="box arashi-meter-chip" title="Meteran Arashi Rush">
-            ⚡ Arashi: {Math.floor(g.arashi.meter)}%
-          </div>
-        )}
-        {g.grandPrixTrophy && (
-          <div className="box trophy-badge" title="Piala Bergilir Kaisar Showa: Reputasi +50%">
-            🏆 Juara Grand Prix
-          </div>
-        )}
-
-        {/* Indikator Jiwa Koki (Soul Archetype) */}
-        {(g.soul?.archetype || g.soul?.currentArchetype) && (
-          <div className="box soul-badge" title={`Jiwa Koki: ${SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.name} - ${SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.perkDesc}`}>
-            {SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.icon} {SOUL_ARCHETYPES[g.soul.archetype || g.soul.currentArchetype]?.name}
-          </div>
-        )}
-
-        {/* Stasiun Kereta SL Ginga HUD */}
-        {g.expedition && (
-          <button className="btn expedition-hud-btn" onClick={() => { closeAllModals(); setExpeditionOpen(true) }} title="Ekspedisi Kereta SL Ginga">
-            🚂 {getCurrentRouteInfo(g.expedition)?.name.split(' ')[0]}
-          </button>
-        )}
-
-        {/* Indikator Heat Sindikat / Razia Koban */}
-        {g.syndicate && (g.syndicate.heatLevel > 0 || g.syndicate.ownedRelics?.length > 0) && (
-          <button className={`btn syndicate-hud-btn ${g.syndicate.raidAlert ? 'raid-pulsing' : ''}`} onClick={() => { closeAllModals(); setSyndicateOpen(true) }} title={`Sindikat Jam 03:30 - Heat: ${Math.floor(g.syndicate.heatLevel)}%`}>
-            {g.syndicate.raidAlert ? '🚨 RAZIA KOBAN!' : `🐉 Heat: ${Math.floor(g.syndicate.heatLevel)}%`}
-          </button>
-        )}
-
-        {/* Indikator Sumpah Senja (Twilight Pacts) */}
-        {g.pacts && (
-          <button
-            className={`btn pact-hud-btn ${g.pacts.activePact ? 'pact-active-glow' : ''}`}
-            onClick={() => { closeAllModals(); setPactOpen(true) }}
-            title="Sumpah Senja & Perjanjian Roh Kelaparan"
-          >
-            {g.pacts.activePact ? `🔥 Sumpah: ${TWILIGHT_PACTS[g.pacts.activePact]?.name.split(' ')[1]}` : '🔥 Sumpah Senja'}
-          </button>
-        )}
-
-        {/* Indikator Insiden Darurat Jalanan (Street Anomalies) */}
-        {g.anomalies && (
-          <button
-            className={`btn anomaly-hud-btn ${g.anomalies.activeIncident ? 'anomaly-pulsing' : ''}`}
-            onClick={() => { closeAllModals(); setAnomalyOpen(true) }}
-            title="Insiden Darurat & Peristiwa Acak Showa"
-          >
-            {g.anomalies.activeIncident ? `🚨 ${STREET_ANOMALIES[g.anomalies.activeIncident]?.name.split(' ')[0]}: ${Math.ceil(g.anomalies.incidentTimer)}s` : '🚨 Insiden'}
-          </button>
-        )}
-
-        {/* Indikator Pohon Takdir Musiman Hanafuda */}
-        {g.fate && (
-          <button
-            className="btn fate-hud-btn"
-            onClick={() => { closeAllModals(); setFateOpen(true) }}
-            title={`Pengubah Takdir Hari Ini: ${HANAFUDA_CARDS[g.fate.activeCard]?.name}`}
-          >
-            🎴 {HANAFUDA_CARDS[g.fate.activeCard]?.name.split(' ')[0]}
-          </button>
-        )}
-
-        {/* Pintu Chou-Han Speakeasy Dini Hari */}
-        {g.speakeasy && (g.hour >= 23 || g.hour <= 4) && (
-          <button
-            className="btn speakeasy-hud-btn"
-            onClick={() => { closeAllModals(); setSpeakeasyOpen(true) }}
-            title="Arena Perjudian Gelap Chou-Han Lorong Belakang"
-          >
-            🎲 Chou-Han {g.speakeasy.winStreak > 0 ? `(🔥x${g.speakeasy.winStreak})` : ''}
-          </button>
-        )}
-
-        {/* Indikator Ekspedisi Kapal Selam Palung Laut Shinkai 2000 */}
-        {g.abyssal && (
-          <button
-            className={`btn abyssal-hud-btn ${g.abyssal.currentExpedition?.status === 'returned' ? 'ready-claim' : ''}`}
-            onClick={() => { closeAllModals(); setAbyssalOpen(true) }}
-            title="Ekspedisi Kapal Selam Palung Laut Shinkai 2000"
-          >
-            {g.abyssal.currentExpedition?.status === 'returned'
-              ? '⚓ Klaim Tangkapan!'
-              : g.abyssal.currentExpedition?.status === 'diving'
-              ? `🌊 Menyelam (${g.abyssal.currentExpedition.daysLeft}h)`
-              : '🌊 Shinkai 2000'}
-          </button>
-        )}
-
-        {/* Tombol Aksi Tanggap Bencana & Darurat */}
-        {g.isBlackout && (
-          <button className="btn candle-btn" onClick={Gm.toggleCandle}>
-            {g.candleLit ? '🕯️ Tiup Lilin' : '🕯️ Nyalakan Lilin Meja'}
-          </button>
-        )}
-        {g.tarpLoose && (
-          <button className="btn tarp-btn" onClick={Gm.fixTarp}>
-            🛠️ Kencangkan Terpal!
-          </button>
-        )}
-        {g.weather === 'salju' && g.stoveHeat < 0.5 && (
-          <button className="btn stove-btn" onClick={Gm.stokeStove}>
-            🔥 Tambah Arang Kompor
-          </button>
-        )}
-
-        <div className="box">Reputasi ★{Math.floor(g.rep)}{next ? `/${next}` : ''} ({LV[lv]})</div>
-        
-        <button className="btn sound-btn" onClick={() => { closeAllModals(); setRadioOpen(true) }} title="Pemutar Kaset Radio">
-          📻 {g.cassette.toUpperCase()}
-        </button>
-        <button className="btn sound-btn" onClick={toggleSound} title="Bisu / Nyalakan Suara">
-          {isMuted ? '🔇' : '🔊'}
-        </button>
       </div>
 
       {/* Banner Peringatan Darurat Waktu Nyata (Active Street Anomaly Alert) */}
@@ -416,104 +391,125 @@ export default function App() {
         <div className="hint">― Klik kedai untuk masuk & melayani tamu ―</div>
       )}
 
-      {/* Bar Tombol Bawah */}
+      {/* Quick Navigation Bar (1 Baris Ringkas & Rapi) */}
       {!g.demo && (
-        <div className="bar">
+        <div className="quick-bar">
           {g.scene === 'in' && (
-            <button className="btn" onClick={() => Gm.leaveShop()}>
+            <button className="btn exit-btn" onClick={() => Gm.leaveShop()}>
               🚪 Keluar
             </button>
           )}
-          <button className="btn" onClick={() => { closeAllModals(); setMarketOpen(true) }}>
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setMarketOpen(true) }}>
             🛒 Pasar
           </button>
-          <button className="btn" onClick={() => { closeAllModals(); setMapOpen(true) }}>
-            🗺️ Peta ({currentLocationData.icon})
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setRecipeOpen(true) }}>
+            📖 Resep ({g.unlockedRecipes.length})
           </button>
-          <button className="btn" onClick={() => { closeAllModals(); setRecipeOpen(true) }}>
-            📖 Resep ({g.unlockedRecipes.length}/{FUSION_RECIPES.length})
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setDecorOpen(true) }}>
-            🏮 Dekor
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setShopOpen(true) }}>
-            🏪 Toko & Staf
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setJournalOpen(true) }}>
-            📓 Jurnal
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setGrillOpen(true) }}>
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setGrillOpen(true) }}>
             🍢 Sate ({g.grillSlots ? g.grillSlots.filter(s => s.id).length : 0}/3)
           </button>
-          <button className="btn" onClick={() => { closeAllModals(); setAuctionOpen(true); if (!g.auctionSession) Gm.startAuction() }}>
-            🐟 Lelang Tsukiji
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setDashiOpen(true) }}>
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setDashiOpen(true) }}>
             🍲 Kuali Master
           </button>
-          <button className="btn" onClick={() => { closeAllModals(); setKnifeOpen(true) }}>
-            🔪 Pisau Koki
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setShopOpen(true) }}>
+            🏪 Toko & Staf
           </button>
-          <button className="btn" onClick={() => { closeAllModals(); setDeliveryOpen(true) }}>
-            ☎️ Bento {g.activePhoneOrder ? '(!)' : ''}
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setHeirloomOpen(true) }}>
-            🏺 Pusaka ({g.heirlooms ? g.heirlooms.length : 0}/4)
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setSeasonOpen(true) }}>
-            🍂 Musim ({g.season?.icon})
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setCookOffOpen(true); if (!g.cookOffSession) Gm.startCookOff() }}>
-            🔥 Duel Yamada
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setMasteryOpen(true) }}>
-            📜 Keahlian ({g.masteryPoints} Pts)
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setPolaroidOpen(true) }}>
-            📷 Album ({g.polaroids ? g.polaroids.length : 0})
-          </button>
-          <button className="btn dynasty-btn" onClick={() => { closeAllModals(); setDynastyOpen(true) }}>
-            🏛️ Dinasti {canPrestige(g) ? '(!)' : ''}
-          </button>
-          <button className="btn grandprix-btn" onClick={() => { closeAllModals(); setGrandPrixOpen(true); if (!g.grandPrixSession) Gm.startGrandPrix() }}>
-            🏆 Grand Prix {g.grandPrixTrophy ? '★' : ''}
-          </button>
-          <button className="btn cellar-btn" onClick={() => { closeAllModals(); setCellarOpen(true) }}>
-            🏺 Fermentasi
-          </button>
-          <button className="btn factions-btn" onClick={() => { closeAllModals(); setFactionsOpen(true) }}>
-            ⚖️ Faksi Distrik {g.factions?.activeDilemma ? '(!)' : ''}
-          </button>
-          <button className="btn expedition-btn" onClick={() => { closeAllModals(); setExpeditionOpen(true) }}>
-            🚂 SL Ginga
-          </button>
-          <button className="btn alchemy-btn" onClick={() => { closeAllModals(); setAlchemyOpen(true) }}>
-            ⚗️ Kaldu Kustom {g.alchemy?.patented ? '★' : ''}
-          </button>
-          <button className="btn syndicate-btn" onClick={() => { closeAllModals(); setSyndicateOpen(true) }}>
-            🐉 Sindikat 03:30 {g.syndicate?.raidAlert ? '(!)' : ''}
-          </button>
-          <button className="btn reunion-btn" onClick={() => { closeAllModals(); setLifeArcOpen(true) }}>
-            📖 Jejak Reuni {canTriggerReunion(g.lifeArc) && !g.lifeArc?.reunionHeld ? '(!)' : ''}
-          </button>
-          <button className="btn pact-btn" onClick={() => { closeAllModals(); setPactOpen(true) }}>
-            🔥 Sumpah Senja {g.pacts?.activePact ? '(!)' : ''}
-          </button>
-          <button className="btn anomaly-btn" onClick={() => { closeAllModals(); setAnomalyOpen(true) }}>
-            🚨 Insiden {g.anomalies?.activeIncident ? '(!)' : ''}
-          </button>
-          <button className="btn fate-btn" onClick={() => { closeAllModals(); setFateOpen(true) }}>
-            🎴 Takdir
-          </button>
-          <button className="btn speakeasy-btn" onClick={() => { closeAllModals(); setSpeakeasyOpen(true) }}>
-            🎲 Chou-Han {g.speakeasy?.unlockedImperialScroll ? '★' : ''}
-          </button>
-          <button className="btn abyssal-btn" onClick={() => { closeAllModals(); setAbyssalOpen(true) }}>
-            🌊 Kapal Selam {g.abyssal?.currentExpedition?.status === 'returned' ? '(!)' : ''}
-          </button>
-          <button className="btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
+          <button className="btn q-btn" onClick={() => { closeAllModals(); setCatOpen(true) }}>
             🐱 Kuro {g.cat.friendship > 0 ? `(♥${g.cat.friendship})` : ''}
           </button>
+          <button
+            className={`btn q-btn menu-opener-btn ${hasAnyAlert ? 'has-alert' : ''}`}
+            onClick={() => setSidebarOpen(true)}
+            title="Buka Seluruh Fitur Kedai Oden (Tekan M)"
+          >
+            ☰ Manajemen & Fitur ({hasAnyAlert ? '!' : '30+'})
+          </button>
+        </div>
+      )}
+
+      {/* Floating Sidebar Tab (Di Sisi Kanan Layar) */}
+      {!g.demo && !sidebarOpen && (
+        <button
+          className={`floating-sidebar-tab ${hasAnyAlert ? 'pulse' : ''}`}
+          onClick={() => setSidebarOpen(true)}
+          title="Buka Menu Manajemen Kedai (Tekan M)"
+        >
+          <span className="tab-pill-icon">☰</span>
+          <span className="tab-pill-text">MENU KEDAI</span>
+          {hasAnyAlert && <span className="tab-pill-dot">•</span>}
+        </button>
+      )}
+
+      {/* SIDEBAR DRAWER MANAJEMEN KEDAI & SELURUH FITUR */}
+      {sidebarOpen && !g.demo && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}>
+          <div className="sidebar-drawer box" onClick={e => e.stopPropagation()}>
+            <div className="sidebar-header">
+              <div className="sidebar-title-group">
+                <span className="sidebar-header-icon">🍱</span>
+                <div>
+                  <h3 className="sidebar-title">Direktori Manajemen Kedai Oden</h3>
+                  <span className="sidebar-subtitle">Pusat Operasional, Dapur, Kompetisi & Lorong Malam Showa</span>
+                </div>
+              </div>
+              <button className="btn sidebar-close-btn" onClick={() => setSidebarOpen(false)} title="Tutup Menu (Esc)">
+                ✕
+              </button>
+            </div>
+
+            {/* TAB KATEGORI SIDEBAR */}
+            <div className="sidebar-nav-tabs">
+              {MENU_CATEGORIES.map(cat => {
+                const hasCatAlert = cat.items.some(it => it.alert)
+                return (
+                  <button
+                    key={cat.id}
+                    className={`btn sidebar-tab-btn ${sidebarTab === cat.id ? 'active' : ''}`}
+                    onClick={() => setSidebarTab(cat.id)}
+                  >
+                    <span className="tab-icon">{cat.icon}</span>
+                    <span className="tab-text">{cat.label}</span>
+                    {hasCatAlert && <span className="tab-alert-dot">•</span>}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* DAFTAR KARTU FITUR DALAM KATEGORI TERPILIH */}
+            <div className="sidebar-items-grid">
+              {activeCategory?.items.map(item => (
+                <button
+                  key={item.id}
+                  className={`sidebar-item-card ${item.alert ? 'card-alert' : ''}`}
+                  onClick={() => {
+                    closeAllModals();
+                    setSidebarOpen(false);
+                    item.action();
+                  }}
+                >
+                  <span className="item-card-icon">{item.icon}</span>
+                  <div className="item-card-info">
+                    <div className="item-card-name-row">
+                      <strong className="item-card-name">{item.name}</strong>
+                      {item.badge && <span className={`item-card-badge ${item.alert ? 'alert' : ''}`}>{item.badge}</span>}
+                    </div>
+                    <span className="item-card-desc">{item.desc}</span>
+                  </div>
+                  <span className="item-card-arrow">›</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="sidebar-footer">
+              <div className="sidebar-footer-stats">
+                <span>📍 {currentLocationData.name} • Hari {g.day}</span>
+                <span>Kas: ¥{g.money.toLocaleString()} • Rep: ★{Math.floor(g.rep)}</span>
+              </div>
+              <button className="btn close-btn" onClick={() => setSidebarOpen(false)}>
+                Kembali ke Permainan
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
