@@ -102,12 +102,13 @@ export function getVatTier(ageDays, scumLevel) {
 }
 
 export function skimVat(vat) {
-  if (!vat) return
+  if (!vat) return false
   vat.scumLevel = Math.max(0, vat.scumLevel - 45)
   vat.clarity = Math.min(100, vat.clarity + 30)
   if (vat.scumLevel < 80 && vat.status === 'spoiled') {
     vat.status = vat.ageDays >= 7 ? 'legendary' : vat.ageDays >= 3 ? 'matured' : 'fresh'
   }
+  return true
 }
 
 export function addIngredientToVat(vat, ingredientId) {

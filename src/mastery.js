@@ -83,16 +83,17 @@ export const MASTERY_SKILLS = [
   }
 ]
 
-export function canUnlockSkill(skillId, unlockedSkills, masteryPoints) {
+export function canUnlockSkill(skillId, unlockedSkills = [], masteryPoints = 0) {
   const sk = MASTERY_SKILLS.find(s => s.id === skillId)
   if (!sk) return false
-  if (unlockedSkills.includes(skillId)) return false
+  const safeUnlocked = Array.isArray(unlockedSkills) ? unlockedSkills : []
+  if (safeUnlocked.includes(skillId)) return false
   if (masteryPoints < sk.cost) return false
 
   // Cek prasyarat tier 2
   if (sk.id.endsWith('_2')) {
     const tier1Id = sk.branch + '_1'
-    if (!unlockedSkills.includes(tier1Id)) return false
+    if (!safeUnlocked.includes(tier1Id)) return false
   }
   return true
 }

@@ -39,8 +39,9 @@ export const BOT_BIDDERS = [
   {name: 'Tuan Tanaka (Pedagang Pasar)', avatar: '💼', aggression: 0.55, maxMult: 1.6}
 ]
 
-export function createAuctionSession(day) {
-  const item = AUCTION_ITEMS[(day - 1) % AUCTION_ITEMS.length]
+export function createAuctionSession(day = 1) {
+  const safeDay = (typeof day === 'number' && Number.isFinite(day) && day > 0) ? Math.floor(day) : 1
+  const item = AUCTION_ITEMS[(safeDay - 1) % AUCTION_ITEMS.length] || AUCTION_ITEMS[0]
   return {
     item,
     currentBid: item.basePrice,

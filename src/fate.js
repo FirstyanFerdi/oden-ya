@@ -168,26 +168,29 @@ export function rerollFateCard(fateState, g) {
 export function hangCelestialEma(fateState, g, wishText) {
   if (!fateState) return false
   const cost = 2000
-  if (g.money < cost) return false
+  if (!g || (typeof g.money === 'number' && g.money < cost)) return false
 
-  g.money -= cost
-  g.rep += 15
+  if (typeof g.money === 'number') g.money -= cost
+  if (typeof g.rep === 'number') g.rep += 15
   fateState.unlockedCelestialPerk = true
 
+  fateState.emaWishes = fateState.emaWishes || []
   fateState.emaWishes.push({
-    day: g.day,
+    day: g?.day || 1,
     text: wishText || 'Semoga kedai selalu diberkahi kehangatan di tengah hujan Showa.',
     timestamp: Date.now()
   })
 
   Audio.playFateShine()
-  g.floats.push({
-    s: '🎋 PAPAN EMA DIGANTUNG! Doa Terkabul (Reputasi +15)',
-    x: 160,
-    y: 65,
-    t: 0.01,
-    c: '#f1c40f'
-  })
+  if (g && g.floats) {
+    g.floats.push({
+      s: '🎋 PAPAN EMA DIGANTUNG! Doa Terkabul (Reputasi +15)',
+      x: 160,
+      y: 65,
+      t: 0.01,
+      c: '#f1c40f'
+    })
+  }
 
   return true
 }

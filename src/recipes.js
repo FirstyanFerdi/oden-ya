@@ -107,15 +107,19 @@ export const FUSION_RECIPES = [
 ]
 
 // Cek apakah piring saji memenuhi resep rahasia
-export function checkRecipeDiscovery(plateItems, plateCondiments, activeBroth, unlockedList = []) {
+export function checkRecipeDiscovery(plateItems = [], plateCondiments = [], activeBroth = 'kombu', unlockedList = []) {
+  const safeItems = Array.isArray(plateItems) ? plateItems : []
+  const safeConds = Array.isArray(plateCondiments) ? plateCondiments : []
+  const safeUnlocked = Array.isArray(unlockedList) ? unlockedList : []
+
   for (const recipe of FUSION_RECIPES) {
     // Cek bahan dasar
-    const hasItems = recipe.items.every(id => plateItems.includes(id))
+    const hasItems = recipe.items.every(id => safeItems.includes(id))
     if (!hasItems) continue
 
     // Cek kondimen jika disyaratkan
     if (recipe.condiments) {
-      const hasConds = recipe.condiments.every(cid => plateCondiments.includes(cid))
+      const hasConds = recipe.condiments.every(cid => safeConds.includes(cid))
       if (!hasConds) continue
     }
 
@@ -123,7 +127,7 @@ export function checkRecipeDiscovery(plateItems, plateCondiments, activeBroth, u
     if (recipe.broth && activeBroth !== recipe.broth) continue
 
     // Menemukan resep!
-    const isNew = !unlockedList.includes(recipe.id)
+    const isNew = !safeUnlocked.includes(recipe.id)
     return {recipe, isNew}
   }
   return null

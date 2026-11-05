@@ -66,14 +66,16 @@ export function advanceCellarDays(cellar) {
 }
 
 export function startFermenting(cellar, vatIndex, g) {
-  if (!cellar || !cellar.vats[vatIndex]) return false
+  if (!cellar || !cellar.vats || !cellar.vats[vatIndex]) return false
   const vat = cellar.vats[vatIndex]
   if (vat.status !== 'empty') return false
 
   const recipe = FERMENTATION_RECIPES[vat.recipeId]
-  if (!recipe || g.money < recipe.cost) return false
+  if (!recipe || !g || (typeof g.money === 'number' && g.money < recipe.cost)) return false
 
-  g.money -= recipe.cost
+  if (typeof g.money === 'number') {
+    g.money -= recipe.cost
+  }
   vat.currentDays = 0
   vat.status = 'fermenting'
   return true

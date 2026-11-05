@@ -86,7 +86,7 @@ export function adjustDashiRatio(session, ingredient, delta) {
 }
 
 export function submitDashiTasting(session) {
-  if (!session || session.round !== 1 || session.round1Data.submitted) return
+  if (!session || session.round !== 1 || session.round1Data.submitted) return { success: false }
   const r1 = session.round1Data
   r1.submitted = true
 
@@ -104,6 +104,7 @@ export function submitDashiTasting(session) {
   session.round = 2
   session.timer = 15.0
   session.log.push('👉 Babak 2: Adu Cepat Kaiseki Plating! Susun bahan piring kehormatan!')
+  return { success: true, pScore, rScore }
 }
 
 export function addPlatingItem(session, itemId) {

@@ -72,17 +72,21 @@ export const MIDNIGHT_GUESTS = [
   }
 ]
 
-export function getMidnightGuest(day) {
-  const guest = MIDNIGHT_GUESTS[day % MIDNIGHT_GUESTS.length]
+export function getMidnightGuest(day = 1) {
+  const safeDay = (typeof day === 'number' && Number.isFinite(day) && day > 0) ? Math.floor(day) : 1
+  const guest = MIDNIGHT_GUESTS[safeDay % MIDNIGHT_GUESTS.length] || MIDNIGHT_GUESTS[0]
   return guest
 }
 
-export function evaluateMidnightRiddle(guest, plate, plateCondiments) {
+export function evaluateMidnightRiddle(guest, plate = [], plateCondiments = []) {
   if (!guest) return {success: false, message: 'Tidak ada pesanan misterius.'}
   
+  const safePlate = Array.isArray(plate) ? plate : []
+  const safeCondiments = Array.isArray(plateCondiments) ? plateCondiments : []
+
   // Periksa apakah semua bahan yang dibutuhkan ada di piring
-  const itemsMatch = guest.requiredItems.every(reqId => plate.includes(reqId))
-  const condimentMatch = guest.requiredCondiment ? plateCondiments.includes(guest.requiredCondiment) : true
+  const itemsMatch = (guest.requiredItems || []).every(reqId => safePlate.includes(reqId))
+  const condimentMatch = guest.requiredCondiment ? safeCondiments.includes(guest.requiredCondiment) : true
 
   if (itemsMatch && condimentMatch) {
     return {

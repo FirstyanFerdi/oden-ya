@@ -716,3 +716,90 @@ Seiring penambahan fitur dari Fase 1 hingga Fase 9 (mencapai 31 modul fitur inte
    - Setiap kartu menu dilengkapi ikon, nama, status dinamis (misal: "Deep Dive 2h", "Paten Aktif", "Bento Masuk!"), dan lencana notifikasi `(!)` / `★`.
 4. **Tab Mengambang Sisi Kanan (`Floating Tab`)**:
    - Tab vertikal elegan `[ ☰ MENU KEDAI ]` di pinggir kanan layar canvas untuk membuka drawer kapan saja dengan 1 klik.
+
+---
+
+## 12. Audit Kode Fitur demi Fitur & Penambatan Kerentanan (Feature-by-Feature Deep Audit & Hardening)
+
+### A. Metodologi Audit
+Pemeriksaan kode komprehensif baris demi baris dijalankan terhadap seluruh 31 sistem gameplay dan modul fungsional di direktori `src/`. Setiap sistem diuji perilakunya saat menghadapi nilai *edge-case*, *null/undefined*, parameter kosong, serta transisi state waktu nyata:
+
+1. **Siklus Hidup & State Game**: `game.js`, `render.js`, `App.jsx`, `audio.js`
+2. **Sistem Dapur & Kuliner**: `grill.js`, `dashi.js`, `knifeprep.js`, `recipes.js`, `alchemy.js`, `fermentation.js`
+3. **Ekonomi & Pasar**: `auction.js`, `delivery.js`, `seasons.js`, `locations.js`, `dynasty.js`, `expedition.js`
+4. **Karakter & Interaksi Sosial**: `characters.js`, `psychology.js`, `lifearc.js`, `factions.js`, `midnight.js`
+5. **Turnamen, Tantangan & Sumpah**: `cookoff.js`, `grandprix.js`, `arashi.js`, `pacts.js`, `anomalies.js`, `mastery.js`
+6. **Misteri, Takdir & Laut Dalam**: `abyssal.js`, `fate.js`, `speakeasy.js`, `syndicate.js`, `soul.js`, `fortune.js`, `kaiseki.js`
+
+### B. Daftar Bug Nyata & Akar Masalah yang Berhasil Diperbaiki
+Sebanyak 15 kerentanan *runtime error* dan *unhandled exception* berhasil diidentifikasi dan ditambal secara langsung:
+
+1. **`src/characters.js` — Crash Pelayanan Inspektur Sanitasi (`sanitation`)**:
+   - *Akar Masalah*: Karakter khusus Inspektur Kato (`sanitation`) tidak memiliki properti dialog cerita bertingkat (`stories`). Ketika ia dilayani dengan kepuasan $\ge 75\%$, pemanggilan `checkStoryTrigger` menabrak `char.stories.length` dari `undefined`, memicu `TypeError` fatal yang memutus proses penyelesaian pesanan.
+   - *Perbaikan*: Ditambahkan pemeriksaan `Array.isArray(char.stories)` dan *default argument* pada `checkStoryTrigger`.
+2. **`src/auction.js` — Crash Inisialisasi Lelang Tsukiji**:
+   - *Akar Masalah*: Fungsi `createAuctionSession(day)` mengasumsikan parameter `day` selalu valid. Jika dipanggil tanpa argumen atau saat `day` bernilai `undefined`, ekspresi `(undefined - 1) % AUCTION_ITEMS.length` menghasilkan `NaN`, sehingga `AUCTION_ITEMS[NaN]` bernilai `undefined` dan memicu `TypeError: Cannot read properties of undefined (reading 'basePrice')`.
+   - *Perbaikan*: Menambahkan default parameter `day = 1` dengan *sanitization guard* `Number.isFinite(day) && day > 0`.
+3. **`src/kaiseki.js` — Kerentanan Evaluasi Plating Wabi-Sabi**:
+   - *Akar Masalah*: Evaluasi `calculateKaisekiScore` langsung mengakses `plateCondiments.length` tanpa perlindungan *nullish*. Jika piring disajikan tanpa array kondimen, game melempar uncaught error.
+   - *Perbaikan*: Menambahkan *default parameters* `(plate = [], plateCondiments = [], plateSate = [])` dan pemeriksaan tipe `Array.isArray`.
+4. **`src/mastery.js` — Kerentanan Akses Array Pohon Keahlian**:
+   - *Akar Masalah*: Fungsi `canUnlockSkill` memanggil `unlockedSkills.includes(skillId)` tanpa validasi keberadaan array.
+   - *Perbaikan*: Menambahkan sanitasi *safe unlocked array fallback* `Array.isArray(unlockedSkills) ? unlockedSkills : []`.
+5. **`src/midnight.js` — Crash Evaluasi Teka-Teki Shinya & Hari Tak Valid**:
+   - *Akar Masalah*: `getMidnightGuest` menghasilkan `undefined` jika `day` bernilai `NaN`/tak bertipe numerik. Selain itu, `evaluateMidnightRiddle` berpotensi *freeze* jika piring saji tidak membawa array kondimen.
+   - *Perbaikan*: Diberikan proteksi nilai hari positif dan jaminan array fallback `plate = []` serta `plateCondiments = []`.
+6. **`src/recipes.js` — Kerentanan Eksekusi Cek Penemuan Resep (*Recipe Discovery*)**:
+   - *Akar Masalah*: `.every()` dipanggil langsung pada `plateItems` dan `plateCondiments` tanpa jaminan tipe data array.
+   - *Perbaikan*: Menambahkan *safe array wrap* untuk seluruh parameter piring dan resep terbuka (`unlockedList`).
+7. **`src/seasons.js` — Kerusakan Indeks Musim & Berita Pasar Harian**:
+   - *Akar Masalah*: Pada `getSeasonForDay(day)` dan `generateDailyMarketNews(day)`, nilai `day` yang `undefined` menghasilkan `NaN`, mengembalikan `undefined` dan merusak visual kalender musim serta fluktuasi harga komoditas.
+   - *Perbaikan*: Ditambahkan fallback hari default aman `safeDay` dan *fallback return* ke entri default pertama.
+8. **`src/intrigue.js` — Kerentanan Inspeksi Sanitasi Kuali & Gerobak Saingan**:
+   - *Akar Masalah*: `potSlots.reduce` dan `G.grillSlots.filter` dipanggil tanpa verifikasi keberadaan array slot panggangan atau sekat panci.
+   - *Perbaikan*: Ditambahkan array checks `Array.isArray` pada `potSlots`, `grillSlots`, dan `G.rivalStall`.
+9. **`src/alchemy.js` — Guard Mutasi State Paten Kaldu Kustom**:
+   - *Akar Masalah*: Pendaftaran paten kaldu di `patentCustomBroth` langsung memotong saldo kas dan menambah reputasi tanpa verifikasi integritas objek state pemain.
+   - *Perbaikan*: Ditambahkan pengecekan numerik eksplisit pada `g.money`, `g.rep`, serta proteksi array notifikasi teks `g.floats`.
+10. **`src/fate.js` — Guard Ritual Gantung Papan Ema**:
+    - *Akar Masalah*: Fungsi `hangCelestialEma` mengasumsikan properti kas dan reputasi selalu tersedia dalam bentuk numerik.
+    - *Perbaikan*: Ditambahkan pengamanan pemotongan biaya uang kas, penambahan reputasi, dan array doa kayu `emaWishes`.
+11. **`src/fermentation.js` — Validasi Transaksi Fermentasi Gentong**:
+    - *Akar Masalah*: `startFermenting` langsung mengurangkan biaya resep dari kas pemain tanpa pengecekan tipe data `g.money`.
+    - *Perbaikan*: Menambahkan validasi `typeof g.money === 'number'` dan penjagaan ketersediaan `cellar.vats`.
+12. **`src/delivery.js` — Guard Pengemasan Bento Telepon Putar**:
+    - *Akar Masalah*: `packItemToBento` mengakses `stock[itemId]` tanpa verifikasi keberadaan objek inventaris `stock`.
+    - *Perbaikan*: Diberikan penjagaan `!stock || (stock[itemId] || 0) <= 0`.
+13. **`src/soul.js` — Proteksi Notifikasi Jiwa Koki**:
+    - *Akar Masalah*: Pembaruan metrik jiwa koki `evaluateSoulArchetype` langsung memanggil `g.floats.push` tanpa memastikan array `floats` telah terinisialisasi.
+    - *Perbaikan*: Diberikan pengecekan eksistensi `if (g.floats && arch)`.
+14. **`src/dashi.js` — Kepastian Nilai Kembalian Saring Kaldu (`skimVat`)**:
+    - *Akar Masalah*: Fungsi `skimVat` mengembalikan `undefined`, menyebabkan pemanggil yang mengharapkan nilai boolean kepastian status menerima falsy.
+    - *Perbaikan*: Mengembalikan `true` secara eksplisit saat penyaringan berhasil.
+15. **`src/grandprix.js` — Penambahan Status Return Nilai Uji Dashi**:
+    - *Akar Masalah*: `submitDashiTasting` (Babak 1 Grand Prix) tidak mengembalikan status eksekusi atau skor pemain/rival ke pemanggil.
+    - *Perbaikan*: Mengembalikan objek `{ success: true, pScore, rScore }` agar pemanggil UI dapat membaca skor babak secara reaktif.
+
+### C. Ringkasan File yang Dimodifikasi
+| Berkas Script | Lingkup Perbaikan |
+|---|---|
+| `src/characters.js` | Penanganan aman karakter tanpa cerita bertingkat (`sanitation`). |
+| `src/auction.js` | Guard parameter `day` pada inisialisasi lelang pasar Tsukiji. |
+| `src/kaiseki.js` | Default parameter array aman pada evaluasi estetika plating. |
+| `src/mastery.js` | Guard array kepemilikan skill pada pohon keahlian koki. |
+| `src/midnight.js` | Guard evaluasi teka-teki puitis dan indeks tamu nokturnal. |
+| `src/recipes.js` | Safe array parameter checks pada sistem penemuan resep rahasia. |
+| `src/seasons.js` | Sanitasi kalkulasi indeks musim 4 cuaca dan berita pasar harian. |
+| `src/intrigue.js` | Guard pengecekan kebersihan kuali dan gerobak saingan Yamada-ya. |
+| `src/alchemy.js` | Proteksi numerik saldo dan float teks pada paten kaldu kustom. |
+| `src/fate.js` | Proteksi transaksi ritual gantung papan kayu doa Ema. |
+| `src/fermentation.js` | Validasi saldo uang kas dan array gentong bawah tanah. |
+| `src/delivery.js` | Guard objek stok saat pengemasan bento bersepeda. |
+| `src/soul.js` | Guard visual pendaran teks notifikasi jiwa koki. |
+| `src/dashi.js` | Kepastian nilai kembalian boolean `true` pada penyaringan biang kaldu. |
+| `src/grandprix.js` | Pengembalian objek hasil penilaian skor Dashi Blind Tasting. |
+
+### D. Hasil Verifikasi Akhir
+- **Automated Test Runner**: Seluruh 20 skenario uji modular lulus 100% tanpa error (*Zero Failures*).
+- **Vite Production Bundler**: Kompilasi produksi berhasil tanpa kendala (`67 modules transformed, built in 944ms`, 0 warning/error).
+

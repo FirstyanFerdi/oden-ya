@@ -42,26 +42,28 @@ export function calculateHarmony(params) {
 export function patentCustomBroth(state, name, g) {
   if (!state) return { success: false, msg: 'Status kaldu tidak valid' }
   const patentCost = 3000
-  if (g.money < patentCost) {
+  if (!g || (typeof g.money === 'number' && g.money < patentCost)) {
     return { success: false, msg: 'Uang kas tidak cukup untuk biaya pendaftaran paten (¥3.000)!' }
   }
   if (state.harmonyScore < 80) {
     return { success: false, msg: 'Skor harmoni kaldu minimal 80 untuk mendapatkan sertifikat paten!' }
   }
 
-  g.money -= patentCost
+  if (g && typeof g.money === 'number') g.money -= patentCost
   state.customName = name || 'Dashi Mahakarya Showa'
   state.patented = true
   state.activeInPot = true
-  g.rep += 20
+  if (g && typeof g.rep === 'number') g.rep += 20
 
-  g.floats.push({
-    s: `📜 PATEN KALDU RESMI: "${state.customName}" (Skor ${state.harmonyScore}%)!`,
-    x: 160,
-    y: 50,
-    t: 0.01,
-    c: '#ffd700'
-  })
+  if (g && g.floats) {
+    g.floats.push({
+      s: `📜 PATEN KALDU RESMI: "${state.customName}" (Skor ${state.harmonyScore}%)!`,
+      x: 160,
+      y: 50,
+      t: 0.01,
+      c: '#ffd700'
+    })
+  }
 
   return { success: true, msg: 'Paten kaldu berhasil didaftarkan ke Asosiasi Kuliner Jepang!' }
 }

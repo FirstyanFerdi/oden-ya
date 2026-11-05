@@ -79,13 +79,15 @@ export function evaluateSoulArchetype(g) {
       g.soul.unlockedArchetypes.push(target)
     }
     const arch = SOUL_ARCHETYPES[target]
-    g.floats.push({
-      s: `✨ JIWA KOKI BERKEMBANG: ${arch.name}!`,
-      x: 160,
-      y: 50,
-      t: 0.01,
-      c: arch.auraColor
-    })
+    if (g.floats && arch) {
+      g.floats.push({
+        s: `✨ JIWA KOKI BERKEMBANG: ${arch.name}!`,
+        x: 160,
+        y: 50,
+        t: 0.01,
+        c: arch.auraColor
+      })
+    }
   }
 }
 

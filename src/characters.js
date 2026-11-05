@@ -315,10 +315,10 @@ export const SPECIAL_ENCOUNTERS = {
   }
 }
 
-export function checkStoryTrigger(charId, currentProgress, satisfaction) {
+export function checkStoryTrigger(charId, currentProgress = {}, satisfaction = 0) {
   const char = CHARACTERS[charId]
-  if (!char || satisfaction < 0.75) return null
-  const currentChapter = currentProgress[charId] || 0
+  if (!char || !Array.isArray(char.stories) || satisfaction < 0.75) return null
+  const currentChapter = (currentProgress && currentProgress[charId]) || 0
   if (currentChapter < char.stories.length) {
     return char.stories[currentChapter]
   }

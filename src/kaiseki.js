@@ -58,19 +58,20 @@ export const POLAROID_ALBUM = [
   }
 ]
 
-export function calculateKaisekiScore(plate, plateCondiments, plateSate) {
+export function calculateKaisekiScore(plate = [], plateCondiments = [], plateSate = []) {
   let score = 50
 
   // 1. Variasi Warna & Bahan
-  const uniqueItems = new Set(plate)
+  const safePlate = Array.isArray(plate) ? plate : []
+  const uniqueItems = new Set(safePlate)
   if (uniqueItems.size >= 3) score += 20
   if (uniqueItems.size >= 4) score += 10
 
   // 2. Sentuhan Kondimen Aksen
-  if (plateCondiments.length >= 1) score += 10
+  if (Array.isArray(plateCondiments) && plateCondiments.length >= 1) score += 10
 
   // 3. Sentuhan Sate Bakar Arang
-  if (plateSate && plateSate.length > 0) score += 10
+  if (Array.isArray(plateSate) && plateSate.length > 0) score += 10
 
   return Math.min(100, score)
 }

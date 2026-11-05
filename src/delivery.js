@@ -51,7 +51,7 @@ export function generatePhoneOrder(day) {
 export function packItemToBento(order, itemId, stock) {
   if (!order || order.status !== 'pending') return false
   if (order.packedItems.length >= 3) return false
-  if ((stock[itemId] || 0) <= 0) return false
+  if (!stock || (stock[itemId] || 0) <= 0) return false
 
   stock[itemId]--
   order.packedItems.push(itemId)

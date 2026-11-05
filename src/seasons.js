@@ -110,13 +110,15 @@ export const MARKET_HEADLINES = [
   }
 ]
 
-export function getSeasonForDay(day) {
-  const index = Math.floor((Math.max(1, day) - 1) / 7) % SEASONS.length
-  return SEASONS[index]
+export function getSeasonForDay(day = 1) {
+  const safeDay = (typeof day === 'number' && Number.isFinite(day) && day > 0) ? Math.floor(day) : 1
+  const index = Math.floor((safeDay - 1) / 7) % SEASONS.length
+  return SEASONS[index] || SEASONS[0]
 }
 
-export function generateDailyMarketNews(day) {
-  const headline = MARKET_HEADLINES[(day * 3 + 1) % MARKET_HEADLINES.length]
+export function generateDailyMarketNews(day = 1) {
+  const safeDay = (typeof day === 'number' && Number.isFinite(day) && day > 0) ? Math.floor(day) : 1
+  const headline = MARKET_HEADLINES[(safeDay * 3 + 1) % MARKET_HEADLINES.length] || MARKET_HEADLINES[0]
   return headline
 }
 

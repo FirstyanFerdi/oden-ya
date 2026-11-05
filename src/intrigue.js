@@ -25,15 +25,17 @@ export const STREET_FACTIONS = {
   }
 }
 
-export function evaluateSanitationScore(potSlots, stoveHeat, grillSlots) {
+export function evaluateSanitationScore(potSlots = [], stoveHeat = 0.7, grillSlots = []) {
   let score = 70
   // Cek kuali tidak kosong melompong
-  const totalItems = potSlots.reduce((acc, comp) => acc + comp.length, 0)
+  const safePot = Array.isArray(potSlots) ? potSlots : []
+  const safeGrill = Array.isArray(grillSlots) ? grillSlots : []
+  const totalItems = safePot.reduce((acc, comp) => acc + (Array.isArray(comp) ? comp.length : 0), 0)
   if (totalItems >= 6) score += 15
   // Cek suhu kompor stabil
   if (stoveHeat >= 0.6 && stoveHeat <= 0.9) score += 15
   // Cek tidak ada sate gosong
-  const hasBurntSate = grillSlots.some(s => s.state === 'burnt')
+  const hasBurntSate = safeGrill.some(s => s && s.state === 'burnt')
   if (hasBurntSate) score -= 30
 
   return {
@@ -43,11 +45,12 @@ export function evaluateSanitationScore(potSlots, stoveHeat, grillSlots) {
 }
 
 export function updateRivalStall(dt, G) {
-  if (!G.rivalStall || !G.rivalStall.active) return
+  if (!G || !G.rivalStall || !G.rivalStall.active) return
   // Gerobak saingan mencoba menarik perhatian tamu
   const r = G.rivalStall
   // Daya tarik pemain: asap sate + lampion level + musik radio
-  const playerAroma = G.grillSlots.filter(s => s.id !== null).length * 0.25
+  const safeGrill = Array.isArray(G.grillSlots) ? G.grillSlots : []
+  const playerAroma = safeGrill.filter(s => s && s.id !== null).length * 0.25
   const playerLanterns = (G.lanternLevel || 0) * 0.15
   const playerPower = 0.4 + playerAroma + playerLanterns
 
