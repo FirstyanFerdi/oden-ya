@@ -892,3 +892,34 @@ Melalui simulasi pengujian mendalam lintas seluruh 38 modul script dan interaksi
 ### B. Hasil Pengujian Akhir
 - **Automated Lifecycle & Mechanics Test**: Seluruh 15 fitur inti dan 7 subsistem minigame lulus 100% tanpa error (*Zero Failures*).
 - **Vite Production Bundler**: Kompilasi produksi berhasil bersih tanpa error (`✓ built in 1.17s`, 0 error, 0 warning).
+
+---
+
+## 15. Verifikasi Menyeluruh & Pengetatan Proteksi Runtime Lanjutan
+
+Dalam audit menyeluruh babak kedua ini, dilakukan pengujian runtime terotomatisasi mencakup 16 modul mekanik, verifikasi siklus render canvas, pemanggilan audio sintetis, dan siklus serialisasi penyimpanan:
+
+### A. Rincian Temuan Tambahan & Tindakan Pencegahan
+1. **`src/game.js` — Proteksi Destrukturisasi Pesanan Pelanggan (`serve`)**:
+   - *Akar Masalah*: Pada fungsi `serve()`, pemanggilan `c.order.filter(...)` dan `c.order.some(...)` berisiko memicu `TypeError: Cannot read properties of undefined (reading 'filter')` jika entitas tamu memiliki objek pesanan yang belum terinisialisasi sempurna.
+   - *Perbaikan*: Variabel `orderItems` diproteksi secara eksplisit dengan `const orderItems = Array.isArray(c.order) ? c.order : []`, diterapkan pada seluruh filter piring, evaluasi kaldu pedas, dan panjang pesanan `orderLen`.
+
+2. **`src/game.js` — Proteksi Demo Loop Autoplay Pelayanan (`update`)**:
+   - *Akar Masalah*: Pada mode demo kedai autoplay, perbandingan `g.plate.length < g.target.order.length` dan pengisian piring dapat memicu error jika properti `order` dari target tamu bernilai `undefined`.
+   - *Perbaikan*: Ditambahkan sanitasi `const targetOrder = Array.isArray(g.target?.order) ? g.target.order : []`.
+
+3. **`src/abyssal.js` — Kompatibilitas Properti Tangkapan Kapal Selam (`claimExpeditionCatch`)**:
+   - *Akar Masalah*: Pembacaan item hasil tangkapan mengandalkan `catchRes.itemId`. Apabila data state tersimpan memiliki properti warisan `targetItem`, bahan tidak tersimpan ke stok kedai.
+   - *Perbaikan*: Ditambahkan fallback resolver `const itemId = catchRes.itemId || catchRes.targetItem` dan sanitasi kuantitas `const qty = catchRes.quantity || 0`.
+
+4. **`src/audio.js` — Penjagaan Lingkungan Headless / Non-Browser (`initAudio`)**:
+   - *Akar Masalah*: Pemanggilan `initAudio()` di luar konteks browser murni (seperti worker, testing suite, atau runner headless) langsung mengakses `window.AudioContext` yang memicu `ReferenceError: window is not defined`.
+   - *Perbaikan*: Ditambahkan guard `if (ctx || typeof window === 'undefined') return`.
+
+5. **`src/App.jsx` — Pengamanan Ref Canvas Waktu Nyata (`cv.current`)**:
+   - *Akar Masalah*: Pada transisi mount/unmount komponen React atau pergantian tab cepat, pemanggilan `cv.current.getContext('2d')` dan `cv.current.getBoundingClientRect()` berpotensi berjalan saat DOM ref bernilai nullish.
+   - *Perbaikan*: Ditambahkan guard defensif `if (!cv.current) return;` dan `if (!ctx) return;` pada loop `useEffect` serta event click canvas.
+
+### B. Hasil Uji Terpadu
+- **Headless Node Test Suite**: 16/16 test suites mekanik game, simulasi render canvas, audio synth, dan save/load state lolos 100% tanpa kendala (*Zero Errors*).
+- **Vite Production Bundler**: Kompilasi final berhasil mulus dalam 932ms (`✓ built in 932ms`, 0 warning, 0 error).

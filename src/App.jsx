@@ -90,7 +90,9 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    if (!cv.current) return
     const ctx = cv.current.getContext('2d')
+    if (!ctx) return
     ctx.imageSmoothingEnabled = false
     let last = performance.now(), raf
 
@@ -118,6 +120,7 @@ export default function App() {
   const next = LVREP[lv + 1]
 
   const onClickCanvas = e => {
+    if (!cv.current) return
     if (g.demo) {
       Gm.reset(false)
       return

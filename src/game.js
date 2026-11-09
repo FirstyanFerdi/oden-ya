@@ -1439,8 +1439,9 @@ export function serve() {
   const c = G.target
   if (!c || !G.plate.length) return
 
-  const m = c.order.filter(i => G.plate.includes(i)).length
-  const ex = Math.max(0, G.plate.length - c.order.length)
+  const orderItems = Array.isArray(c.order) ? c.order : []
+  const m = orderItems.filter(i => G.plate.includes(i)).length
+  const ex = Math.max(0, G.plate.length - orderItems.length)
 
   // Pengali Simmer Panci
   const simmerMultipliers = G.plateItemsSimmer.map(s => s.mult)
@@ -1468,7 +1469,7 @@ export function serve() {
   // Bonus Kaldu
   let brothBonus = 0
   if (G.activeBroth === 'kombu') brothBonus = 0.1
-  if (G.activeBroth === 'spicy' && c.order.some(id => id === 'gyusuji' || id === 'tako')) brothBonus = 0.25
+  if (G.activeBroth === 'spicy' && orderItems.some(id => id === 'gyusuji' || id === 'tako')) brothBonus = 0.25
   if (G.activeBroth === 'miso' && G.weather === 'hujan_deras') brothBonus = 0.2
 
   // S-Tier Tsukiji Boosts
@@ -1498,7 +1499,7 @@ export function serve() {
     }
   }
 
-  const orderLen = c.order?.length || 1
+  const orderLen = orderItems.length || 1
   const maxPat = c.max || 100
   const baseSat = (m / orderLen) - (ex * 0.12) + (((c.pat || 0) / maxPat) * 0.2) + condimentBonus + brothBonus + sTierSatBonus + vatSatBonus + catharsisSatBonus + (G.season?.bonusSat || 0)
   const sat = Math.max(0, Math.min(1, baseSat * avgSimmerMult))
@@ -2154,8 +2155,9 @@ export function update(dt) {
         g.dT += validDt
         if (g.dT > 0.6) {
           g.dT = 0
-          if (g.plate.length < g.target.order.length) {
-            g.plate.push(g.target.order[g.plate.length])
+          const targetOrder = Array.isArray(g.target?.order) ? g.target.order : []
+          if (g.plate.length < targetOrder.length) {
+            g.plate.push(targetOrder[g.plate.length])
             g.plateItemsSimmer.push({state: 'pas', mult: 1.0})
           } else {
             serve()

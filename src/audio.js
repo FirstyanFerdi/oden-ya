@@ -12,7 +12,7 @@ let isMuted = false
 let currentCassette = 'jazz' // 'jazz', 'citypop', 'shamisen', 'lofi'
 
 export function initAudio() {
-  if (ctx) return
+  if (ctx || typeof window === 'undefined') return
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext
     ctx = new AudioContext()
