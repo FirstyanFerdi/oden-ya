@@ -330,24 +330,39 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
   - 🐉🌊 *Santapan Dewa Naga Ryujin* (Telur Naga Laut Purba + Rebung Emas 1.000 Tahun + Daun Bawang): Bonus harga +¥1.200.
 - Dilengkapi radar sonar berputar animatif, telemetri hidrofon bawah laut, visual pendaran kuah neon bioluminesen di sekat panci oden, miniatur kapal selam berlabuh di dermaga kanal luar, serta 5 audio synthesizer prosedural (sonar ping, gemuruh baling-baling kapal selam, gelembung naik, arpeggio penemuan abisal, dan dengung bioluminesen).
 
+### 48. 🎨 Emulasi Layar Monitor CRT & Estetika Visual Retro 16-Bit Autentik
+- **CRT Scanlines & Radial Screen Vignette**: Lapisan raster scanline horizontal tiap 3px berpadu dengan radial vignette lembut di sekeliling sudut layar monitor arkade retro tanpa menghalangi input klik kursor mouse (`pointer-events: none`).
+- **Bezel Kabinet Arcade 4-Lapis**: Bingkai panggung permainan (`.stage`) mengusung multibevel kayu jati pernis dan bodi arkade hitam pekat khas mesin dingdong era 80–90-an (`0 0 0 3px #000, 0 0 0 7px #2e1a12, ...`).
+- **Tipografi & Canvas Outlining 1px**: Helper `Toutline` menghadirkan outline pixel hitam tegas di sekeliling seluruh teks melayang dinamis (`G.floats`) dan papan neon jalanan, menjamin kontras dan keterbacaan tajam di atas latar malam maupun partikel cuaca.
+- **Refleksi Genangan Aspal Basah & Relief 3D**: Permukaan aspal luar kedai saat hujan deras memancarkan kerlipan kilau (*specular glint*) dari lentera merah, serta spanduk noren `ODEN` memiliki tekstur bayangan pixel berdimensi nyata.
+- **Standarisasi Sudut Kotak Tajam (Zero `border-radius`)**: Pembersihan total 50+ sudut melengkung modern; seluruh jendela modal, kartu ekspedisi, papan resep, slot panggangan, dan dadu kini 100% konsisten berpenampilan pixel art tegas (`border-radius: 0;`).
+- **Tombol Taktil 3D Mikrosaklar**: Tombol berbingkai ganda dengan respon fisik nyata bergeser saat ditekan (`transform: translate(2px, 2px)`).
+- **Custom Pixel Art Scrollbars**: Track scrollbar bernuansa malam Showa dengan thumb balok oranye dashi berbevel pixelated.
+- **Kotak Dialog JRPG Klasik 90-an**: Desain percakapan bergaya *Dragon Quest* / *Earthbound* dengan bingkai kayu beraksen emas, pigura avatar pixel, dan tombol pilihan berpenanda panah retro (`▶`).
+
+### 49. 🏮 Antarmuka Navigasi Rapi (Quick-Bar & Sidebar Drawer Berkategori)
+- **Bilah Aksi Cepat Bawah (Quick-Bar)**: Menempatkan 9 tombol esensial harian di bagian bawah layar (Pasar, Peta, Resep, Dekorasi, Toko & Staf, Jurnal, Panggangan Yakitori, Lelang Tsukiji, dan Kucing Kuro) agar pandangan panggung utama kedai tetap leluasa dan bebas tumpukan.
+- **Laci Navigasi Geser (Sidebar Drawer)**: Mengelompokkan lebih dari 20 fitur khusus ke dalam 3 tab kategori rapi yang dapat dibuka/tutup melalui lentera samping:
+  - 🍲 **Dapur & Kuliner**: Kuali Master, Pisau Koki, Bento Telepon, Pusaka, Musim, Duel Yamada, dan Keahlian Koki.
+  - 🏮 **Manajemen & Kota**: Album Polaroid, Dinasti Showa, Grand Prix Nasional, Fermentasi Bawah Tanah, Faksi Distrik, Kereta SL Ginga, dan Kaldu Kustom.
+  - 🌙 **Aktivitas Nokturnal & Samudra**: Sindikat Pasar Gelap 03:30, Jejak Reuni Pelanggan, Sumpah Senja, Insiden Darurat, Takdir Hanafuda, Arena Judi Chou-Han, dan Kapal Selam Shinkai 2000.
+
 ---
 
 ## 🎮 Cara Bermain
 
-1. **Persiapan Pagi/Sore**:
+1. **Persiapan Pagi/Sore (Bebas Tumpukan dengan Navigasi Cepat)**:
+   - Gunakan **Bilah Aksi Cepat (Quick-Bar)** di bawah untuk belanja stok di **🛒 Pasar**, periksa **🗺️ Peta**, pelajari **📖 Resep**, dan rawat **🐱 Kuro**.
+   - Buka **🏮 Tab Manajemen (Sidebar Drawer)** di sisi layar untuk mengakses fitur dapur, faksi kota, atau aktivitas malam secara terorganisir per kategori.
    - Periksa kartu takdir harian aktif di bilah atas atau menu **🎴 Takdir**. Lakukan kocok ulang (¥1.500) atau gantung papan doa kayu Ema (¥2.000, +15 reputasi).
-   - Buka menu **🌊 Kapal Selam** untuk meluncurkan penyelaman kapal selam Shinkai 2000 ke 4 zona palung laut atau membongkar klaim tangkapan purba yang telah berlabuh di dermaga.
-   - Buka menu **🛒 Pasar & Panci** untuk mengecek warta berita komoditas dan membeli stok bahan dengan harga diskon.
+   - Luncurkan penyelaman kapal selam Shinkai 2000 ke 4 zona palung laut melalui menu **🌊 Kapal Selam** untuk memburu bahan langka prasejarah.
    - Buka menu **🔥 Sumpah Senja** untuk mengikat kontrak taruhan tinggi mistis sebelum membuka pelayanan sore.
-   - Buka menu **🚨 Insiden** untuk memeriksa arsip peristiwa acak jalanan dan menguji kesiapan darurat koki.
    - Buka menu **🚂 SL Ginga** untuk membeli tiket kereta uap dan berlabuh di provinsi baru (Hokkaido, Kyoto, Osaka, Hakata).
    - Buka menu **⚗️ Kaldu Kustom** untuk meracik 5 parameter rasa dan mendaftarkan formula dashi paten Anda.
    - Buka menu **🐉 Sindikat 03:30** untuk berburu pusaka mistis terlarang atau menyembunyikannya di bawah tatami dari razia Koban.
    - Buka menu **📖 Jejak Reuni** untuk melihat perkembangan babak hidup pelanggan setia dan memicu Malam Reuni Akbar.
    - Buka menu **🏺 Fermentasi** untuk memeriksa gentong bawah tanah dan memanen Telur Selai Emas atau Sake Vintage.
    - Buka menu **⚖️ Faksi Distrik** untuk memantau neraca pengaruh kekuasaan jalanan dan menyelesaikan dilema distrik.
-   - Buka menu **🍂 Musim** untuk memeriksa kalender musim aktif dan bahan eksklusifnya.
-   - Buka menu **📜 Keahlian** untuk membuka ranting skill pohon keahlian master.
    - Buka menu **🐟 Lelang Tsukiji** untuk mengikuti perang lelang bahan langka S-Tier.
    - Buka menu **🗺️ Peta** untuk berpindah distrik kota (Stasiun, Meguro Sakura, Shinjuku Neon, atau Ginza Flagship).
    - Buka menu **📻 Radio** untuk memutar kaset pita favoritmu.
@@ -407,9 +422,9 @@ Pekerjakan asisten kedai melalui menu **🏪 Toko & Staf**:
 - [src/characters.js](src/characters.js) – Profil karakter unik, sistem dialog bercabang dengan pilihan respon, VIP Boss (Tuan Ryu & Vivienne), Tamu Bangsawan Zashiki (Menteri Kato, Sutradara Otomo, Taipan Tanaka), Inspektur Michelin, dan Inspektur Sanitasi.
 - [src/decorations.js](src/decorations.js) – Definisi racikan kaldu dashi, tirai noren, mangkuk, dan pajangan meja.
 - [src/game.js](src/game.js) – Logika inti: ekspedisi kapal selam palung laut Shinkai 2000, 4 bahan abisal punah, grimoire samudra, kartu takdir hanafuda & doa kayu ema, judi dadu chou-han lorong belakang, peristiwa insiden darurat jalanan, sumpah senja & perjanjian roh gaki, panggangan yakitori, biang kaldu, pisau prep, pesanan bento telepon, lelang, omikuji, kombo, FEVER MODE, minigame sake, panci 4 sekat, timer kematangan, pasar stok, staf, siklus jam, Shinya Shokudo, cook-off, mastery tree, polaroid, arashi rush, zen focus, dinasti prestige, grand prix, fermentasi bawah tanah, faksi distrik, jiwa koki, ekspedisi kereta uap SL Ginga, laboratorium kaldu kustom, sindikat pasar gelap, garis hidup pelanggan, dan auto-save.
-- [src/render.js](src/render.js) – Mesin perender Canvas 320×180: pendaran kuah neon bioluminesen abisal di kuali, gelembung laut, miniatur kapal selam Shinkai 2000 berlabuh di dermaga kanal luar, partikel atmosfer Hanafuda, pintu geser rahasia Chou-Han, sorotan neon Dekotora, kegelapan blackout dengan pendar lilin, kilatan blitz kamera 35mm, hujan abu vulkanik, penutup kayu kuali Otoshi-buta, efek bara kuali neraka, vignette petir ungu, roh Gaki melayang di kursi 1, siluet senja jam 17:00, partikel musim, aura jiwa koki, atmosfer provinsi kereta SL Ginga, sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
-- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan radar sonar layar kapal selam Shinkai 2000, telemetri hidrofon, klaim tangkapan abisal, slot Pustaka Mahakarya Terlarang, modal Pohon Takdir Hanafuda & Altar Ema, modal Arena Judi Dadu Chou-Han Bakuto, bar peringatan darurat waktu nyata, modal Warta Insiden Darurat Showa, modal Sumpah Senja & Roh Gaki, Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
-- [src/styles.css](src/styles.css) – Seluruh gaya tampilan retro pixel art modern, radar sonar laut animasi berputar, lencana kedalaman abisal, slot hologram emas Grimoire, meja judi Chou-Han tatami, dadu arang bambu 3D, kartu Hanafuda berbingkai emas, altar kayu Ema, bar peringatan darurat merah berdenyut, kartu insiden distrik Showa, kartu sumpah senja mistis, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
+- [src/render.js](src/render.js) – Mesin perender Canvas 320×180: outline pixel 1px kontras tinggi (`Toutline`), efek refleksi basah genangan aspal lentera saat hujan, relief kayu 3D noren, pendaran kuah neon bioluminesen abisal di kuali, miniatur kapal selam Shinkai 2000 berlabuh di dermaga kanal luar, partikel atmosfer Hanafuda, pintu geser rahasia Chou-Han, sorotan neon Dekotora, kegelapan blackout dengan pendar lilin, kilatan blitz kamera 35mm, hujan abu vulkanik, penutup kayu kuali Otoshi-buta, efek bara kuali neraka, vignette petir ungu, roh Gaki melayang di kursi 1, siluet senja jam 17:00, partikel musim, aura jiwa koki, atmosfer provinsi kereta SL Ginga, sirine razia Koban, konfeti Reuni Akbar, Piala Bergilir Kaisar, kuali biang kaldu master, lampion, kucing Kuro, dan kembang api festival.
+- [src/App.jsx](src/App.jsx) – Antarmuka pengguna React lengkap dengan lapisan emulasi CRT scanlines, tata letak bilah aksi cepat bawah (Quick-Bar), laci navigasi geser 3 kategori (Sidebar Drawer), kotak percakapan JRPG klasik 90-an, radar sonar layar kapal selam Shinkai 2000, telemetri hidrofon, klaim tangkapan abisal, slot Pustaka Mahakarya Terlarang, modal Pohon Takdir Hanafuda & Altar Ema, modal Arena Judi Dadu Chou-Han Bakuto, bar peringatan darurat waktu nyata, modal Warta Insiden Darurat Showa, modal Sumpah Senja & Roh Gaki, Ekspedisi SL Ginga, Laboratorium Broth Alchemy, Pasar Gelap Sindikat 03:30, Buku Garis Hidup Pelanggan, Dinasti Showa, Grand Prix Nasional, Gudang Fermentasi, Faksi Distrik, Musim & Berita, Duel Yamada Cook-Off, Pohon Keahlian, Album Polaroid, Kuali Master, Pisau Koki, Bento Sepeda, Lemari Pusaka, Panggangan Yakitori, Lelang Tsukiji, Ramalan Omikuji, Recipe Dex, Peta Kota, Minigame Sake, Rekrut Staf, Radio, Dekorasi, dan Jurnal.
+- [src/styles.css](src/styles.css) – Seluruh sistem gaya tampilan retro pixel art 16-bit autentik era Showa: scanlines horizontal CRT 3px + vignette tabung arcade, frame bezel kabinet arkade 4-lapis (`.stage`), tombol taktil 3D mikrosaklar arcade, universal custom pixel art scrollbars, standarisasi zero `border-radius` (sudut kotak tajam) di seluruh komponen modal, radar sonar laut animasi berputar, lencana kedalaman abisal, slot hologram emas Grimoire, meja judi Chou-Han tatami, dadu arang bambu 3D, kartu Hanafuda berbingkai emas, altar kayu Ema, bar peringatan darurat merah berdenyut, kartu insiden distrik Showa, kartu sumpah senja mistis, kartu tiket stasiun kereta, penggeser laboratorium kaldu, meteran kecurigaan polisi Koban, jejak garis hidup pelanggan, piala grand prix, gentong fermentasi, kartu faksi, dan tata letak responsif.
 - [proses.md](proses.md) – Riwayat lengkap analisis masalah, rancangan arsitektur, dan log perubahan fitur dari Tahap 1 hingga Tahap 15.
 
 
