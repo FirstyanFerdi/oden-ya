@@ -803,3 +803,40 @@ Sebanyak 15 kerentanan *runtime error* dan *unhandled exception* berhasil diiden
 - **Automated Test Runner**: Seluruh 20 skenario uji modular lulus 100% tanpa error (*Zero Failures*).
 - **Vite Production Bundler**: Kompilasi produksi berhasil tanpa kendala (`67 modules transformed, built in 944ms`, 0 warning/error).
 
+
+
+---
+
+## 13. Redesain & Polishing Visual Total Bertema Retro Pixel Art (16-Bit Showa Era Aesthetics)
+
+Berdasarkan permintaan untuk mempercantik seluruh tampilan antarmuka visual permainan tanpa meninggalkan esensi tema pixel retro, telah dilakukan pembaruan grafis dan UI styling secara menyeluruh dari lapisan kanvas procedural rendering hingga komponen modal HTML/CSS:
+
+### A. Atmosfer Layar & Emulasi Monitor CRT Retro
+1. **Lapisan CRT Scanlines & Screen Vignette (`src/App.jsx` & `src/styles.css`)**:
+   - Menambahkan elemen `<div className="crt-overlay" />` di atas canvas permainan.
+   - Menggunakan teknik linear scanlines horizontal statis tiap 3px berpadu dengan radial vignette lembut di keempat sudut layar untuk menghadirkan nuansa monitor tabung arcade Showa era autentik tanpa mengganggu performa dan tanpa menghalangi interaksi klik kursor mouse (`pointer-events: none`).
+2. **Bezel Kabinet Arcade 4-Lapis**:
+   - Container panggung utama (`.stage`) kini diperkuat dengan multibevel bingkai kayu jati pernis dan bodi arcade hitam (`0 0 0 3px #000, 0 0 0 7px #2e1a12, 0 0 0 10px #150a06, 0 0 0 12px #000`), memberikan kedalaman fisik seperti mesin dingdong retro.
+
+### B. Polishing Canvas Rendering & Kontras Teks Pixel (`src/render.js`)
+1. **Helper Pixel Outline `Toutline`**:
+   - Diimplementasikan fungsi `Toutline(s, x, y, c, z, outline)` untuk menggambar outline pixel hitam solid 1px di sekeliling teks mengambang dinamis (`G.floats`) dan papan nama outdoor gerobak (`ODEN`, `YAMADA`, `BAR`, `⚓ SIAP`, `📡 SELAM`). Teks kini selalu tajam dan kontras tinggi di atas partikel salju, hujan, maupun lampu lentera malam.
+2. **Refleksi Genangan Air Aspal Basah**:
+   - Adegan luar kedai (`outside`) saat cuaca hujan deras kini memancarkan pantulan cahaya lentera merah di genangan air jalanan dengan kerlipan *specular glint* pixelated yang hidup.
+3. **Relief Kayu 3D Noren**:
+   - Spanduk kain dan palang kayu noren gerobak diberi bayangan pixel terstruktur sehingga terlihat memiliki volume nyata.
+
+### C. Pembersihan Total Sudut Rounded Modern & Penyeragaman 16-Bit UI (`src/styles.css`)
+1. **Normalisasi Sudut Kotak Tajam (Zero `border-radius`)**:
+   - Menghapus lebih dari 50 deklarasi `border-radius: [1-9]px` modern yang sebelumnya membuat beberapa modal tampak tidak konsisten. Seluruh jendela popup, kartu ekspedisi, papan resep, slot panggangan yakitori, botol sake, hingga chip bumbu distandarisasi ke bentuk sudut kotak pixel murni (`border-radius: 0;`).
+2. **Double Pixel Bevel & Tactile Press Feedback**:
+   - Komponen `.box` dan `.btn` kini mengusung double pixel stroke (`border: 2px solid #000; outline: 2px solid #d4b886`) dengan bayangan inset 3D yang memberikan respon tekan fisik nyata (`transform: translate(2px, 2px)`) layaknya tombol mikrosaklar arcade.
+3. **Scrollbar Pixel Art Kustom Universal**:
+   - Track scrollbar bertema malam Showa (`#06040b`) dipadu thumb balok kayu bertekstur pixelated (`#d35400`) dengan border hitam 1px tegas di seluruh kontainer modal yang dapat di-scroll.
+4. **Kotak Dialog Percakapan Bergaya Classic JRPG**:
+   - Kotak dialog pelanggan (`.dialogue-modal`) dirombak menyerupai gaya JRPG legendaris era 90-an (*Dragon Quest* / *Earthbound*) dengan bingkai ganda kayu gelap beraksen emas, pigura avatar pixel speaker berlatar malam, dan opsi pilihan berpenanda panah retro (`▶`).
+5. **HUD Atas & Konsol Telemetri Palung Laut**:
+   - HUD atas ditata menyerupai panel instrumen dasbor kedai dengan jam LED retro, plakat koin emboss, dan panel status kapal selam Shinkai 2000 berbingkai radar sonar cyan retro.
+
+### D. Status Uji & Kompilasi
+- **Vite Build**: Sukses 100% (`✓ built in 1.08s`, 0 error, 0 warning).

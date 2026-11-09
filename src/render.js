@@ -18,6 +18,20 @@ export function draw(ctx) {
     ctx.fillText(s, x | 0, y | 0)
   }
 
+  // Teks Ber-Outline Piksel Hitam untuk Keterbacaan Tajam Retro
+  const Toutline = (s, x, y, c, z = 10, outline = '#000') => {
+    ctx.font = z + 'px "DotGothic16","MS Gothic",monospace'
+    ctx.textBaseline = 'top'
+    const xi = x | 0, yi = y | 0
+    ctx.fillStyle = outline
+    ctx.fillText(s, xi - 1, yi)
+    ctx.fillText(s, xi + 1, yi)
+    ctx.fillText(s, xi, yi - 1)
+    ctx.fillText(s, xi, yi + 1)
+    ctx.fillStyle = c
+    ctx.fillText(s, xi, yi)
+  }
+
   // Pendaran Cahaya Aman (Robust Glow)
   const glow = (x, y, r, a) => {
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(r) || r <= 0) return
@@ -78,9 +92,9 @@ export function draw(ctx) {
     ctx.translate(W / 2, H / 2)
     ctx.scale(s, s)
     ctx.translate(-(W / 2 + (PX - W / 2) * z), -(H / 2 + (PY + 8 - H / 2) * z))
-    room(R, T, glow, fl, drawCat)
+    room(R, T, glow, fl, drawCat, Toutline)
   } else {
-    outside(R, T, glow, fl, lantern, drawCat)
+    outside(R, T, glow, fl, lantern, drawCat, Toutline)
   }
 
   ctx.restore()
@@ -450,7 +464,7 @@ export function draw(ctx) {
     }
   }
 
-  function room(R, T, glow, fl, drawCat) {
+  function room(R, T, glow, fl, drawCat, Toutline) {
     R(0, 0, W, H, P.wall)
     R(0, 0, W, 56, P.wall2)
     for (let x = 0; x < W; x += 16) R(x, 10, 1, 46, P.wall)
@@ -755,9 +769,9 @@ export function draw(ctx) {
       ctx.globalAlpha = 1
     })
 
-    // Teks Mengapung
+    // Teks Mengapung dengan Outline Piksel Tajam
     G.floats.forEach(f => {
-      if (f.t >= 0 && f.s) T(f.s, f.x - 10, f.y - f.t * 18, f.c, 10)
+      if (f.t >= 0 && f.s) Toutline(f.s, f.x - 10, f.y - f.t * 18, f.c, 10, '#0a0512')
     })
 
     if (G.scene === 'in') {
@@ -775,7 +789,7 @@ export function draw(ctx) {
   }
 }
 
-function outside(R, T, glow, fl, lantern, drawCat) {
+function outside(R, T, glow, fl, lantern, drawCat, Toutline) {
   // Latar Belakang Kota Sesuai Lokasi Terpilih
   const loc = LOCATIONS.find(l => l.id === G.currentLocation) || LOCATIONS[0]
   R(0, 0, W, H, loc.bgColor)
@@ -792,10 +806,10 @@ function outside(R, T, glow, fl, lantern, drawCat) {
   if (G.currentLocation === 'shinjuku') {
     glow(50, 30, 20, 0.3)
     R(42, 24, 16, 8, '#e84393')
-    T('NEON', 44, 25, '#fff', 6)
+    Toutline('NEON', 44, 25, '#fff', 6, '#3a0820')
     glow(270, 28, 22, 0.3)
     R(262, 22, 16, 8, '#00cec9')
-    T('BAR', 265, 23, '#fff', 6)
+    Toutline('BAR', 265, 23, '#fff', 6, '#042826')
   }
 
   R(0, 125, W, H - 125, P.street)
@@ -840,12 +854,14 @@ function outside(R, T, glow, fl, lantern, drawCat) {
   // Tanda Terpal Lepas saat Topan Badai
   if (G.weather === 'topan' && G.tarpLoose) {
     R(210 + (Math.sin(G.t * 25) * 4 | 0), 32, 24, 6, '#e74c3c')
-    T('⚠️ TERPAL BOCOR!', 190, 22, '#ff4757', 8)
+    Toutline('⚠️ TERPAL BOCOR!', 190, 22, '#ff4757', 8, '#3b0b0b')
   }
 
   // Spanduk 'ODEN'
   R(120, 66, 80, 12, '#f3e3b8')
-  T('ODEN', 144, 67, '#7a1d1d', 11)
+  R(120, 66, 80, 1, '#fffdf0')
+  R(120, 77, 80, 1, '#a69062')
+  Toutline('ODEN', 144, 67, '#7a1d1d', 11, '#3b0b0b')
 
   R(70, 52, 4, 74, '#2a170f')
   R(246, 52, 4, 74, '#2a170f')
@@ -887,7 +903,7 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     const rx = 265, ry = 98
     R(rx, ry, 45, 24, '#2c3e50')
     R(rx - 2, ry - 6, 49, 6, '#2980b9')
-    T('YAMADA', rx + 6, ry - 5, '#ffffff', 5)
+    Toutline('YAMADA', rx + 6, ry - 5, '#ffffff', 5, '#1b2a47')
     R(rx + 4, ry + 6, 36, 12, '#e67e22')
     const rivalLight = Math.sin(G.t * 8) > 0.1 ? '#e74c3c' : '#c0392b'
     R(rx - 2, ry + 2, 4, 6, rivalLight)
@@ -912,7 +928,7 @@ function outside(R, T, glow, fl, lantern, drawCat) {
     const eyeBlink = Math.sin(G.t * 6) > 0.85 ? 1 : 2
     R(sx - 1, sy - 19, 2, eyeBlink, '#ff7675')
     R(sx + 3, sy - 19, 2, eyeBlink, '#ff7675')
-    T('🔥', sx - 4, sy - 34, '#ff7675', 8)
+    Toutline('🔥', sx - 4, sy - 34, '#ff7675', 8, '#260e33')
   }
 
   // Dermaga Kanal Kapal Selam Riset Shinkai 2000
@@ -932,7 +948,7 @@ function outside(R, T, glow, fl, lantern, drawCat) {
       const beaconGlow = Math.sin(G.t * 8) > 0 ? '#2ecc71' : '#27ae60'
       R(subX + 9, subY - 5, 2, 2, beaconGlow)
       glow(subX + 10, subY - 4, 8, 0.4)
-      T('⚓ SIAP', subX + 3, subY - 11, '#2ecc71', 5)
+      Toutline('⚓ SIAP', subX + 3, subY - 11, '#2ecc71', 5, '#062010')
     } else if (exp?.status === 'diving') {
       // Pelampung Sonar Hidrofon Berdenyut Biru Neon saat Menyelam
       const buoyBob = Math.sin(G.t * 4) * 2 | 0
@@ -941,17 +957,17 @@ function outside(R, T, glow, fl, lantern, drawCat) {
       const sonarFlash = Math.sin(G.t * 6) > 0 ? '#00d2d3' : '#0984e3'
       R(subX + 10, subY - 4 + buoyBob, 2, 2, sonarFlash)
       glow(subX + 11, subY - 3 + buoyBob, 10, 0.35)
-      T('📡 SELAM', subX + 1, subY - 10, '#00d2d3', 5)
+      Toutline('📡 SELAM', subX + 1, subY - 10, '#00d2d3', 5, '#041824')
     }
   }
 
   // Kucing Kuro di luar
   drawCat(48, 142, false)
 
-  // Pantulan Aspal
+  // Pantulan Aspal Basah
   const refl = (x, w, a) => {
-    for (let k = 0; k < 7; k++) {
-      ctx2(R, x + Math.sin(G.t * 3 + k) * 2, 128 + k * 4, w - k, 2, a - k * 0.03)
+    for (let k = 0; k < 8; k++) {
+      ctx2(R, x + Math.sin(G.t * 3 + k) * 2, 127 + k * 4, w - k, 2, a - k * 0.025)
     }
   }
   function ctx2(R, x, y, w, h, a) {
@@ -959,10 +975,17 @@ function outside(R, T, glow, fl, lantern, drawCat) {
   }
 
   R(40, 150, 240, 14, P.wet)
-  refl(74, 10, 0.5)
-  refl(236, 10, 0.5)
-  refl(150, 24, 0.3)
-  refl(16, 7, 0.4)
+  refl(74, 12, 0.55)
+  refl(236, 12, 0.55)
+  refl(150, 26, 0.35)
+  refl(16, 8, 0.45)
+
+  if (G.weather === 'hujan' || G.weather === 'hujan_deras') {
+    const glint = Math.sin(G.t * 6) > 0 ? 1 : 0
+    R(72 + glint, 140, 14, 1, 'rgba(255, 180, 71, 0.5)')
+    R(234 - glint, 140, 14, 1, 'rgba(255, 180, 71, 0.5)')
+    R(18, 138, 8, 1, 'rgba(255, 233, 168, 0.6)')
+  }
 
   G.rip.forEach(r => {
     const k = r.t / 0.8, w = 4 + k * 10

@@ -264,6 +264,7 @@ export default function App() {
   return (
     <div className="stage" onClick={() => Audio.resumeAudio()}>
       <canvas ref={cv} width={W} height={H} onClick={onClickCanvas} />
+      <div className="crt-overlay" />
 
       {/* Top HUD (Single Row Status Bar) */}
       <div className="hud">
