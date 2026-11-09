@@ -152,16 +152,16 @@ export function launchExpedition(abyssalState, g, zoneId) {
   const zone = ABYSSAL_ZONES.find(z => z.id === zoneId)
   if (!zone) return { success: false, msg: 'Zona palung tidak ditemukan.' }
 
-  if (g.money < zone.cost) {
+  if (!g || (g.money || 0) < zone.cost) {
     return { success: false, msg: `Dana kas tidak cukup! Ekspedisi ke ${zone.name} membutuhkan ¥${zone.cost.toLocaleString()}.` }
   }
 
   // Potong biaya ekspedisi
-  g.money -= zone.cost
+  g.money = (g.money || 0) - zone.cost
   abyssalState.totalDives++
 
   const initialLog = [
-    `[Hari ke-${g.day}] Shinkai 2000 melepaskan diri dari dok dan meluncur menuju ${zone.name} (${zone.depthMeter}).`,
+    `[Hari ke-${g?.day || 1}] Shinkai 2000 melepaskan diri dari dok dan meluncur menuju ${zone.name} (${zone.depthMeter}).`,
     `Sonar hidrofon memancarkan frekuensi 1.800 Hz memindai jurang laut dingin.`
   ]
 
@@ -181,13 +181,15 @@ export function launchExpedition(abyssalState, g, zoneId) {
   Audio.playSubmarineEngine()
   setTimeout(() => Audio.playSonarPing(), 400)
 
-  g.floats.push({
-    s: `🌊 SHINKAI 2000 MELUNCUR! Menyelam ke ${zone.depthMeter} (-¥${zone.cost.toLocaleString()})`,
-    x: 160,
-    y: 50,
-    t: 0.01,
-    c: zone.themeColor
-  })
+  if (Array.isArray(g?.floats)) {
+    g.floats.push({
+      s: `🌊 SHINKAI 2000 MELUNCUR! Menyelam ke ${zone.depthMeter} (-¥${zone.cost.toLocaleString()})`,
+      x: 160,
+      y: 50,
+      t: 0.01,
+      c: zone.themeColor
+    })
+  }
 
   return { success: true, msg: `Penyelaman Shinkai 2000 ke ${zone.name} berhasil diluncurkan! Estimasi kembali: ${zone.durationDays} hari.` }
 }
@@ -224,21 +226,23 @@ export function advanceExpeditionDay(abyssalState, g) {
       Audio.playAbyssalDiscovery()
       setTimeout(() => Audio.playBubbleAscend(), 300)
 
-      g.floats.push({
-        s: `⚓ SHINKAI 2000 BERLABUH! Tangkapan ${itemData.name} siap diklaim!`,
-        x: 160,
-        y: 45,
-        t: 0.01,
-        c: '#00d2d3'
-      })
+      if (Array.isArray(g?.floats)) {
+        g.floats.push({
+          s: `⚓ SHINKAI 2000 BERLABUH! Tangkapan ${itemData.name} siap diklaim!`,
+          x: 160,
+          y: 45,
+          t: 0.01,
+          c: '#00d2d3'
+        })
+      }
 
       return exp.catchResult
     } else {
       // Masih menyelam di kedalaman
       const midLogs = [
-        `[Hari ke-${g.day}] Kapal selam menembus lapisan termoklin dingin. Lampu sorot menyapu formasi batu palung purba.`,
-        `[Hari ke-${g.day}] Tekanan hidrostatik stabil. Detektor sonar merekam sinyal gelombang unik organisme prasejarah.`,
-        `[Hari ke-${g.day}] Menavigasi celah tebing jurang samudra. Sisa waktu penyelaman: ${exp.daysLeft} hari.`
+        `[Hari ke-${g?.day || 1}] Kapal selam menembus lapisan termoklin dingin. Lampu sorot menyapu formasi batu palung purba.`,
+        `[Hari ke-${g?.day || 1}] Tekanan hidrostatik stabil. Detektor sonar merekam sinyal gelombang unik organisme prasejarah.`,
+        `[Hari ke-${g?.day || 1}] Menavigasi celah tebing jurang samudra. Sisa waktu penyelaman: ${exp.daysLeft} hari.`
       ]
       exp.logs.push(midLogs[Math.floor(Math.random() * midLogs.length)])
     }
@@ -262,10 +266,13 @@ export function claimExpeditionCatch(abyssalState, g) {
   const qty = catchRes.quantity
 
   // Masukkan bahan ke inventaris stok kedai & buka di daftar owned
-  g.stock[itemId] = (g.stock[itemId] || 0) + qty
-  g.owned = g.owned || []
-  if (!g.owned.includes(itemId)) {
-    g.owned.push(itemId)
+  if (g) {
+    g.stock = g.stock || {}
+    g.stock[itemId] = (g.stock[itemId] || 0) + qty
+    g.owned = g.owned || []
+    if (!g.owned.includes(itemId)) {
+      g.owned.push(itemId)
+    }
   }
 
   // Catat penemuan di arsip
@@ -273,7 +280,7 @@ export function claimExpeditionCatch(abyssalState, g) {
   abyssalState.totalCatchesCount += qty
 
   abyssalState.diveHistory.unshift({
-    day: g.day,
+    day: g?.day || 1,
     zoneId: exp.zoneId,
     zoneName: exp.zoneName,
     itemId,
@@ -292,28 +299,32 @@ export function claimExpeditionCatch(abyssalState, g) {
   if (grimoireStatus.unlocked && !abyssalState.grimoireUnlocked) {
     abyssalState.grimoireUnlocked = true
     grimoireJustUnlocked = true
-    g.rep += 50
+    if (g) g.rep = (g.rep || 0) + 50
     Audio.playFeverSound()
     setTimeout(() => Audio.playFateShine(), 200)
 
-    g.floats.push({
-      s: '📜 PUSTAKA MAHAKARYA SAMUDRA TERBUKA! (Reputasi +50 & Buff Permanen +15%)',
-      x: 160,
-      y: 55,
-      t: 0.01,
-      c: '#ffd700'
-    })
+    if (Array.isArray(g?.floats)) {
+      g.floats.push({
+        s: '📜 PUSTAKA MAHAKARYA SAMUDRA TERBUKA! (Reputasi +50 & Buff Permanen +15%)',
+        x: 160,
+        y: 55,
+        t: 0.01,
+        c: '#ffd700'
+      })
+    }
   } else {
     Audio.playBubbleAscend()
     setTimeout(() => Audio.playBioluminescentHum(), 250)
 
-    g.floats.push({
-      s: `📦 TANGKAPAN DITERIMA: +${qty}x ${catchRes.itemName} masuk ke persediaan!`,
-      x: 160,
-      y: 60,
-      t: 0.01,
-      c: '#2ecc71'
-    })
+    if (Array.isArray(g?.floats)) {
+      g.floats.push({
+        s: `📦 TANGKAPAN DITERIMA: +${qty}x ${catchRes.itemName} masuk ke persediaan!`,
+        x: 160,
+        y: 60,
+        t: 0.01,
+        c: '#2ecc71'
+      })
+    }
   }
 
   // Reset ekspedisi aktif

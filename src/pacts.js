@@ -148,12 +148,15 @@ export function feedGaki(pactState, itemId, g) {
     hasItem = true
   } else {
     // Cari di sekat panci
-    for (let c = 0; c < g.potSlots.length; c++) {
-      const idx = g.potSlots[c].findIndex(it => it.id === itemId)
-      if (idx !== -1) {
-        g.potSlots[c].splice(idx, 1)
-        hasItem = true
-        break
+    if (Array.isArray(g.potSlots)) {
+      for (let c = 0; c < g.potSlots.length; c++) {
+        if (!Array.isArray(g.potSlots[c])) continue
+        const idx = g.potSlots[c].findIndex(it => it && it.id === itemId)
+        if (idx !== -1) {
+          g.potSlots[c].splice(idx, 1)
+          hasItem = true
+          break
+        }
       }
     }
   }

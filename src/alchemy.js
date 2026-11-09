@@ -25,8 +25,14 @@ export function adjustTasteParam(state, param, delta) {
   }
 }
 
-export function calculateHarmony(params) {
-  const { umami, amami, shio, kaori, koku } = params
+export function calculateHarmony(params = {}) {
+  const { 
+    umami = 50, 
+    amami = 50, 
+    shio = 50, 
+    kaori = 50, 
+    koku = 50 
+  } = params || {}
 
   // Rumus sinergi rasa tradisional Jepang:
   // Umami & Koku harus selaras; Shio dan Amami harus seimbang.

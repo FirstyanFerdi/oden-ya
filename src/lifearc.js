@@ -38,23 +38,25 @@ export function createInitialLifeArcState() {
 }
 
 export function advanceCharacterArc(arcState, charId, g) {
-  if (!arcState || !arcState.progress[charId]) return
+  if (!arcState || !arcState.progress || arcState.progress[charId] === undefined) return
   const currentLvl = arcState.progress[charId]
   if (currentLvl < 3) {
     arcState.progress[charId]++
-    const milestone = LIFE_MILESTONES[charId][arcState.progress[charId] - 1]
-    g.floats.push({
-      s: `📖 JEJAK HIDUP ${charId.toUpperCase()}: ${milestone.title}!`,
-      x: 160,
-      y: 55,
-      t: 0.01,
-      c: '#ffd700'
-    })
+    const milestone = LIFE_MILESTONES[charId]?.[arcState.progress[charId] - 1]
+    if (milestone && Array.isArray(g?.floats)) {
+      g.floats.push({
+        s: `📖 JEJAK HIDUP ${charId.toUpperCase()}: ${milestone.title}!`,
+        x: 160,
+        y: 55,
+        t: 0.01,
+        c: '#ffd700'
+      })
+    }
   }
 }
 
 export function canTriggerReunion(arcState) {
-  if (!arcState || arcState.reunionHeld) return false
+  if (!arcState || arcState.reunionHeld || !arcState.progress) return false
   const p = arcState.progress
   // Minimal 3 karakter mencapai level 2 atau lebih
   const matureCount = Object.values(p).filter(lvl => lvl >= 2).length
@@ -65,21 +67,23 @@ export function triggerGrandReunion(arcState, g) {
   if (!canTriggerReunion(arcState)) return false
   arcState.reunionHeld = true
   arcState.reunionActive = true
-  g.rep += 30
-  g.money += 5000
-
-  // Tambahkan foto polaroid reuni jika fungsi tersedia
-  if (g.polaroids && !g.polaroids.includes('polaroid_reunion')) {
-    g.polaroids.push('polaroid_reunion')
+  if (g) {
+    g.rep = (g.rep || 0) + 30
+    g.money = (g.money || 0) + 5000
+    // Tambahkan foto polaroid reuni jika fungsi tersedia
+    if (g.polaroids && !g.polaroids.includes('polaroid_reunion')) {
+      g.polaroids.push('polaroid_reunion')
+    }
+    if (Array.isArray(g.floats)) {
+      g.floats.push({
+        s: '🎉 MALAM REUNI AKBAR SHOWA DIMULAI! (Semua Tamu Bersulang!)',
+        x: 160,
+        y: 50,
+        t: 0.01,
+        c: '#ff7675'
+      })
+    }
   }
-
-  g.floats.push({
-    s: '🎉 MALAM REUNI AKBAR SHOWA DIMULAI! (Semua Tamu Bersulang!)',
-    x: 160,
-    y: 50,
-    t: 0.01,
-    c: '#ff7675'
-  })
 
   return true
 }

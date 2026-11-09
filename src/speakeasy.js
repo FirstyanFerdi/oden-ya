@@ -35,13 +35,14 @@ export function playChouHan(speakeasyState, g, choice, betAmount) {
     return { success: false, msg: 'Pilihlah Chou (Genap) atau Han (Ganjil)!' }
   }
 
-  const bet = Math.max(500, betAmount || speakeasyState.currentBet || 1000)
-  if (g.money < bet) {
+  const rawBet = typeof betAmount === 'number' && !isNaN(betAmount) ? betAmount : (speakeasyState.currentBet || 1000)
+  const bet = Math.max(500, Math.floor(rawBet))
+  if (!g || (g.money || 0) < bet) {
     return { success: false, msg: `Uang kas Anda tidak cukup untuk taruhan ¥${bet.toLocaleString()}!` }
   }
 
   // Potong uang taruhan
-  g.money -= bet
+  g.money = (g.money || 0) - bet
   speakeasyState.currentBet = bet
   speakeasyState.currentChoice = choice
   speakeasyState.rolling = true
@@ -68,10 +69,10 @@ export function playChouHan(speakeasyState, g, choice, betAmount) {
   if (isDoubleDragon) {
     // JACKPOT NAGA KEMBAR!
     outcome = 'jackpot'
-    winAmount = bet * 2 + speakeasyState.jackpotPool
-    g.money += winAmount
-    speakeasyState.totalWon += winAmount
-    speakeasyState.winStreak++
+    winAmount = bet * 2 + (speakeasyState.jackpotPool || 25000)
+    g.money = (g.money || 0) + winAmount
+    speakeasyState.totalWon = (speakeasyState.totalWon || 0) + winAmount
+    speakeasyState.winStreak = (speakeasyState.winStreak || 0) + 1
     speakeasyState.unlockedImperialScroll = true
     speakeasyState.jackpotPool = 25000 // Reset jackpot pool
 
@@ -81,21 +82,23 @@ export function playChouHan(speakeasyState, g, choice, betAmount) {
     }, 400)
 
     msg = `🐉 JACKPOT NAGA KEMBAR (${d1}-${d2})! Menang ¥${winAmount.toLocaleString()} & Buka Gulungan Dashi Kaisar!`
-    g.floats.push({
-      s: msg,
-      x: 160,
-      y: 60,
-      t: 0.01,
-      c: '#ffd700'
-    })
+    if (Array.isArray(g.floats)) {
+      g.floats.push({
+        s: msg,
+        x: 160,
+        y: 60,
+        t: 0.01,
+        c: '#ffd700'
+      })
+    }
   } else if (choice === outcomeType) {
     // MENANG BIASA
     outcome = 'win'
     winAmount = bet * 2
-    g.money += winAmount
-    speakeasyState.totalWon += winAmount
-    speakeasyState.winStreak++
-    if (speakeasyState.winStreak > speakeasyState.bestStreak) {
+    g.money = (g.money || 0) + winAmount
+    speakeasyState.totalWon = (speakeasyState.totalWon || 0) + winAmount
+    speakeasyState.winStreak = (speakeasyState.winStreak || 0) + 1
+    if (speakeasyState.winStreak > (speakeasyState.bestStreak || 0)) {
       speakeasyState.bestStreak = speakeasyState.winStreak
     }
 
@@ -103,31 +106,35 @@ export function playChouHan(speakeasyState, g, choice, betAmount) {
 
     const streakBonusText = speakeasyState.winStreak >= 3 ? ` (Streak x${speakeasyState.winStreak}!)` : ''
     msg = `🎉 TEBAKAN TEPAT! Dadu ${d1}+${d2}=${sum} (${outcomeType.toUpperCase()})! Menang ¥${winAmount.toLocaleString()}${streakBonusText}!`
-    g.floats.push({
-      s: msg,
-      x: 160,
-      y: 65,
-      t: 0.01,
-      c: '#2ecc71'
-    })
+    if (Array.isArray(g.floats)) {
+      g.floats.push({
+        s: msg,
+        x: 160,
+        y: 65,
+        t: 0.01,
+        c: '#2ecc71'
+      })
+    }
   } else {
     // KALAH
     outcome = 'lose'
     winAmount = 0
-    speakeasyState.totalLost += bet
+    speakeasyState.totalLost = (speakeasyState.totalLost || 0) + bet
     speakeasyState.winStreak = 0
-    speakeasyState.jackpotPool += Math.floor(bet * 0.25) // Tambah ke brankas jackpot
+    speakeasyState.jackpotPool = (speakeasyState.jackpotPool || 25000) + Math.floor(bet * 0.25) // Tambah ke brankas jackpot
 
     setTimeout(() => Audio.playDiceLose(), 400)
 
     msg = `💀 BANDAR MENYAPU MEJA! Dadu ${d1}+${d2}=${sum} (${outcomeType.toUpperCase()}). Taruhan ¥${bet.toLocaleString()} melayang!`
-    g.floats.push({
-      s: msg,
-      x: 160,
-      y: 65,
-      t: 0.01,
-      c: '#e74c3c'
-    })
+    if (Array.isArray(g.floats)) {
+      g.floats.push({
+        s: msg,
+        x: 160,
+        y: 65,
+        t: 0.01,
+        c: '#e74c3c'
+      })
+    }
   }
 
   setTimeout(() => {

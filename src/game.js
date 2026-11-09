@@ -735,8 +735,8 @@ export function addToPot(compIdx, itemId) {
     return false
   }
   if ((G.stock[itemId] || 0) <= 0) return false
-  const comp = G.potSlots[compIdx]
-  if (comp.length >= 6) return false
+  const comp = G.potSlots?.[compIdx]
+  if (!comp || comp.length >= 6) return false
 
   G.stock[itemId]--
   comp.push({id: itemId, simmer: 0})

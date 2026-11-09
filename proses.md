@@ -840,3 +840,55 @@ Berdasarkan permintaan untuk mempercantik seluruh tampilan antarmuka visual perm
 
 ### D. Status Uji & Kompilasi
 - **Vite Build**: Sukses 100% (`✓ built in 1.08s`, 0 error, 0 warning).
+
+
+---
+
+## 14. Audit Komprehensif Seluruh Fitur & Perbaikan Bug Tersembunyi (End-to-End Dynamic Testing)
+
+Melalui simulasi pengujian mendalam lintas seluruh 38 modul script dan interaksi gameplay (meliputi state machine, game loop, siklus hari, minigame, dan input ekstrem), telah diidentifikasi dan diperbaiki 10 bug tersembunyi berisiko tinggi:
+
+### A. Rincian Temuan Masalah & Solusi Teknis
+1. **`src/game.js` — Crash Out of Bounds pada Sekat Panci (`addToPot`)**:
+   - *Akar Masalah*: Pemanggilan `addToPot(compIdx, itemId)` dengan indeks sekat yang tidak valid atau di luar jangkauan memicu `TypeError: Cannot read properties of undefined (reading 'length')` karena `G.potSlots[compIdx]` menghasilkan `undefined`.
+   - *Perbaikan*: Menambahkan penjagaan `const comp = G.potSlots?.[compIdx]; if (!comp || comp.length >= 6) return false;`.
+
+2. **`src/speakeasy.js` — Kerentanan Polusi `NaN` pada Kas Pemain di Arena Chou-Han**:
+   - *Akar Masalah*: Evaluasi taruhan `Math.max(500, betAmount || ...)` mengembalikan nilai `NaN` jika `betAmount` bernilai `NaN`. Operasi `g.money -= bet` dan `g.money += winAmount` menyebabkan seluruh saldo kas pemain rusak permanen menjadi `NaN`.
+   - *Perbaikan*: Diberikan validasi tipe numerik eksplisit `typeof betAmount === 'number' && !isNaN(betAmount)` dengan `Math.floor`, penjagaan saldo kas `typeof g.money === 'number'`, serta sanitasi notifikasi teks melayang.
+
+3. **`src/anomalies.js` — Crash Destructuring & Notifikasi Teks Melayang pada `onIncidentServe`**:
+   - *Akar Masalah*: Fungsi `onIncidentServe(anomalyState, g, serveData)` mendestrukturisasi properti `customer`, `kaisekiScore`, dan `sat` dari `serveData` tanpa nilai default parameter, mengakibatkan crash saat dipanggil tanpa argumen ketiga. Selain itu, terdapat duplikasi blok penutup kode sintaksis dan pemanggilan `g.floats.push` tanpa pengecekan tipe array.
+   - *Perbaikan*: Menambahkan default parameter `serveData = {}`, perlindungan `Array.isArray(g.floats)` pada seluruh penanganan insiden, serta pembersihan duplikasi baris kode.
+
+4. **`src/abyssal.js` — Proteksi Nullish Ekspedisi Kapal Selam Palung Laut Shinkai 2000**:
+   - *Akar Masalah*: Fungsi `launchExpedition`, `advanceExpeditionDay`, dan `claimExpeditionCatch` mengakses properti `g.money`, `g.stock`, `g.owned`, dan `g.floats` tanpa perlindungan ketersediaan objek/array ketika state eksternal belum siap.
+   - *Perbaikan*: Ditambahkan inisialisasi default `g.stock = g.stock || {}`, penjagaan tipe saldo `g.money = (g.money || 0) - zone.cost`, dan safe check `Array.isArray(g?.floats)`.
+
+5. **`src/pacts.js` — Crash Array Indexing pada Pencarian Bahan Sesaji Roh Gaki (`feedGaki`)**:
+   - *Akar Masalah*: Pada loop pencarian bahan sesaji di `g.potSlots`, elemen slot diakses langsung dengan `.findIndex` tanpa verifikasi apakah slot tersebut bertipe array valid (`Array.isArray(g.potSlots[c])`).
+   - *Perbaikan*: Ditambahkan pengecekan `if (!Array.isArray(g.potSlots[c])) continue;` dan penjagaan eksistensi objek item `it && it.id === itemId`.
+
+6. **`src/fate.js` — Null Safety pada Ritual Pengocokan Ulang & Papan Ema**:
+   - *Akar Masalah*: `drawDailyFateCard` dan `rerollFateCard` memanggil `g.floats.push` langsung dan mengasumsikan `g.day` selalu ada tanpa nullish guard pada objek `g`.
+   - *Perbaikan*: Ditambahkan `g?.day || 1`, safe push `Array.isArray(g?.floats)`, dan verifikasi `typeof g.money === 'number'`.
+
+7. **`src/syndicate.js` — Proteksi Kas & Array Pusaka Terlarang**:
+   - *Akar Masalah*: `buySyndicateRelic` dan `hideContraband` mengakses dan memodifikasi `g.money` serta `g.floats` tanpa validasi keberadaan objek state `g`.
+   - *Perbaikan*: Ditambahkan pengecekan tipe numerik saldo `!g || typeof g.money !== 'number'`, inisialisasi `state.ownedRelics = state.ownedRelics || []`, dan proteksi `Array.isArray(g.floats)`.
+
+8. **`src/lifearc.js` — Crash Akses Properti Milestone Jejak Reuni**:
+   - *Akar Masalah*: `advanceCharacterArc` mengakses `LIFE_MILESTONES[charId][arcState.progress[charId] - 1].title` tanpa safe navigation `?.`, berisiko crash jika indeks melebihi data milestone yang tersedia.
+   - *Perbaikan*: Digunakan safe chaining `LIFE_MILESTONES[charId]?.[...]` dan proteksi array float teks serta kalkulasi saldo kas.
+
+9. **`src/alchemy.js` — Proteksi NaN Harmoni Kaldu Kustom**:
+   - *Akar Masalah*: `calculateHarmony(params)` mendestrukturisasi parameter rasa tanpa nilai default, menghasilkan `NaN` saat salah satu parameter bernilai `undefined`.
+   - *Perbaikan*: Diberikan parameter default nilai tengah `umami = 50, amami = 50, shio = 50, kaori = 50, koku = 50` pada `calculateHarmony`.
+
+10. **`src/fermentation.js` — Crash Array Inspection pada Pasangan Makanan & Sake**:
+    - *Akar Masalah*: `evaluateSakePairing(plateItems, sakeType)` memanggil `.some()` pada `plateItems` tanpa verifikasi tipe array.
+    - *Perbaikan*: Ditambahkan safe wrap `const safePlate = Array.isArray(plateItems) ? plateItems : []`.
+
+### B. Hasil Pengujian Akhir
+- **Automated Lifecycle & Mechanics Test**: Seluruh 15 fitur inti dan 7 subsistem minigame lulus 100% tanpa error (*Zero Failures*).
+- **Vite Production Bundler**: Kompilasi produksi berhasil bersih tanpa error (`✓ built in 1.17s`, 0 error, 0 warning).

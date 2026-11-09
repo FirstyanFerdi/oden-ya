@@ -112,22 +112,25 @@ export function drawDailyFateCard(fateState, g, forcedId = null) {
   const card = HANAFUDA_CARDS[cardId]
 
   fateState.activeCard = cardId
-  fateState.dayDrawn = g.day || 1
+  fateState.dayDrawn = g?.day || 1
   fateState.drawnToday = true
 
   Audio.playHanafudaSnap()
   setTimeout(() => Audio.playFateShine(), 150)
 
-  g.floats.push({
-    s: `🎴 TAKDIR HANAFUDA: ${card.name}!`,
-    x: 160,
-    y: 50,
-    t: 0.01,
-    c: card.badgeColor
-  })
+  if (Array.isArray(g?.floats)) {
+    g.floats.push({
+      s: `🎴 TAKDIR HANAFUDA: ${card.name}!`,
+      x: 160,
+      y: 50,
+      t: 0.01,
+      c: card.badgeColor
+    })
+  }
 
+  fateState.fateHistory = fateState.fateHistory || []
   fateState.fateHistory.push({
-    day: g.day,
+    day: g?.day || 1,
     cardId: card.id,
     name: card.name
   })
@@ -138,12 +141,12 @@ export function drawDailyFateCard(fateState, g, forcedId = null) {
 export function rerollFateCard(fateState, g) {
   if (!fateState) return { success: false, msg: 'State tidak valid.' }
   const cost = 1500
-  if (g.money < cost) {
+  if (!g || typeof g.money !== 'number' || g.money < cost) {
     return { success: false, msg: `Uang tidak cukup untuk ritual pengocokan ulang (Butuh ¥${cost.toLocaleString()})!` }
   }
 
   g.money -= cost
-  fateState.rerollCount++
+  fateState.rerollCount = (fateState.rerollCount || 0) + 1
 
   const keys = Object.keys(HANAFUDA_CARDS).filter(k => k !== fateState.activeCard)
   const newCardId = keys[Math.floor(Math.random() * keys.length)]
@@ -154,13 +157,15 @@ export function rerollFateCard(fateState, g) {
   Audio.playHanafudaSnap()
   setTimeout(() => Audio.playFateShine(), 150)
 
-  g.floats.push({
-    s: `🎴 TAKDIR DIKOCOK ULANG: ${newCard.name}! (-¥1.500)`,
-    x: 160,
-    y: 55,
-    t: 0.01,
-    c: newCard.badgeColor
-  })
+  if (Array.isArray(g?.floats)) {
+    g.floats.push({
+      s: `🎴 TAKDIR DIKOCOK ULANG: ${newCard.name}! (-¥1.500)`,
+      x: 160,
+      y: 55,
+      t: 0.01,
+      c: newCard.badgeColor
+    })
+  }
 
   return { success: true, card: newCard, msg: `Takdir hari ini berubah menjadi "${newCard.name}"!` }
 }

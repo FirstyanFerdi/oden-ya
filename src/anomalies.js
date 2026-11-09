@@ -277,35 +277,39 @@ export function updateIncidentLoop(anomalyState, dt, g) {
   }
 }
 
-export function onIncidentServe(anomalyState, g, serveData) {
-  if (!anomalyState || anomalyState.status !== 'active' || !anomalyState.activeIncident) return
+export function onIncidentServe(anomalyState, g, serveData = {}) {
+  if (!anomalyState || anomalyState.status !== 'active' || !anomalyState.activeIncident || !g) return
 
   const incidentId = anomalyState.activeIncident
-  const { customer, kaisekiScore, sat } = serveData
+  const { customer, kaisekiScore, sat } = serveData || {}
 
   if (incidentId === 'dekotora_convoy') {
     if (customer && customer.isDekotora) {
       anomalyState.dekotoraServes++
-      g.floats.push({
-        s: `🚛 Supir Puas! (${anomalyState.dekotoraServes}/${anomalyState.dekotoraTarget})`,
-        x: customer.x || 160,
-        y: (customer.y || 100) - 45,
-        t: 0.01,
-        c: '#e67e22'
-      })
+      if (Array.isArray(g.floats)) {
+        g.floats.push({
+          s: `🚛 Supir Puas! (${anomalyState.dekotoraServes}/${anomalyState.dekotoraTarget})`,
+          x: customer.x || 160,
+          y: (customer.y || 100) - 45,
+          t: 0.01,
+          c: '#e67e22'
+        })
+      }
       if (anomalyState.dekotoraServes >= anomalyState.dekotoraTarget) {
         resolveIncident(anomalyState, g)
       }
     }
   } else if (incidentId === 'district_blackout') {
     anomalyState.blackoutServes++
-    g.floats.push({
-      s: `🎧 Masak Audio Sukses! (${anomalyState.blackoutServes}/${anomalyState.blackoutTarget})`,
-      x: customer?.x || 160,
-      y: (customer?.y || 100) - 45,
-      t: 0.01,
-      c: '#3498db'
-    })
+    if (Array.isArray(g.floats)) {
+      g.floats.push({
+        s: `🎧 Masak Audio Sukses! (${anomalyState.blackoutServes}/${anomalyState.blackoutTarget})`,
+        x: customer?.x || 160,
+        y: (customer?.y || 100) - 45,
+        t: 0.01,
+        c: '#3498db'
+      })
+    }
     if (anomalyState.blackoutServes >= anomalyState.blackoutTarget) {
       resolveIncident(anomalyState, g)
     }
@@ -314,13 +318,15 @@ export function onIncidentServe(anomalyState, g, serveData) {
       anomalyState.filmCrewServes++
       anomalyState.cameraFlashAlpha = 1.0
       Audio.playCameraCrank()
-      g.floats.push({
-        s: `📸 TERSOROT KAMERA 35MM! (${anomalyState.filmCrewServes}/${anomalyState.filmCrewTarget})`,
-        x: customer?.x || 160,
-        y: (customer?.y || 100) - 55,
-        t: 0.01,
-        c: '#f1c40f'
-      })
+      if (Array.isArray(g.floats)) {
+        g.floats.push({
+          s: `📸 TERSOROT KAMERA 35MM! (${anomalyState.filmCrewServes}/${anomalyState.filmCrewTarget})`,
+          x: customer?.x || 160,
+          y: (customer?.y || 100) - 55,
+          t: 0.01,
+          c: '#f1c40f'
+        })
+      }
       if (anomalyState.filmCrewServes >= anomalyState.filmCrewTarget) {
         resolveIncident(anomalyState, g)
       }
@@ -329,17 +335,19 @@ export function onIncidentServe(anomalyState, g, serveData) {
 }
 
 export function toggleOtoshiButa(anomalyState, g) {
-  if (!anomalyState) return false
+  if (!anomalyState || !g) return false
   anomalyState.otoshibutaCovered = !anomalyState.otoshibutaCovered
   Audio.playOtoshiButaWood()
 
-  g.floats.push({
-    s: anomalyState.otoshibutaCovered ? '🪵 Tutup Kuali Otoshi-buta Dipasang (Kaldu Aman!)' : '🪵 Tutup Kuali Dibuka',
-    x: 160,
-    y: 80,
-    t: 0.01,
-    c: anomalyState.otoshibutaCovered ? '#2ecc71' : '#f39c12'
-  })
+  if (Array.isArray(g.floats)) {
+    g.floats.push({
+      s: anomalyState.otoshibutaCovered ? '🪵 Tutup Kuali Otoshi-buta Dipasang (Kaldu Aman!)' : '🪵 Tutup Kuali Dibuka',
+      x: 160,
+      y: 80,
+      t: 0.01,
+      c: anomalyState.otoshibutaCovered ? '#2ecc71' : '#f39c12'
+    })
+  }
 
   return anomalyState.otoshibutaCovered
 }
@@ -349,13 +357,15 @@ export function lightEmergencyCandle(anomalyState, g) {
   if (anomalyState.candlesLit) return true
   anomalyState.candlesLit = true
 
-  g.floats.push({
-    s: '🕯️ Lilin Darurat Dinyalakan! Visibilitas Membaik!',
-    x: 160,
-    y: 80,
-    t: 0.01,
-    c: '#f1c40f'
-  })
+  if (g && Array.isArray(g.floats)) {
+    g.floats.push({
+      s: '🕯️ Lilin Darurat Dinyalakan! Visibilitas Membaik!',
+      x: 160,
+      y: 80,
+      t: 0.01,
+      c: '#f1c40f'
+    })
+  }
 
   return true
 }
@@ -386,45 +396,53 @@ export function resolveIncident(anomalyState, g) {
     message: isSuccess ? data.rewardDesc : data.failDesc
   }
 
-  if (isSuccess) {
-    g.money += result.moneyDelta
-    g.rep += result.repDelta
-    Audio.playPactRewardChime()
-    if (data.id === 'district_blackout') anomalyState.unlockedGoldenEar = true
-    if (data.id === 'film_crew') anomalyState.unlockedCinemaPass = true
+  if (g) {
+    if (isSuccess) {
+      g.money = (g.money || 0) + result.moneyDelta
+      g.rep = (g.rep || 0) + result.repDelta
+      Audio.playPactRewardChime()
+      if (data.id === 'district_blackout') anomalyState.unlockedGoldenEar = true
+      if (data.id === 'film_crew') anomalyState.unlockedCinemaPass = true
 
-    g.floats.push({
-      s: `🎉 INSIDEN SELESAI: ${data.name} Sukses! (+¥${result.moneyDelta.toLocaleString()})`,
-      x: 160,
-      y: 45,
-      t: 0.01,
-      c: '#2ecc71'
-    })
-  } else {
-    if (result.moneyDelta < 0) {
-      g.money = Math.max(0, g.money + result.moneyDelta)
+      if (Array.isArray(g.floats)) {
+        g.floats.push({
+          s: `🎉 INSIDEN SELESAI: ${data.name} Sukses! (+¥${result.moneyDelta.toLocaleString()})`,
+          x: 160,
+          y: 45,
+          t: 0.01,
+          c: '#2ecc71'
+        })
+      }
+    } else {
+      if (result.moneyDelta < 0) {
+        g.money = Math.max(0, (g.money || 0) + result.moneyDelta)
+      }
+      g.rep = Math.max(0, (g.rep || 0) + result.repDelta)
+      Audio.playHellBoilSizzle()
+
+      if (Array.isArray(g.floats)) {
+        g.floats.push({
+          s: `⚠️ INSIDEN GAGAL: ${data.name} (${result.message})`,
+          x: 160,
+          y: 45,
+          t: 0.01,
+          c: '#e74c3c'
+        })
+      }
     }
-    g.rep = Math.max(0, g.rep + result.repDelta)
-    Audio.playHellBoilSizzle()
-
-    g.floats.push({
-      s: `⚠️ INSIDEN GAGAL: ${data.name} (${result.message})`,
-      x: 160,
-      y: 45,
-      t: 0.01,
-      c: '#e74c3c'
-    })
   }
 
   anomalyState.status = isSuccess ? 'success' : 'failed'
   anomalyState.lastIncidentResult = result
-  anomalyState.history.push({
-    day: g.day,
-    id: data.id,
-    success: isSuccess,
-    moneyDelta: result.moneyDelta,
-    repDelta: result.repDelta
-  })
+  if (Array.isArray(anomalyState.history)) {
+    anomalyState.history.push({
+      day: g?.day || 1,
+      id: data.id,
+      success: isSuccess,
+      moneyDelta: result.moneyDelta,
+      repDelta: result.repDelta
+    })
+  }
 
   // Matikan status darurat
   anomalyState.activeIncident = null

@@ -100,15 +100,16 @@ export function harvestVat(cellar, vatIndex) {
 }
 
 // Matriks Harmoni Pasangan Makanan & Sake (Food-Sake Pairing Matrix)
-export function evaluateSakePairing(plateItems, sakeType) {
+export function evaluateSakePairing(plateItems = [], sakeType) {
+  const safePlate = Array.isArray(plateItems) ? plateItems : []
   // Profil rasa bahan
   const richItems = ['gyusuji', 'tako', 'matsuba_crab']
   const lightItems = ['daikon', 'imperial_daikon', 'konnyaku']
   const savoryItems = ['egg', 'chikuwa', 'atsuage', 'kinchaku']
 
-  const hasRich = plateItems.some(id => richItems.includes(id))
-  const hasLight = plateItems.some(id => lightItems.includes(id))
-  const hasSavory = plateItems.some(id => savoryItems.includes(id))
+  const hasRich = safePlate.some(id => richItems.includes(id))
+  const hasLight = safePlate.some(id => lightItems.includes(id))
+  const hasSavory = safePlate.some(id => savoryItems.includes(id))
 
   let isMatch = false
   let note = ''
