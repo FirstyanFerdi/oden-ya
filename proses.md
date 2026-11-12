@@ -923,3 +923,35 @@ Dalam audit menyeluruh babak kedua ini, dilakukan pengujian runtime terotomatisa
 ### B. Hasil Uji Terpadu
 - **Headless Node Test Suite**: 16/16 test suites mekanik game, simulasi render canvas, audio synth, dan save/load state lolos 100% tanpa kendala (*Zero Errors*).
 - **Vite Production Bundler**: Kompilasi final berhasil mulus dalam 932ms (`✓ built in 932ms`, 0 warning, 0 error).
+
+---
+
+## 16. Perbaikan Tabrakan UI Antara Menu Bawah (Quick-Bar) dan Panel Pesanan Pelanggan
+
+### A. Identifikasi Masalah
+Berdasarkan tangkapan layar situasi aktual dalam permainan saat menerima pesanan tamu:
+1. **Tumpang Tindih Elemen (Z-Index & Posisi Bertabrakan)**:
+   - Bilah navigasi bawah (`quick-bar`: Pasar, Resep, Sate, Kuali Master, Toko & Staf, Kuro, Manajemen) dan tab menu samping (`floating-sidebar-tab`) tetap aktif dan muncul saat pemain sedang melayani pesanan tamu.
+   - Posisi `quick-bar` (`bottom: 6px`) menindih langsung bagian bawah modal pesanan (`.panel`), sehingga menutupi pilihan "Bumbu & Minuman Pelengkap" serta menyembunyikan seluruh tombol aksi penting (`↩ Batal 1`, `Tutup`, dan `🍲 Sajikan ke Tamu!`).
+2. **Keterbatasan Scrolling & Visibilitas Piring Saji**:
+   - Seluruh konten modal pesanan berada dalam satu container scroll tanpa pemisahan header dan footer. Saat pemain menggulir ke bawah untuk mengambil bahan kuali, status `Piring Saji` dan tombol `Sajikan ke Tamu` terdorong keluar dari layar.
+
+### B. Solusi & Rekayasa Antarmuka
+1. **Kondisional Visibilitas Bilah Bawah & Tab Samping (`src/App.jsx`)**:
+   - Menambahkan pengondisian `!order` pada `quick-bar` (`{!g.demo && !order && ...}`) dan `floating-sidebar-tab` (`{!g.demo && !sidebarOpen && !order && ...}`).
+   - Ketika pesanan aktif (`order` / `g.target`), seluruh bilah navigasi bawah dan tab samping otomatis disembunyikan sehingga layar 100% bebas hambatan.
+   - Menambahkan dukungan tombol `Escape` untuk membatalkan / menutup pesanan tamu secara cepat.
+2. **Arsitektur Panel Pesanan 3-Bagian (Header, Body, Pinned Footer)**:
+   - **`panel-header` (Tetap di Atas)**: Berisi identitas tamu, status mood, waktu kesabaran, serta tombol pintas tutup `✕` di sudut kanan atas.
+   - **`panel-body` (Area Tengah Bebas Scroll)**: Menampung dialog Zashiki, teka-teki puitis, pemilihan sapaan empati, rincian pesanan, sommelier sake, 4 sekat kuali panci oden, dan bumbu pelengkap.
+   - **`panel-footer` (Footer Tersemat / Pinned di Bawah)**: Terisolasi secara permanen di bagian bawah modal:
+     - Menampilkan bilah `Piring Saji` dengan nilai harmoni *Kaiseki (%)* dan daftar bahan/bumbu/sate yang sudah diambil secara waktu nyata.
+     - Menyediakan bar tombol aksi: `↩ Batal 1` (Undo bahan), `✕ Tutup`, dan `🍲 Sajikan ke Tamu!`.
+     - Tombol tidak akan pernah tertutup, terpotong, atau hilang saat menggulir bahan.
+3. **Penyempurnaan Styling Retro Pixel Art (`src/styles.css`)**:
+   - Mengatur `.panel` dengan `z-index: 45`, `max-height: calc(100% - 66px)`, `bottom: 8px`, serta bayangan border tebal khas Showa.
+   - Mengatur `panel-body::-webkit-scrollbar` tipis 6px bertema oranye retro.
+   - Menghubungkan transisi animasi hover dan state disabled pada tombol sajikan.
+
+### C. Status Kompilasi & Verifikasi
+- **Vite Build**: Berhasil bersih tanpa galat (`✓ built in 878ms`, 0 warning, 0 error).

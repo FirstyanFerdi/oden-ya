@@ -81,6 +81,7 @@ export default function App() {
       if (e.key === 'Escape') {
         closeAllModals()
         setSidebarOpen(false)
+        if (Gm.G.target) Gm.closeOrder()
       } else if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) {
         setSidebarOpen(s => !s)
       }
@@ -396,7 +397,7 @@ export default function App() {
       )}
 
       {/* Quick Navigation Bar (1 Baris Ringkas & Rapi) */}
-      {!g.demo && (
+      {!g.demo && !order && (
         <div className="quick-bar">
           {g.scene === 'in' && (
             <button className="btn exit-btn" onClick={() => Gm.leaveShop()}>
@@ -432,7 +433,7 @@ export default function App() {
       )}
 
       {/* Floating Sidebar Tab (Di Sisi Kanan Layar) */}
-      {!g.demo && !sidebarOpen && (
+      {!g.demo && !sidebarOpen && !order && (
         <button
           className={`floating-sidebar-tab ${hasAnyAlert ? 'pulse' : ''}`}
           onClick={() => setSidebarOpen(true)}
@@ -536,211 +537,250 @@ export default function App() {
                 ? `${activeChar.avatar} ${activeChar.name} (${activeChar.title})`
                 : '👤 Tamu Berteduh'}
             </span>
-            <span className="patience-label">
-              Kesabaran: {Math.max(0, Math.ceil(order.pat))} dtk
-            </span>
-          </div>
-
-          {/* Tamu Bangsawan Zashiki Ginza */}
-          {order.isZashiki && order.zashikiData && (
-            <div className="zashiki-card box">
-              <div className="zashiki-title">🏛️ Jamuan Kehormatan Ginza: {order.zashikiData.name}</div>
-              <div className="zashiki-dialogue">"{order.zashikiData.dialogue}"</div>
-              <div className="zashiki-tip-hint">✨ Multiplier Anggaran: x{order.zashikiData.budgetMultiplier} | Sake Favorit: {order.zashikiData.favSake.toUpperCase()}</div>
-            </div>
-          )}
-
-          {/* Mood Psikologi Tamu & Katarsis */}
-          {order.mood && !order.isMidnightRiddle && (
-            <div className="mood-box">
-              <div className="mood-info">
-                <span className="mood-title">{order.mood.icon} Mood: <strong>{order.mood.name}</strong></span>
-                <span className="mood-desc">― {order.mood.desc}</span>
-              </div>
-              {order.catharsis && (
-                <div className="catharsis-badge">✨ KATARSIS EMOSIONAL TERCAPAI! (Harga x1.5 & Air Mata Bahagia)</div>
-              )}
-            </div>
-          )}
-
-          {/* Teka-Teki Puitis Shinya Shokudo */}
-          {order.isMidnightRiddle && order.midnightData && (
-            <div className="midnight-riddle-card box">
-              <div className="riddle-title">📜 Teka-Teki Puitis Tengah Malam:</div>
-              <div className="riddle-quote">{order.midnightData.riddle}</div>
-              {showRiddleHint ? (
-                <div className="riddle-hint">💡 Petunjuk Koki: {order.midnightData.hint}</div>
-              ) : (
-                <button className="btn hint-btn" onClick={() => setShowRiddleHint(true)}>
-                  💡 Buka Petunjuk Koki
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Pemilihan Sapaan Koki jika belum disapa */}
-          {order.mood && !order.greetingChosen && (
-            <div className="greeting-box box">
-              <span className="greeting-title">🗣️ Sapa Tamu dengan Empati:</span>
-              <div className="greeting-btn-grid">
-                {GREETINGS.map(gr => (
-                  <button
-                    key={gr.id}
-                    className="btn greeting-btn"
-                    onClick={() => Gm.greetCustomer(gr.id)}
-                    title={gr.text}
-                  >
-                    {gr.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="row">
-            <strong>Pesanan:</strong> {order.order.map(i => <Chip key={i} id={i} />)}
-            {order.condimentReq && (
-              <span className="cond-request">
-                + Bumbu: <CondimentChip id={order.condimentReq} />
+            <div className="header-right-group">
+              <span className="patience-label">
+                Kesabaran: {Math.max(0, Math.ceil(order.pat))} dtk
               </span>
-            )}
-            {order.wantsSake && (
-              <button className="btn micro-sake-btn" onClick={() => Gm.startSakeMinigame(order)}>
-                🍶 Tamu Ingin Sake Hangat! (Klik untuk Minigame)
+              <button
+                className="btn panel-close-x"
+                onClick={Gm.closeOrder}
+                title="Tutup Pesanan (Esc)"
+              >
+                ✕
               </button>
-            )}
-            {order.wantsFortune && (
-              <button className="btn fortune-order-btn" onClick={() => Gm.startOmikuji(order)}>
-                🎴 Ramalkan Nasib Tamu (Omikuji)
-              </button>
-            )}
+            </div>
           </div>
 
-          {/* Sommelier Sake Pairing Bar */}
-          <div className="sake-sommelier-bar box">
-            <span className="sake-label">🍶 Pasangan Sake (Sommelier):</span>
-            <button
-              className={`btn sake-chip-btn ${order.servedSake === 'atsukan' ? 'active' : ''}`}
-              onClick={() => Gm.serveSakeBottle('atsukan')}
-              title="Atsukan Hangat: Harmoni dengan kue tahu, telur & mochi"
-            >
-              🍶 Atsukan
-            </button>
-            <button
-              className={`btn sake-chip-btn ${order.servedSake === 'ginjo' ? 'active' : ''}`}
-              onClick={() => Gm.serveSakeBottle('ginjo')}
-              title="Junmai Ginjo: Segar untuk lobak & kuah bening"
-            >
-              🍶 Junmai Ginjo
-            </button>
-            <button
-              className={`btn sake-chip-btn ${order.servedSake === 'koshu' ? 'active' : ''}`}
-              onClick={() => Gm.serveSakeBottle('koshu')}
-              disabled={(g.fermentation?.inventory?.vintage_koshu || 0) <= 0}
-              title="Koshu Vintage 1975: Harmoni mewah untuk daging urat sapi & kepiting"
-            >
-              🍶 Koshu 1975 ({g.fermentation?.inventory?.vintage_koshu || 0})
-            </button>
-            {order.servedSake && (
-              <span className="served-sake-status">✅ Sake Disajikan: <strong>{order.servedSake.toUpperCase()}</strong></span>
+          {/* Bagian Tengah yang Bisa Discroll Nyaman */}
+          <div className="panel-body">
+            {/* Tamu Bangsawan Zashiki Ginza */}
+            {order.isZashiki && order.zashikiData && (
+              <div className="zashiki-card box">
+                <div className="zashiki-title">🏛️ Jamuan Kehormatan Ginza: {order.zashikiData.name}</div>
+                <div className="zashiki-dialogue">"{order.zashikiData.dialogue}"</div>
+                <div className="zashiki-tip-hint">✨ Multiplier Anggaran: x{order.zashikiData.budgetMultiplier} | Sake Favorit: {order.zashikiData.favSake.toUpperCase()}</div>
+              </div>
             )}
-          </div>
 
-          <div className="row plate-row">
-            <strong>Piring Saji:</strong>
-            {(() => {
-              const kScore = calculateKaisekiScore(g.plate, g.plateCondiments, g.plateSate)
-              return (
-                <span className={`kaiseki-score-badge ${kScore >= 80 ? 'gold' : ''}`} title="Harmoni Estetika Visual Kaiseki">
-                  🍱 Kaiseki: {kScore}%
-                </span>
-              )
-            })()}
-            {g.plate.map((id, idx) => {
-              const simmer = g.plateItemsSimmer[idx]
-              return (
-                <span key={idx} className="plate-item-badge">
-                  <Chip id={id} />
-                  <span className={`simmer-tag ${simmer?.state}`}>{simmer?.label}</span>
-                </span>
-              )
-            })}
-            {g.plateCondiments.map(cid => <CondimentChip key={cid} id={cid} />)}
-            {g.plateSate && g.plateSate.map((s, idx) => (
-              <span key={idx} className="chip sate-chip">
-                {s.icon} {s.name} (+¥{s.sellPrice})
-              </span>
-            ))}
-            {!g.plate.length && !g.plateSate?.length && <span className="empty-hint">(Pilih bahan dari 4 sekat panci di bawah)</span>}
-          </div>
-
-          <div className="row section-title">Panci Oden 4 Sekat (Klik bahan yang sudah matang untuk disajikan):</div>
-          
-          {/* 4 Kompartemen Panci Interaktif */}
-          <div className="pot-compartments-grid">
-            {COMPARTMENTS.map((comp, cIdx) => {
-              const itemsInComp = g.potSlots[cIdx] || []
-              return (
-                <div key={comp.id} className="comp-card">
-                  <div className="comp-title">{comp.name}</div>
-                  <div className="comp-items-list">
-                    {itemsInComp.map((itObj, itemIdx) => {
-                      const itData = item(itObj.id)
-                      const simmer = getSimmerState(itObj.simmer)
-                      return (
-                        <button
-                          key={itemIdx}
-                          className={`btn simmer-item-btn ${simmer.state}`}
-                          onClick={() => Gm.takeFromPot(cIdx, itemIdx)}
-                          title={`Kematangan: ${simmer.label} (${Math.floor(itObj.simmer)} dtk)`}
-                        >
-                          <span className="dot" style={{background: itData.c}} />
-                          {itData.n}
-                          <span className="simmer-pill">{simmer.state === 'emas' ? '⭐ Emas' : simmer.label.split(' ')[0]}</span>
-                        </button>
-                      )
-                    })}
-                    {!itemsInComp.length && <span className="empty-comp">Sekat ini kosong</span>}
-                  </div>
-                  <div className="restock-row">
-                    {comp.allowed.filter(aid => g.owned.includes(aid) || (g.stock[aid] || 0) > 0).map(aid => (
-                      <button
-                        key={aid}
-                        className="btn micro-btn"
-                        disabled={(g.stock[aid] || 0) <= 0 || itemsInComp.length >= 6}
-                        onClick={() => Gm.addToPot(cIdx, aid)}
-                      >
-                        + Rebus {item(aid).n} ({g.stock[aid] || 0})
-                      </button>
-                    ))}
-                  </div>
+            {/* Mood Psikologi Tamu & Katarsis */}
+            {order.mood && !order.isMidnightRiddle && (
+              <div className="mood-box">
+                <div className="mood-info">
+                  <span className="mood-title">{order.mood.icon} Mood: <strong>{order.mood.name}</strong></span>
+                  <span className="mood-desc">― {order.mood.desc}</span>
                 </div>
-              )
-            })}
-          </div>
+                {order.catharsis && (
+                  <div className="catharsis-badge">✨ KATARSIS EMOSIONAL TERCAPAI! (Harga x1.5 & Air Mata Bahagia)</div>
+                )}
+              </div>
+            )}
 
-          <div className="row section-title">Bumbu & Minuman Pelengkap:</div>
-          <div className="row condiments-row">
-            {CONDIMENTS.map(c => {
-              const active = g.plateCondiments.includes(c.id)
-              return (
-                <button
-                  key={c.id}
-                  className={`btn cond-btn ${active ? 'active' : ''}`}
-                  onClick={() => Gm.toggleCondiment(c.id)}
-                >
-                  {c.icon} {c.n} <span className="price">+¥{c.p}</span> {active ? '✓' : ''}
+            {/* Teka-Teki Puitis Shinya Shokudo */}
+            {order.isMidnightRiddle && order.midnightData && (
+              <div className="midnight-riddle-card box">
+                <div className="riddle-title">📜 Teka-Teki Puitis Tengah Malam:</div>
+                <div className="riddle-quote">{order.midnightData.riddle}</div>
+                {showRiddleHint ? (
+                  <div className="riddle-hint">💡 Petunjuk Koki: {order.midnightData.hint}</div>
+                ) : (
+                  <button className="btn hint-btn" onClick={() => setShowRiddleHint(true)}>
+                    💡 Buka Petunjuk Koki
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Pemilihan Sapaan Koki jika belum disapa */}
+            {order.mood && !order.greetingChosen && (
+              <div className="greeting-box box">
+                <span className="greeting-title">🗣️ Sapa Tamu dengan Empati:</span>
+                <div className="greeting-btn-grid">
+                  {GREETINGS.map(gr => (
+                    <button
+                      key={gr.id}
+                      className="btn greeting-btn"
+                      onClick={() => Gm.greetCustomer(gr.id)}
+                      title={gr.text}
+                    >
+                      {gr.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="row order-demand-row">
+              <strong>Pesanan:</strong> {order.order.map(i => <Chip key={i} id={i} />)}
+              {order.condimentReq && (
+                <span className="cond-request">
+                  + Bumbu: <CondimentChip id={order.condimentReq} />
+                </span>
+              )}
+              {order.wantsSake && (
+                <button className="btn micro-sake-btn" onClick={() => Gm.startSakeMinigame(order)}>
+                  🍶 Tamu Ingin Sake Hangat! (Klik untuk Minigame)
                 </button>
-              )
-            })}
+              )}
+              {order.wantsFortune && (
+                <button className="btn fortune-order-btn" onClick={() => Gm.startOmikuji(order)}>
+                  🎴 Ramalkan Nasib Tamu (Omikuji)
+                </button>
+              )}
+            </div>
+
+            {/* Sommelier Sake Pairing Bar */}
+            <div className="sake-sommelier-bar box">
+              <span className="sake-label">🍶 Pasangan Sake (Sommelier):</span>
+              <button
+                className={`btn sake-chip-btn ${order.servedSake === 'atsukan' ? 'active' : ''}`}
+                onClick={() => Gm.serveSakeBottle('atsukan')}
+                title="Atsukan Hangat: Harmoni dengan kue tahu, telur & mochi"
+              >
+                🍶 Atsukan
+              </button>
+              <button
+                className={`btn sake-chip-btn ${order.servedSake === 'ginjo' ? 'active' : ''}`}
+                onClick={() => Gm.serveSakeBottle('ginjo')}
+                title="Junmai Ginjo: Segar untuk lobak & kuah bening"
+              >
+                🍶 Junmai Ginjo
+              </button>
+              <button
+                className={`btn sake-chip-btn ${order.servedSake === 'koshu' ? 'active' : ''}`}
+                onClick={() => Gm.serveSakeBottle('koshu')}
+                disabled={(g.fermentation?.inventory?.vintage_koshu || 0) <= 0}
+                title="Koshu Vintage 1975: Harmoni mewah untuk daging urat sapi & kepiting"
+              >
+                🍶 Koshu 1975 ({g.fermentation?.inventory?.vintage_koshu || 0})
+              </button>
+              {order.servedSake && (
+                <span className="served-sake-status">✅ Sake Disajikan: <strong>{order.servedSake.toUpperCase()}</strong></span>
+              )}
+            </div>
+
+            <div className="row section-title">Panci Oden 4 Sekat (Klik bahan yang sudah matang untuk disajikan):</div>
+            
+            {/* 4 Kompartemen Panci Interaktif */}
+            <div className="pot-compartments-grid">
+              {COMPARTMENTS.map((comp, cIdx) => {
+                const itemsInComp = g.potSlots[cIdx] || []
+                return (
+                  <div key={comp.id} className="comp-card">
+                    <div className="comp-title">{comp.name}</div>
+                    <div className="comp-items-list">
+                      {itemsInComp.map((itObj, itemIdx) => {
+                        const itData = item(itObj.id)
+                        const simmer = getSimmerState(itObj.simmer)
+                        return (
+                          <button
+                            key={itemIdx}
+                            className={`btn simmer-item-btn ${simmer.state}`}
+                            onClick={() => Gm.takeFromPot(cIdx, itemIdx)}
+                            title={`Kematangan: ${simmer.label} (${Math.floor(itObj.simmer)} dtk)`}
+                          >
+                            <span className="dot" style={{background: itData.c}} />
+                            {itData.n}
+                            <span className="simmer-pill">{simmer.state === 'emas' ? '⭐ Emas' : simmer.label.split(' ')[0]}</span>
+                          </button>
+                        )
+                      })}
+                      {!itemsInComp.length && <span className="empty-comp">Sekat ini kosong</span>}
+                    </div>
+                    <div className="restock-row">
+                      {comp.allowed.filter(aid => g.owned.includes(aid) || (g.stock[aid] || 0) > 0).map(aid => (
+                        <button
+                          key={aid}
+                          className="btn micro-btn"
+                          disabled={(g.stock[aid] || 0) <= 0 || itemsInComp.length >= 6}
+                          onClick={() => Gm.addToPot(cIdx, aid)}
+                        >
+                          + Rebus {item(aid).n} ({g.stock[aid] || 0})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="row section-title">Bumbu & Minuman Pelengkap:</div>
+            <div className="row condiments-row">
+              {CONDIMENTS.map(c => {
+                const active = g.plateCondiments.includes(c.id)
+                return (
+                  <button
+                    key={c.id}
+                    className={`btn cond-btn ${active ? 'active' : ''}`}
+                    onClick={() => Gm.toggleCondiment(c.id)}
+                  >
+                    {c.icon} {c.n} <span className="price">+¥{c.p}</span> {active ? '✓' : ''}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
-          <div className="row actions-row">
-            <button className="btn" onClick={Gm.undoPlate}>↩ Batal 1</button>
-            <button className="btn" onClick={Gm.closeOrder}>Tutup</button>
-            <button className="btn serve-btn" disabled={!g.plate.length} onClick={Gm.serve}>
-              🍲 Sajikan ke Tamu!
-            </button>
+          {/* Footer Tersemat (Pinned Footer): Selalu Terlihat Tanpa Bertabrakan */}
+          <div className="panel-footer">
+            <div className="panel-plate-bar">
+              <div className="plate-bar-header">
+                <strong>Piring Saji:</strong>
+                {(() => {
+                  const kScore = calculateKaisekiScore(g.plate, g.plateCondiments, g.plateSate)
+                  return (
+                    <span className={`kaiseki-score-badge ${kScore >= 80 ? 'gold' : ''}`} title="Harmoni Estetika Visual Kaiseki">
+                      🍱 Kaiseki: {kScore}%
+                    </span>
+                  )
+                })()}
+              </div>
+              <div className="plate-chips-list">
+                {g.plate.map((id, idx) => {
+                  const simmer = g.plateItemsSimmer[idx]
+                  return (
+                    <span key={idx} className="plate-item-badge">
+                      <Chip id={id} />
+                      <span className={`simmer-tag ${simmer?.state}`}>{simmer?.label}</span>
+                    </span>
+                  )
+                })}
+                {g.plateCondiments.map(cid => <CondimentChip key={cid} id={cid} />)}
+                {g.plateSate && g.plateSate.map((s, idx) => (
+                  <span key={idx} className="chip sate-chip">
+                    {s.icon} {s.name} (+¥{s.sellPrice})
+                  </span>
+                ))}
+                {!g.plate.length && !g.plateSate?.length && (
+                  <span className="empty-hint">(Pilih bahan matang dari 4 sekat panci di atas)</span>
+                )}
+              </div>
+            </div>
+
+            <div className="panel-actions-bar">
+              <button
+                className="btn undo-btn"
+                onClick={Gm.undoPlate}
+                disabled={!g.plate.length && !g.plateSate?.length}
+                title="Batalkan 1 bahan terakhir dari piring saji"
+              >
+                ↩ Batal 1
+              </button>
+              <button
+                className="btn close-order-btn"
+                onClick={Gm.closeOrder}
+                title="Tutup menu pesanan dan kembali ke kedai"
+              >
+                ✕ Tutup
+              </button>
+              <button
+                className="btn serve-btn"
+                disabled={!g.plate.length}
+                onClick={Gm.serve}
+                title={!g.plate.length ? 'Isi piring saji terlebih dahulu' : 'Sajikan piring oden ke tamu!'}
+              >
+                🍲 Sajikan ke Tamu!
+              </button>
+            </div>
           </div>
         </div>
       )}
